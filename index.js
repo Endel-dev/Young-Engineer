@@ -17,6 +17,9 @@ const axios = require('axios');
 const admin = require('firebase-admin');
 //const sendNotificationToDevice = require('./notificationService');
 const Reward = require('./models/reward');
+const rateLimit = require('express-rate-limit'); 
+const compression = require('compression');  // Import compression
+
 //const Redemption = require('./models/Redemption');
 
 //const { sendNotification } = require('./notifications/sendNotification');
