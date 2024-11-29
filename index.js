@@ -21,7 +21,26 @@ const Reward = require('./models/reward');
 
 //const { sendNotification } = require('./notifications/sendNotification');
 // Limit the size of URL-encoded payloads to 5MB
-app.use(express.urlencoded({ limit: '5mb', extended: true }));
+// Limit JSON payload size to 10MB
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
+// Set up rate limiter (e.g., 100 requests per hour)
+const limiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests, please try again later.',
+});
+
+app.use(limiter);
+
+// Use compression middleware to compress responses
+app.use(compression());
+
+app.get('/large-data', (req, res) => {
+  const largeData = /* large data payload */
+  res.json(largeData); // The response will be compressed before being sent to the client
+});
 
 
 //const serviceAccount = require('C:/Users/admin/Downloads/react-native-app-8b283-firebase-adminsdk-5jj6x-e268f24026.json'); // Your Firebase service account JSON file
@@ -43,7 +62,7 @@ app.use(express.urlencoded({ limit: '5mb', extended: true }));
 
 const upload = multer({
   dest: 'uploads/images/',  // Store uploaded files in this directory
-  limits: { fileSize: 10 * 1024 * 1024 },  // Limit file size to 10MB
+  limits: { fileSize: 5 * 1024 * 1024 },  // Limit file size to 5MB
   fileFilter: (req, file, cb) => {
     // Allow only image files (JPEG, PNG, GIF)
     const filetypes = /jpeg|jpg|png|gif/;
@@ -205,6 +224,16 @@ app.put('/upload-image', verifyToken, upload.single('image'), async (req, res) =
     res.status(500).json({ message: 'Error uploading image' });
   }
 });
+
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(413).send('File is too large');
+    }
+  }
+  next(err);
+});
+
 
 
 //Login API
