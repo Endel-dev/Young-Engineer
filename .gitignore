@@ -1,0 +1,7 @@
+# Ignore node_modules
+node_modules/
+ReactNativeApp
+
+# You can also ignore other files/folders as needed, e.g.:
+# .env
+# .DS_Store
