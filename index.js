@@ -38,7 +38,7 @@ app.use(limiter);
 app.use(compression());
 
 app.get('/large-data', (req, res) => {
-  const largeData = /* large data payload */
+  const largeData = // large data payload //
   res.json(largeData); // The response will be compressed before being sent to the client
 });
 
