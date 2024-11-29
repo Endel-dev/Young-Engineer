@@ -1619,6 +1619,7 @@ app.put('/rewards/redemption/:rewardId', verifyToken, async (req, res) => {
 } catch (error) {
     console.error(error);
     res.status(500).json({ status: 0, message: 'Failed to approve reward.' });
+
   }
 });
 
@@ -1636,6 +1637,7 @@ app.put('/rewards/redemption/:rewardId', verifyToken, async (req, res) => {
 // Start the server
 app.listen(port, () => {
   console.log(`Server running at http://192.168.3.17:${port}`);
+  
 });
 
 
