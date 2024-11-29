@@ -1619,7 +1619,6 @@ app.put('/rewards/redemption/:rewardId', verifyToken, async (req, res) => {
 } catch (error) {
     console.error(error);
     res.status(500).json({ status: 0, message: 'Failed to approve reward.' });
-    console.log("Done");
   }
 });
 
