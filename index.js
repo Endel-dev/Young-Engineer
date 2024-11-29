@@ -24,10 +24,10 @@ const Reward = require('./models/reward');
 app.use(express.urlencoded({ limit: '5mb', extended: true }));
 
 
-const serviceAccount = require('C:/Users/admin/Downloads/react-native-app-8b283-firebase-adminsdk-5jj6x-e268f24026.json'); // Your Firebase service account JSON file
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
+//const serviceAccount = require('C:/Users/admin/Downloads/react-native-app-8b283-firebase-adminsdk-5jj6x-e268f24026.json'); // Your Firebase service account JSON file
+//admin.initializeApp({
+  //credential: admin.credential.cert(serviceAccount),
+//});
 
 // admin.initializeApp({
 //   credential: admin.credential.cert(serviceAccount)
@@ -1637,7 +1637,7 @@ app.put('/rewards/redemption/:rewardId', verifyToken, async (req, res) => {
 // Start the server
 app.listen(port, () => {
   console.log(`Server running at http://192.168.3.17:${port}`);
-  
+
 });
 
 
