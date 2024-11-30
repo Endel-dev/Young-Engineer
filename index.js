@@ -1350,7 +1350,7 @@ app.post('/rewards/claim/:rewardId',verifyToken,async (req, res) => {
 
     await reward.save();
 
-//Hi
+
 
     // Respond with success
     res.status(200).json({ status:1,
@@ -1699,7 +1699,7 @@ app.put('/rewards/redemption/:rewardId', verifyToken, async (req, res) => {
 
 // Start the server
 app.listen(port, () => {
-  console.log(`Server running at http://192.168.3.17:${port}`);
+  console.log(`Server running at http://93.127.172.167:${port}`);
 
 });
 
