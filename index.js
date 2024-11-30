@@ -1325,8 +1325,8 @@ app.post('/rewards/claim/:rewardId',verifyToken,async (req, res) => {
     // }
 
     // If eligible, update the reward's claimedBy field with the user's ID
-    reward.claimedBy = user.userId;
-    //reward.claimedBy.push(userId); 
+    //reward.claimedBy = user.userId;
+    reward.claimedBy.push(user.userId); 
 
     reward.dateClaimed = new Date();  // Optionally store the date the reward was claimed
     reward.claimStatus ='claimed';
@@ -1337,6 +1337,20 @@ app.post('/rewards/claim/:rewardId',verifyToken,async (req, res) => {
     // Optionally, you can deduct points from the user if claiming the reward costs points
     user.Totalpoints -= reward.requiredPoints;
     await user.save();
+
+    const redemptionDetail = {
+      redemptionId: uuidv4(),  // Generate a unique ID for the redemption
+      userId: user.userId,
+      rewardId: reward.rewardId,
+      dateClaimed: new Date(),
+      method: 'points',  // Assuming the user is claiming with points (adjust as necessary)
+      rewardPaymentStatus: 'pending',
+    };
+    reward.redemptionDetails.push(redemptionDetail);
+
+    await reward.save();
+
+
 
     // Respond with success
     res.status(200).json({ status:1,
@@ -1487,8 +1501,36 @@ app.put('/rewards/approve/:rewardId', verifyToken, async (req, res) => {
       return res.status(400).json({ status:0, message:"No user has claimed this reward yet."});
     }
 
-    // Save the updated reward to the database
+    
+
+    // Update the redemption details for each user who has claimed the reward
+    for (const claimedUserId of reward.claimedBy) {
+      // Find the redemption detail for the claimed user
+      const redemptionDetail = reward.redemptionDetails.find(
+        (detail) => detail.userId.toString() === claimedUserId.toString()
+      );
+      if (!redemptionDetail) {
+        return res.status(400).json({
+          status: 0,
+          message: `No redemption details found for user with ID ${claimedUserId}.`,
+        });
+      }
+
+      // Update the redemption details for this user
+      redemptionDetail.rewardPaymentStatus = 'complete'; // Assuming the payment status is complete
+      redemptionDetail.dateClaimed = new Date(); // Update the date the reward was claimed
+
+      // Optionally, you can add more fields here depending on your requirements
+      // For example, adding 'method' if it's passed in the request:
+      // redemptionDetail.method = req.body.method;
+    }
+
+      
     await reward.save();
+     // After successful update, reset the reward's approval and claim status
+     reward.isApproved = false;  // Reset the approval status
+     reward.claimStatus = 'unclaimed';  // Set the claim status to 'unclaimed'
+     await reward.save();
 
     // Return success response with the updated reward data
     res.status(200).json({
@@ -1654,17 +1696,6 @@ app.put('/rewards/redemption/:rewardId', verifyToken, async (req, res) => {
 
   }
 });
-
-
-
-
-
-
-
-
-
-
-
 
 // Start the server
 app.listen(port, () => {

@@ -27,8 +27,8 @@ const rewardSchema = new mongoose.Schema({
   startDate: {type:Date, required:true},
   expiryDate: { type: Date, required: true },  // Expiry date of the reward
   category: { type: String, required: true },  // Category of the reward (e.g., electronics, fashion, etc.)
-  claimedBy: { type: String, ref: 'User', default: null },  // User who claimed the reward
-  dateClaimed: { type: Date, default: null },  // Date when the reward was claimed
+  claimedBy: [{ type: String, ref: 'User', default: null }],  // User who claimed the reward
+  //dateClaimed: { type: Date, default: null },  // Date when the reward was claimed
   expirationGracePeriod: { type: Number, default: 0 },  // Grace period (in days) after the reward expires
   duration: { type: Number },  // Duration for which the reward is available (in days),
   createdBy:{ type:String, ref:'User',},
