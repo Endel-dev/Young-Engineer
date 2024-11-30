@@ -1350,7 +1350,7 @@ app.post('/rewards/claim/:rewardId',verifyToken,async (req, res) => {
 
     await reward.save();
 
-
+//Hi
 
     // Respond with success
     res.status(200).json({ status:1,
