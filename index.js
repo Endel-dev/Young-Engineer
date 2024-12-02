@@ -1697,18 +1697,6 @@ app.put('/rewards/redemption/:rewardId', verifyToken, async (req, res) => {
   }
 });
 
-// Dummy Route (GET Request)
-app.get('/api/dummy', (req, res) => {
-  res.status(200).json({
-    status: 'success',
-    message: 'This is a dummy API route',
-    data: {
-      dummyData: 'Here is some dummy data for testing!',
-      example: 'You can modify this route to add more features.'
-    }
-  });
-});
-
 // Start the server
 app.listen(port, () => {
   console.log(`Server running at http://93.127.172.167:${port}`);
