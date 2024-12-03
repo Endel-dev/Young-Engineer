@@ -1284,7 +1284,6 @@ app.post('/rewards/claim/:rewardId',verifyToken,async (req, res) => {
     const rewardId = req.params.rewardId;
     
     const userId = req.user.userId; // Get user ID from the authentication middleware (assumes JWT)
-    //console.log(userId);
 
     // Find the user
     //const user = await User.findById(userId);
@@ -1318,14 +1317,6 @@ app.post('/rewards/claim/:rewardId',verifyToken,async (req, res) => {
       });
     }
 
-    // Check if the reward has already been claimed (optional)
-    // if (reward.claimedBy.includes(userId)){
-    //   return res.status(400).json({status:0 , message: 'This reward has already been claimed.' });
-
-    // }
-
-    // If eligible, update the reward's claimedBy field with the user's ID
-    //reward.claimedBy = user.userId;
     reward.claimedBy.push(user.userId); 
 
     reward.dateClaimed = new Date();  // Optionally store the date the reward was claimed
@@ -1473,21 +1464,7 @@ app.put('/rewards/approve/:rewardId', verifyToken, async (req, res) => {
 
     
         reward.isApproved = true;
-        //const newRedemptionDetail = {
-          //rewardId:rewardId,
-          //userId:claimedId,
-          //method,
-          //rewardPaymentStatus,
-          //dateClaimed: Date.now()  // Automatically set the current time
-//};
-
-        //if (newRedemptionDetail.userId === claimedId){
-          //return res.status(400).json({ status:0, message:"You already have redemption details for this user."});
-        //}
         
-    
-        // 4. Push the new redemption details into the redemptionDetails array
-        //reward.redemptionDetails.push(newRedemptionDetail);
     
     }
 
@@ -1520,9 +1497,6 @@ app.put('/rewards/approve/:rewardId', verifyToken, async (req, res) => {
       redemptionDetail.rewardPaymentStatus = 'complete'; // Assuming the payment status is complete
       redemptionDetail.dateClaimed = new Date(); // Update the date the reward was claimed
 
-      // Optionally, you can add more fields here depending on your requirements
-      // For example, adding 'method' if it's passed in the request:
-      // redemptionDetail.method = req.body.method;
     }
 
       
@@ -1549,7 +1523,7 @@ app.put('/rewards/redemption/:rewardId', verifyToken, async (req, res) => {
   const userId = req.user.userId;
   
   const {  redemptionId,method, rewardPaymentStatus } = req.body; 
-  //console.log(userId);
+  
 
   try {
     // Find the existing reward by rewardId
@@ -1560,16 +1534,6 @@ app.put('/rewards/redemption/:rewardId', verifyToken, async (req, res) => {
     const length=reward.redemptionDetails.length;
     console.log(length);
     const redemptionDetails=reward.redemptionDetails[0];
-    
-    
-    
-    
-    //console.log(redemptionDetails.rewardPaymentStatus);
-    
-    
-    
-    //const claimedId = reward.claimedBy[0];
-    console.log(claimedId);
     
 
     if (!reward) {
@@ -1606,37 +1570,10 @@ app.put('/rewards/redemption/:rewardId', verifyToken, async (req, res) => {
       reward.isApproved = false;
       reward.claimStatus ="unclaimed";
     
-    //else(redemptionDetails.userId ===claimedId && redemptionDetails.rewardPaymentStatus ==="pending"){
-         //reward.isApproved=false;
-         //reward.claimStatus="unclaimed";
-    
-
-      //(newRedemptionDetail.userId === claimedId && ){
-       // return res.status(400).json({ status:0, message:"You already have the entry"});
-      //}
     
     }
   }
   
-  
-
-    // if(reward.createdBy === userId && isApproved  && claimStatus==="claimed" ){
-
-    
-      
-    //   const newRedemptionDetail = {
-    //     redemptionId,
-    //     rewardId:rewardId,
-    //     userId:claimedId,
-    //     method,
-    //     rewardPaymentStatus,
-    //     dateClaimed: Date.now()  // Automatically set the current time
-        
-    //   };
-    //   reward.redemptionDetails.push(newRedemptionDetail);
-    //   reward.isApproved = false;
-    //   reward.claimStatus ="unclaimed";
-    // }
     
   else{
      if(redemptionDetails.userId ===claimedId && redemptionDetails.rewardPaymentStatus ==="pending"){
@@ -1665,22 +1602,6 @@ app.put('/rewards/redemption/:rewardId', verifyToken, async (req, res) => {
     }
   }
   
-
-    
-
-    //if(reward.createdBy !==userId || isApproved || claimStatus !=="claimed"){
-      //return res.status(400).json({ status:0, message:"Error Occured"});
-    //} 
-
-    
-    //if(reward.redemptionDetails[0].rewardPaymentStatus ==="complete"){
-      //return res.status(400).json({ status:0, message:'This reward is already been redeemed'});
-    //}
-
-    //if(reward.RedemptionDetails[0].rewardPaymentStatus ==='complete'){
-      //reward.isApproved ="false",
-      //reward.claimStatus ="unclaimed"
-//}
 
     await reward.save();
 
