@@ -109,8 +109,8 @@ app.post('/register', async (req, res) => {
   const { userId, name, gender, email, password, role, dob, isActive, deviceId } = req.body;
 
   // Ensure only 'parent' role user can register
-  if (role !== 'parent') {
-    return res.status(400).json({ status: 1, message: 'Only parent role is allowed to register' });
+  if (role !== 'parent' && role!='guardian') {
+    return res.status(400).json({ status: 0, message: 'Only parent and guardian role is allowed to register' });
   }
 
   // Validate required fields
@@ -334,6 +334,8 @@ app.post('/login', async (req, res) => {
 });
 
 
+
+
 // POST /create-user (Only parent can create child or guardian)
 app.post('/create-user', verifyParentRole, async (req, res) => {
   const { userId, name, gender, email, password, role, dob, Totalpoints } = req.body;
@@ -378,6 +380,84 @@ app.post('/create-user', verifyParentRole, async (req, res) => {
   }
 });
 
+app.post('/assign-guardian', verifyToken, async (req, res) => {
+  try {
+    const user = req.user;  // Get user info from the token
+
+    if (user.role !== 'parent') {
+      return res.status(403).json({ message: 'Only parents can assign guardians' });
+    }
+
+    const { childUserId, guardianUserId } = req.body;
+
+    // Validate the input
+    if (!childUserId || !guardianUserId) {
+      return res.status(400).json({ message: 'Child user ID and guardian user ID are required' });
+    }
+
+    // Find the child user
+    const child = await User.findOne({ userId: childUserId, role: 'child' });
+    if (!child) {
+      return res.status(404).json({ message: 'Child not found' });
+    }
+
+    // Find the guardian user
+    const guardian = await User.findOne({ userId: guardianUserId, role: 'guardian' });
+    if (!guardian) {
+      return res.status(404).json({ message: 'Guardian not found' });
+    }
+
+    // Assign the guardian to the child
+    child.guardianId = guardian.userId; // Assign the guardian's userId as the parentId for the child
+    await child.save();
+
+    res.status(200).json({
+      status: 1,
+      message: `Guardian ${guardian.name} assigned to child ${child.name} successfully.`,
+      child: {
+        userId: child.userId,
+        name: child.name,
+        guardianAssigned: guardian.name
+      }
+    });
+
+  } catch (err) {
+    console.error('Error assigning guardian:', err);
+    res.status(500).json({ message: 'Server error while assigning guardian' });
+  }
+});
+
+
+
+
+app.get('/points',verifyToken, async (req, res) => {
+  try {
+    // user = req.user; // The user object is set by the authenticate middleware
+    //console.log(user);
+    const userId =req.user.userId;
+    const user = await User.findOne({ userId:userId }) ;
+    const task = await Task.findOne({})
+    
+
+    // Ensure the user is a child before allowing access to points
+    if (user.role !== 'child') {
+      return res.status(403).json({ message: 'Access denied, only children can view points' });
+    }
+
+    // Return the child's points
+    return res.status(200).json({
+      status: 1,
+      message: 'Points fetched successfully',
+      points: user.Totalpoints, // Points stored in the Totalpoints field
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      status: 0,
+      message: 'An error occurred while fetching points',
+    });
+  }
+});
 app.put('/update', verifyToken, async (req, res) => {
   try {
     // Extract the userId from the decoded token
@@ -417,11 +497,6 @@ app.put('/update', verifyToken, async (req, res) => {
     // Update the fields if they are provided
     if (email) user.email = email;
     if (name) user.name = name;
-    // if (password) {
-    //   // Hash the new password before saving
-    //   const salt = await bcrypt.genSalt(10);
-    //   user.password = await bcrypt.hash(password, salt);
-    // }
     if (password) user.password = password;
     
 
@@ -613,6 +688,71 @@ app.get('/tasks', async (req, res) => {
     });
   }
 });
+
+app.get('/categorize-tasks', verifyToken, async (req, res) => {
+  try {
+    const user = req.user;  // Get user info from the token
+
+    // Ensure the user has tasks to view
+    if (!user) {
+      return res.status(400).json({ message: 'User not found or invalid token' });
+    }
+
+    // Fetch tasks based on user role (parent or child)
+    let tasks = [];
+    if (user.role === 'parent') {
+      tasks = await Task.find({ createdBy: user.userId, assignedTo: { $exists: true } })
+      .select('taskId title expectedCompletionDate taskStatus createdBy fairAmount -_id') // Only include specific fields
+      .lean(); 
+      
+    } else if (user.role === 'child') {
+      tasks = await Task.find({ assignedTo: user.userId })
+      .select('description title expectedCompletionDate taskStatus assignedTo fairAmount -_id') // Only include specific fields
+      .lean(); // 
+    } else {
+      return res.status(403).json({ message: 'Access denied. Invalid role' });
+    }
+
+    // Categorize tasks into active, completed, and expired
+    const categorizedTasks = {
+      active: [],
+      completed: [],
+      expired: []
+    };
+
+    const currentDate = new Date();
+
+    tasks.forEach(task => {
+      if (task.taskStatus === 'completed') {
+        // If task is marked as completed, add it to 'completed' list
+        categorizedTasks.completed.push(task);
+      } else if (task.expectedCompletionDate < currentDate) {
+        // If the task is expired and not completed
+        categorizedTasks.expired.push(task);
+      } else {
+        // If the task is still active
+        categorizedTasks.active.push(task);
+      }
+    });
+
+    // If no tasks are found, return an appropriate message
+    if (tasks.length === 0) {
+      return res.status(404).json({ message: 'No tasks found for this user' });
+    }
+
+    // Return categorized tasks
+    res.status(200).json({
+      status: 1,
+      message: 'Tasks categorized successfully.',
+      categorizedTasks: categorizedTasks
+    });
+
+  } catch (err) {
+    console.error('Error categorizing tasks:', err);
+    res.status(500).json({ message: 'Server error while categorizing tasks' });
+  }
+});
+
 
 
 
@@ -868,6 +1008,108 @@ app.get('/active-tasks', verifyToken, async (req, res) => {
   }
 });
 
+app.get('/expired-tasks', verifyToken, async (req, res) => {
+  try {
+    const user = req.user;  // Get user info from the token
+
+    // Define the fields to be selected for the task
+    const taskFields = 'taskId title expectedCompletionDate taskStatus fairAmount isExpired';
+    
+    // Fetch expired tasks based on user role
+    let tasks;
+    if (user.role === 'parent') {
+      // Parent can view tasks they created that are expired
+      tasks = await Task.find({ 
+        createdBy: user.userId, 
+        expectedCompletionDate: { $lt: new Date() },  // Find tasks that have passed their due date
+        taskStatus: { $ne: 'completed' }  // Optional: Exclude completed tasks if needed
+      })
+        .select(taskFields + ' -_id')  // Exclude the _id field from the response
+        .populate('assignedTo', 'name email -_id')  // Populate assignedTo with user details
+        .sort({ expectedCompletionDate: -1 });  // Optional: Sort by most recent expiration date
+    } else if (user.role === 'child') {
+      // Child can view expired tasks assigned to them
+      tasks = await Task.find({ 
+        assignedTo: user.userId, 
+        expectedCompletionDate: { $lt: new Date() },  // Tasks expired
+        taskStatus: { $ne: 'completed' }  // Optional: Exclude completed tasks if needed
+      })
+        .select(taskFields + ' -_id')  // Exclude the _id field from the response
+        .populate('assignedTo', 'name email -_id')  // Optional: Populate assignedTo field with user details
+        .sort({ expectedCompletionDate: -1 });  // Optional: Sort by most recent expiration date
+    } else {
+      return res.status(403).json({ message: 'Access denied. Invalid role' });
+    }
+
+    // If no expired tasks are found, return an appropriate message
+    if (!tasks || tasks.length === 0) {
+      return res.status(404).json({ message: `No expired tasks found for this ${user.role}` });
+    }
+
+    // Return the expired tasks in the response
+    res.status(200).json({
+      status: 1,
+      message: `${user.role.charAt(0).toUpperCase() + user.role.slice(1)}'s expired tasks retrieved successfully.`,
+      tasks: tasks
+    });
+
+  } catch (err) {
+    console.error('Error fetching expired tasks:', err);
+    res.status(500).json({ message: 'Server error while fetching expired tasks' });
+  }
+});
+
+app.get('/completed-tasks', verifyToken, async (req, res) => {
+  try {
+    const user = req.user;  // Get user info from the token
+
+    // Define the fields to be selected for the task
+    const taskFields = 'taskId title expectedCompletionDate taskStatus fairAmount isExpired';
+    
+    // Fetch completed tasks based on user role
+    let tasks;
+    if (user.role === 'parent') {
+      // Parent can view tasks they created that are completed
+      tasks = await Task.find({ 
+        createdBy: user.userId,  // Parent's created tasks
+        taskStatus: 'completed'  // Filter for completed tasks
+      })
+        .select(taskFields + ' -_id')  // Exclude the _id field from the response
+        .populate('assignedTo', 'name email -_id')  // Populate assignedTo with user details
+        .sort({ expectedCompletionDate: -1 });  // Optional: Sort by most recent completion date
+    } else if (user.role === 'child') {
+      // Child can view completed tasks assigned to them
+      tasks = await Task.find({ 
+        assignedTo: user.userId,  // Child's assigned tasks
+        taskStatus: 'completed'  // Filter for completed tasks
+      })
+        .select(taskFields + ' -_id')  // Exclude the _id field from the response
+        .populate('assignedTo', 'name email -_id')  // Optional: Populate assignedTo field with user details
+        .sort({ expectedCompletionDate: -1 });  // Optional: Sort by most recent completion date
+    } else {
+      return res.status(403).json({ message: 'Access denied. Invalid role' });
+    }
+
+    // If no completed tasks are found, return an appropriate message
+    if (!tasks || tasks.length === 0) {
+      return res.status(404).json({ message: `No completed tasks found for this ${user.role}` });
+    }
+
+    // Return the completed tasks in the response
+    res.status(200).json({
+      status: 1,
+      message: `${user.role.charAt(0).toUpperCase() + user.role.slice(1)}'s completed tasks retrieved successfully.`,
+      tasks: tasks
+    });
+
+  } catch (err) {
+    console.error('Error fetching completed tasks:', err);
+    res.status(500).json({ message: 'Server error while fetching completed tasks' });
+  }
+});
+
+
+
 
 
 
@@ -895,7 +1137,7 @@ app.get('/children', verifyToken, async (req, res) => {
       children.map(async (child) => {
         // Fetch the tasks related to each child
         const task = await Task.find({ assignedTo: child.userId }) // or Task.find({ childId: child.userId }) depending on your Task schema
-          .select('fairAmount rewardType')  // Select only relevant fields
+          // .select('fairAmount rewardType taskType')  // Select only relevant fields
           .sort({ createdAt: -1 });  // Optional: Sort tasks by creation date or any other criteria
 
         // Attach tasks to each child
@@ -1204,14 +1446,13 @@ app.post('/create-rewards',verifyToken, async (req, res) => {
   const userId = req.user.userId; // Get user ID from the authentication middleware (assumes JWT)
   console.log(userId);
 
-  // Find the user
-  //const user = await User.findById(userId);
+  
+  
   const user = await User.findOne({ userId });
   if (user.role !=="parent"){
     return res.status(400).json({status:0, message:"Only parents are allowed to create rewards."});
   }
   const {
-    rewardId,
     rewardName,
     rewardType,
     requiredPoints,
@@ -1223,20 +1464,10 @@ app.post('/create-rewards',verifyToken, async (req, res) => {
   currentDate = Date.now();
 
   try {
-
-    
-    // Validation of required fields
-    if (!rewardId || !rewardName || !rewardType || !requiredPoints ||!startDate || !expiryDate || !category ) {
+    if ( !rewardName || !rewardType || !requiredPoints ||!startDate || !expiryDate || !category ) {
       return res.status(400).json({  status:0 , message: 'Missing required fields: rewardId,rewardName,rewardType,requiredPoints,startDate,expiryDate,category' });
     }
     
-    // Check if the rewardId already exists in the database
-    const existingReward = await Reward.findOne({ rewardId });
-    
-    if (existingReward) {
-      return res.status(400).json({ status:0, message: 'Reward ID already exists. Please provide a unique Reward ID.' });
-    }
-
     if (new Date(startDate) < currentDate) {
        return res.status(400).json({ error: 'Start Date cannot be in the past.' });
      }
@@ -1248,10 +1479,9 @@ app.post('/create-rewards',verifyToken, async (req, res) => {
     if (new Date(expiryDate)< new Date(startDate)){
       return res.status(400).json({ status:0 ,message:'Provide valid Expiry Date, Expiry Date should be a Date occuring after Start Date.'});
     }
+    const rewardId = uuidv4().split('-')[0];
 
-    // Create a new reward document
     const newReward = new Reward({
-      rewardId,
       rewardName,
       rewardType,
       requiredPoints,
@@ -1260,14 +1490,14 @@ app.post('/create-rewards',verifyToken, async (req, res) => {
       category,
       expirationGracePeriod,
       createdBy:user.userId,
-
+      rewardId: rewardId,
   
     });
 
-    // Save the new reward to the database
+    console.log('Before saving, rewardId:', newReward.rewardId);
+
     await newReward.save();
 
-    // Send a success response
     res.status(201).json({ status:1,
       message: 'Reward created successfully!',
       reward: newReward,
@@ -1283,10 +1513,9 @@ app.post('/rewards/claim/:rewardId',verifyToken,async (req, res) => {
   try {
     const rewardId = req.params.rewardId;
     
-    const userId = req.user.userId; // Get user ID from the authentication middleware (assumes JWT)
+    const userId = req.user.userId;
 
     // Find the user
-    //const user = await User.findById(userId);
     const user = await User.findOne({ userId });
     if (!user) {
       return res.status(404).json({ status:0,message: 'User not found' });
@@ -1435,11 +1664,6 @@ app.put('/rewards/:rewardId', verifyToken,async (req, res) => {
 app.put('/rewards/approve/:rewardId', verifyToken, async (req, res) => {
   const { rewardId } = req.params; // Get rewardId from the URL params
   const userId = req.user.userId;
-  
-  //const {  method, rewardPaymentStatus } = req.body; 
-  //console.log(userId);
-
-
   try {
     // Find the existing reward by rewardId
     const reward = await Reward.findOne({ rewardId });
@@ -1461,14 +1685,8 @@ app.put('/rewards/approve/:rewardId', verifyToken, async (req, res) => {
 
     // Approve the reward by updating the isApproved field
     if(reward.createdBy === userId && reward.claimStatus === "claimed"){
-
-    
         reward.isApproved = true;
-        
-    
     }
-
-  
 
     if(reward.createdBy !== userId){
       return res.status(403).json({ status:0, message:"You are not authorised to approve this reward."});
@@ -1477,9 +1695,6 @@ app.put('/rewards/approve/:rewardId', verifyToken, async (req, res) => {
     if(reward.claimStatus !=="claimed"){
       return res.status(400).json({ status:0, message:"No user has claimed this reward yet."});
     }
-
-    
-
     // Update the redemption details for each user who has claimed the reward
     for (const claimedUserId of reward.claimedBy) {
       // Find the redemption detail for the claimed user
@@ -1532,7 +1747,6 @@ app.put('/rewards/redemption/:rewardId', verifyToken, async (req, res) => {
     const isApproved =reward.isApproved;
     const claimStatus =reward.claimStatus;
     const length=reward.redemptionDetails.length;
-    console.log(length);
     const redemptionDetails=reward.redemptionDetails[0];
     
 

@@ -24,6 +24,11 @@ const userSchema = new mongoose.Schema({
     },
     default: null
   },
+  guardianId: { 
+    type: String, 
+    ref: 'User',  // Reference to the guardian (only for children)
+    default: null 
+  },
   deviceId:{
     type: String 
   },
