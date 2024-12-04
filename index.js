@@ -702,12 +702,12 @@ app.get('/categorize-tasks', verifyToken, async (req, res) => {
     let tasks = [];
     if (user.role === 'parent') {
       tasks = await Task.find({ createdBy: user.userId, assignedTo: { $exists: true } })
-      .select('taskId title expectedCompletionDate taskStatus createdBy fairAmount -_id') // Only include specific fields
+      .select('taskId title expectedCompletionDate taskStatus createdBy fairAmount taskId -_id') // Only include specific fields
       .lean(); 
       
     } else if (user.role === 'child') {
       tasks = await Task.find({ assignedTo: user.userId })
-      .select('description title expectedCompletionDate taskStatus assignedTo fairAmount -_id') // Only include specific fields
+      .select('description title expectedCompletionDate taskStatus assignedTo fairAmount taskId -_id') // Only include specific fields
       .lean(); // 
     } else {
       return res.status(403).json({ message: 'Access denied. Invalid role' });
