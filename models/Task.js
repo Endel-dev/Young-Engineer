@@ -23,7 +23,7 @@ const taskSchema = new mongoose.Schema({
   paymentStatus: { type: String, enum: ['pending', 'paid', 'unpaid'], default: 'pending' },
   schedule: { type: String },
   taskType: { type: String, enum: ['weekly', 'daily','monthly','one-time'], default: 'one-time' },
-  
+  guardians: { type: [String] }, 
   completionDate: { type: Date },
   completionTime: { type: Date },
 }, {

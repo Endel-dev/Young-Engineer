@@ -380,55 +380,50 @@ app.post('/create-user', verifyParentRole, async (req, res) => {
   }
 });
 
+// POST endpoint to assign a guardian to a child's task
 app.post('/assign-guardian', verifyToken, async (req, res) => {
+  const { childId, guardianId } = req.body;  // Getting childId and guardianId from the request body
+  
+  if (!childId || !guardianId) {
+    return res.status(400).json({ error: 'Both childId and guardianId are required' });
+  }
+
   try {
-    const user = req.user;  // Get user info from the token
+    // Find the task assigned to the child
+    const parent =req.user;
+    console.log(parent);
+    const task = await Task.findOne({ assignedTo: childId, taskStatus: 'not-started' });
+    
 
-    if (user.role !== 'parent') {
-      return res.status(403).json({ message: 'Only parents can assign guardians' });
+    // if (!task) {
+    //   return res.status(404).json({ error: 'No task found for the child' });
+    // }
+
+    // Check if the parent is the one who created the task
+    if (task.createdBy !== parent.userId) {
+      return res.status(403).json({ error: 'Only the parent who created the task can assign a guardian' });
     }
 
-    const { childUserId, guardianUserId } = req.body;
-
-    // Validate the input
-    if (!childUserId || !guardianUserId) {
-      return res.status(400).json({ message: 'Child user ID and guardian user ID are required' });
+    // Check if the guardian is already assigned to the task
+    if (task.guardians && task.guardians.includes(guardianId)) {
+      return res.status(400).json({ error: 'This guardian is already assigned to the task' });
     }
 
-    // Find the child user
-    const child = await User.findOne({ userId: childUserId, role: 'child' });
-    if (!child) {
-      return res.status(404).json({ message: 'Child not found' });
-    }
+    // Assign the guardian to the task
+    task.guardians = task.guardians || [];  // Initialize guardians array if it doesn’t exist
+    task.guardians.push(guardianId);
 
-    // Find the guardian user
-    const guardian = await User.findOne({ userId: guardianUserId, role: 'guardian' });
-    if (!guardian) {
-      return res.status(404).json({ message: 'Guardian not found' });
-    }
+    // Save the task with the updated guardians list
+    await task.save();
 
-    // Assign the guardian to the child
-    child.guardianId = guardian.userId; // Assign the guardian's userId as the parentId for the child
-    await child.save();
-
-    res.status(200).json({
-      status: 1,
-      message: `Guardian ${guardian.name} assigned to child ${child.name} successfully.`,
-      child: {
-        userId: child.userId,
-        name: child.name,
-        guardianAssigned: guardian.name
-      }
+    return res.status(200).json({
+      message: 'Guardian assigned successfully',
+      task: task,
     });
-
-  } catch (err) {
-    console.error('Error assigning guardian:', err);
-    res.status(500).json({ message: 'Server error while assigning guardian' });
+  } catch (error) {
+    return res.status(500).json({ error: 'An error occurred while assigning the guardian' ,error});
   }
 });
-
-
-
 
 app.get('/points',verifyToken, async (req, res) => {
   try {
@@ -964,154 +959,6 @@ app.get('/view-tasks', verifyToken, async (req, res) => {
     res.status(500).json({ message: 'Server error while fetching tasks' });
   }
 });
-
-// Route to get tasks for the logged-in user
-app.get('/active-tasks', verifyToken, async (req, res) => {
-  try {
-    const user = req.user;  // Get user info from the token
-
-    // Fetch tasks based on user role
-    let tasks;
-    const taskFields = 'taskId title expectedCompletionDate taskStatus fairAmount isExpired';
-    if (user.role === 'parent') {
-      // Parent can view tasks they created
-      tasks = await Task.find({ createdBy: user.userId, expectedCompletionDate: { $gte: new Date() } })
-        // Assuming the 'createdBy' field stores parent who created the task
-        .select(taskFields + '-_id')
-        .populate('assignedTo', 'name email -_id')  // Optional: populate assignedTo field with user details
-        .sort({ expectedCompletionDate: 1 });  // Optional: Sort by due date
-    } else if (user.role === 'child') {
-      // Child can view tasks assigned to them
-      tasks = await Task.find({ assignedTo: user.userId, expectedCompletionDate: { $gte: new Date() } })
-        .select(taskFields + ' -_id')
-        .populate('assignedTo', 'name email -_id')  // Optional: populate assignedTo field with user details
-        .sort({ expectedCompletionDate: 1 });  // Optional: Sort by due date
-    } else {
-      return res.status(403).json({ message: 'Access denied. Invalid role' });
-    }
-
-    // If no tasks are found, return an appropriate message
-    if (!tasks || tasks.length === 0) {
-      return res.status(404).json({ message: `No tasks found for this ${user.role}` });
-    }
-
-    // Return the tasks in the response
-    res.status(200).json({
-      status: 1,
-      message: `${user.role.charAt(0).toUpperCase() + user.role.slice(1)}'s tasks retrieved successfully.`,
-      tasks: tasks
-    });
-
-  } catch (err) {
-    console.error('Error fetching tasks:', err);
-    res.status(500).json({ message: 'Server error while fetching tasks' });
-  }
-});
-
-app.get('/expired-tasks', verifyToken, async (req, res) => {
-  try {
-    const user = req.user;  // Get user info from the token
-
-    // Define the fields to be selected for the task
-    const taskFields = 'taskId title expectedCompletionDate taskStatus fairAmount isExpired';
-    
-    // Fetch expired tasks based on user role
-    let tasks;
-    if (user.role === 'parent') {
-      // Parent can view tasks they created that are expired
-      tasks = await Task.find({ 
-        createdBy: user.userId, 
-        expectedCompletionDate: { $lt: new Date() },  // Find tasks that have passed their due date
-        taskStatus: { $ne: 'completed' }  // Optional: Exclude completed tasks if needed
-      })
-        .select(taskFields + ' -_id')  // Exclude the _id field from the response
-        .populate('assignedTo', 'name email -_id')  // Populate assignedTo with user details
-        .sort({ expectedCompletionDate: -1 });  // Optional: Sort by most recent expiration date
-    } else if (user.role === 'child') {
-      // Child can view expired tasks assigned to them
-      tasks = await Task.find({ 
-        assignedTo: user.userId, 
-        expectedCompletionDate: { $lt: new Date() },  // Tasks expired
-        taskStatus: { $ne: 'completed' }  // Optional: Exclude completed tasks if needed
-      })
-        .select(taskFields + ' -_id')  // Exclude the _id field from the response
-        .populate('assignedTo', 'name email -_id')  // Optional: Populate assignedTo field with user details
-        .sort({ expectedCompletionDate: -1 });  // Optional: Sort by most recent expiration date
-    } else {
-      return res.status(403).json({ message: 'Access denied. Invalid role' });
-    }
-
-    // If no expired tasks are found, return an appropriate message
-    if (!tasks || tasks.length === 0) {
-      return res.status(404).json({ message: `No expired tasks found for this ${user.role}` });
-    }
-
-    // Return the expired tasks in the response
-    res.status(200).json({
-      status: 1,
-      message: `${user.role.charAt(0).toUpperCase() + user.role.slice(1)}'s expired tasks retrieved successfully.`,
-      tasks: tasks
-    });
-
-  } catch (err) {
-    console.error('Error fetching expired tasks:', err);
-    res.status(500).json({ message: 'Server error while fetching expired tasks' });
-  }
-});
-
-app.get('/completed-tasks', verifyToken, async (req, res) => {
-  try {
-    const user = req.user;  // Get user info from the token
-
-    // Define the fields to be selected for the task
-    const taskFields = 'taskId title expectedCompletionDate taskStatus fairAmount isExpired';
-    
-    // Fetch completed tasks based on user role
-    let tasks;
-    if (user.role === 'parent') {
-      // Parent can view tasks they created that are completed
-      tasks = await Task.find({ 
-        createdBy: user.userId,  // Parent's created tasks
-        taskStatus: 'completed'  // Filter for completed tasks
-      })
-        .select(taskFields + ' -_id')  // Exclude the _id field from the response
-        .populate('assignedTo', 'name email -_id')  // Populate assignedTo with user details
-        .sort({ expectedCompletionDate: -1 });  // Optional: Sort by most recent completion date
-    } else if (user.role === 'child') {
-      // Child can view completed tasks assigned to them
-      tasks = await Task.find({ 
-        assignedTo: user.userId,  // Child's assigned tasks
-        taskStatus: 'completed'  // Filter for completed tasks
-      })
-        .select(taskFields + ' -_id')  // Exclude the _id field from the response
-        .populate('assignedTo', 'name email -_id')  // Optional: Populate assignedTo field with user details
-        .sort({ expectedCompletionDate: -1 });  // Optional: Sort by most recent completion date
-    } else {
-      return res.status(403).json({ message: 'Access denied. Invalid role' });
-    }
-
-    // If no completed tasks are found, return an appropriate message
-    if (!tasks || tasks.length === 0) {
-      return res.status(404).json({ message: `No completed tasks found for this ${user.role}` });
-    }
-
-    // Return the completed tasks in the response
-    res.status(200).json({
-      status: 1,
-      message: `${user.role.charAt(0).toUpperCase() + user.role.slice(1)}'s completed tasks retrieved successfully.`,
-      tasks: tasks
-    });
-
-  } catch (err) {
-    console.error('Error fetching completed tasks:', err);
-    res.status(500).json({ message: 'Server error while fetching completed tasks' });
-  }
-});
-
-
-
-
-
 
 //Updated view children with fair type and fair amount
 app.get('/children', verifyToken, async (req, res) => {
