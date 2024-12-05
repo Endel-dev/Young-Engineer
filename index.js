@@ -240,7 +240,7 @@ app.use((err, req, res, next) => {
 
 
 //Login API
-app.post('/login', async (req, res) => {
+app.post('/logint', async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -332,6 +332,81 @@ app.post('/login', async (req, res) => {
     res.status(500).json({ status: 0, message: 'Server error' });
   }
 });
+
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ status: 0, message: 'Please provide email and password' });
+  }
+
+  try {
+    // Check if user exists by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ status: 0, message: 'Invalid email or password' });
+    }
+
+    // Compare the provided password with the stored password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({
+        status: 0, message: 'Invalid email or password', userId: null, role: null
+      });
+    }
+
+    // Generate a 4-digit OTP (after successful password verification)
+    const otp = Math.floor(1000 + Math.random() * 9000); // Generate a 4-digit number
+
+    // Set up SMTP transporter using provided credentials
+    const transporter = nodemailer.createTransport({
+      service: 'gmail', // Or use your preferred email service
+      auth: {
+        user: 'nik.823840@gmail.com', // SMTP email address
+        pass: 'jgmqtqislbckeinz', // SMTP password
+      },
+    });
+
+    const mailOptions = {
+      from: 'nik.823840@gmail.com',
+      to: email,
+      subject: 'Your OTP for Login',
+      text: `Your OTP is: ${otp}`, // OTP body message
+    };
+
+    // Send OTP email
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending OTP email:', error);
+        return res.status(500).json({ status: 0, message: 'Error sending OTP email' });
+      }
+      console.log('OTP email sent: ' + info.response);
+
+      // After OTP is sent, create JWT token and send response
+      const token = jwt.sign(
+        { userId: user.userId, role: user.role },
+        process.env.JWT_SECRET,
+        { expiresIn: '15d' } // Token will expire in 15 days
+      );
+
+      // Send response with token
+      res.status(200).json({
+        status: 1,
+        message: 'Login successful',
+        otpstatus: 'OTP sent successfully',
+        otp: otp, // In real cases, do not return OTP in response
+        token: token,
+        userId: user.userId,
+        role: user.role,
+        name: user.name,
+      });
+    });
+  } catch (err) {
+    console.error('Error logging in user:', err);
+    res.status(500).json({ status: 0, message: 'Server error' });
+  }
+});
+
 
 
 
