@@ -314,6 +314,51 @@ app.post('/login', async (req, res) => {
   }
 });
 
+// POST route to assign a guardian to tasks of a child user
+app.post('/assign-guardian',verifyToken, async (req, res) => {
+  const { childUserId, guardianUserId } = req.body; // Get childUserId and guardianUserId from the request body
+
+  if (!childUserId || !guardianUserId) {
+    return res.status(400).json({ status: 0, message: 'Please provide both childUserId and guardianUserId' });
+  }
+
+  try {
+    // Step 1: Find all tasks assigned to the specific child user
+    const tasks = await Task.find({ assignedTo: childUserId });
+
+    if (tasks.length === 0) {
+      return res.status(404).json({ status: 0, message: 'No tasks found for the given child user' });
+    }
+
+    // Step 2: Check if the logged-in user (parent) is the creator of these tasks
+    const creatorTasks = tasks.filter(task => task.createdBy === req.user.userId); // Parent user is the creator
+
+    if (creatorTasks.length === 0) {
+      return res.status(403).json({ status: 0, message: 'You are not the creator of any tasks for this child user' });
+    }
+
+    // Step 3: Add the guardian to all tasks
+    creatorTasks.forEach(task => {
+      if (!task.guardians.includes(guardianUserId)) {
+        task.guardians.push(guardianUserId);
+      }
+    });
+
+    // Step 4: Save all the updated tasks
+    await Promise.all(creatorTasks.map(task => task.save()));
+
+    // Step 5: Respond with success and the updated list of guardians
+    return res.status(200).json({
+      status: 1,
+      message: 'Guardian assigned to tasks successfully',
+      updatedGuardians: creatorTasks.map(task => task.guardians),
+    });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ status: 0, message: 'Server error' });
+  }
+});
 
 
 
