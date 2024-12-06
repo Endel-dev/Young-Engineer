@@ -251,14 +251,14 @@ app.post('/login', async (req, res) => {
     // Check if user exists by email
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(401).json({ status: 0, message: 'Invalid email or password' });
+      return res.status(401).json({ status: 0, message: 'Not User' });
     }
 
     // Compare the provided password with the stored password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({
-        status: 0, message: 'Invalid email or password', userId: null, role: null
+        status: 0, message: 'Invalid email or password'
       });
     }
 
@@ -314,57 +314,50 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// POST route to assign a guardian to tasks of a child user
-app.post('/assign-guardian',verifyToken, async (req, res) => {
-  const { childUserId, guardianUserId } = req.body; // Get childUserId and guardianUserId from the request body
+// POST /create-user (Only parent can create child or guardian)
+app.post('/create-guardian', verifyParentRole, async (req, res) => {
+  const { userId, name, gender, email, password, role, dob } = req.body;
 
-  if (!childUserId || !guardianUserId) {
-    return res.status(400).json({ status: 0, message: 'Please provide both childUserId and guardianUserId' });
+  // Only allow 'child' or 'guardian' roles
+  if ( role !== 'guardian') {
+    return res.status(400).json({ message: 'Role must be "guardian"' });
+  }
+
+  // Validate required fields
+  if (!userId || !name || !email || !password || !dob) {
+    return res.status(400).json({ message: 'Please provide all required fields' });
   }
 
   try {
-    // Step 1: Find all tasks assigned to the specific child user
-    const tasks = await Task.find({ assignedTo: childUserId });
-
-    if (tasks.length === 0) {
-      return res.status(404).json({ status: 0, message: 'No tasks found for the given child user' });
+    // Check if email or userId already exists
+    const existingUser = await User.findOne({ $or: [{ email }, { userId }] });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email or User ID already exists' });
     }
-
-    // Step 2: Check if the logged-in user (parent) is the creator of these tasks
-    const creatorTasks = tasks.filter(task => task.createdBy === req.user.userId); // Parent user is the creator
-
-    if (creatorTasks.length === 0) {
-      return res.status(403).json({ status: 0, message: 'You are not the creator of any tasks for this child user' });
-    }
-
-    // Step 3: Add the guardian to all tasks
-    creatorTasks.forEach(task => {
-      if (!task.guardians.includes(guardianUserId)) {
-        task.guardians.push(guardianUserId);
-      }
+    const userIdFromToken = req.user.userId;
+    // Create the new user
+    const newUser = new User({
+      userId,
+      name,
+      gender,
+      email,
+      password,
+      role,
+      dob,
+      parentId: userIdFromToken,
     });
 
-    // Step 4: Save all the updated tasks
-    await Promise.all(creatorTasks.map(task => task.save()));
-
-    // Step 5: Respond with success and the updated list of guardians
-    return res.status(200).json({
-      status: 1,
-      message: 'Guardian assigned to tasks successfully',
-      updatedGuardians: creatorTasks.map(task => task.guardians),
-    });
+    // Save the new user to the database
+    await newUser.save();
+    res.status(201).json({ message: 'User created successfully', user: newUser });
 
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ status: 0, message: 'Server error' });
+    console.error('Error creating user:', err);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
-
-
-
-// POST /create-user (Only parent can create child or guardian)
-app.post('/create-user', verifyParentRole, async (req, res) => {
+app.post('/create-child', verifyParentRole, async (req, res) => {
   const { userId, name, gender, email, password, role, dob, Totalpoints } = req.body;
 
   // Only allow 'child' or 'guardian' roles

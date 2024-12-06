@@ -33,7 +33,12 @@ const userSchema = new mongoose.Schema({
    // default: null
   //},
   Totalpoints:{ type: Number, default: 0},
-
+  familyId:{ type: String, 
+  ref: 'Family',  
+},
+guardian: [{ type : String,
+  ref:'User',
+}]
 });
 
 // Hash password before saving (bcryptjs for hashing)
