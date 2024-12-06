@@ -348,8 +348,8 @@ app.post('/create-family', verifyToken, async (req, res) => {
     const user = await User.findOne({userId:userId});
     //user.familyId.push(newFamily.familyId); 
     if (user.familyId.length === 0) {
-      child.familyId.push(newFamily.familyId);  // Push the new familyId if the array is empty
-      await child.save();  // Save the updated child user
+      user.familyId.push(newFamily.familyId);  // Push the new familyId if the array is empty
+      await user.save();  // Save the updated child user
     }
     else{
      return res.status(400).json({ status:0,message:"You already have a family!!"});
