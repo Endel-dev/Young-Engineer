@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const User = require('./models/User');
+const Family = require('./models/family');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const app = express();
@@ -23,21 +24,16 @@ const compression = require('compression');  // Import compression
 //const Redemption = require('./models/Redemption');
 
 //const { sendNotification } = require('./notifications/sendNotification');
-// Limit the size of URL-encoded payloads to 5MB
-// Limit JSON payload size to 10MB
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
-
-// Set up rate limiter (e.g., 100 requests per hour)
 const limiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: 100, 
   message: 'Too many requests, please try again later.',
 });
 
 app.use(limiter);
-
-// Use compression middleware to compress responses
 app.use(compression());
 
 app.get('/large-data', (req, res) => {
@@ -240,7 +236,7 @@ app.use((err, req, res, next) => {
 
 
 //Login API
-app.post('/logint', async (req, res) => {
+app.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -314,82 +310,87 @@ app.post('/logint', async (req, res) => {
   }
 });
 
-app.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+app.post('/create-family', verifyToken, async (req, res) => {
+  const { familyId, familyName, region, currency, budgetlimit, family_members } = req.body;
+  const userId = req.user.userId;
+  console.log(userId);
+  // Validate required fields
+  if (!familyName) {
+    return res.status(400).json({
+      status: 0,
+      message: 'Family ID, Family Name, Region, and Currency are required',
+    });
+  }
 
-  if (!email || !password) {
-    return res.status(400).json({ status: 0, message: 'Please provide email and password' });
+  if (req.user.role !== "parent"){
+    return res.status(401).json({
+      status:0,
+      message:'Only parents can create family',
+    });
+
   }
 
   try {
-    // Check if user exists by email
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(401).json({ status: 0, message: 'Invalid email or password' });
-    }
-
-    // Compare the provided password with the stored password
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({
-        status: 0, message: 'Invalid email or password'
-      });
-    }
-
-    // Generate a 4-digit OTP (after successful password verification)
-    const otp = Math.floor(1000 + Math.random() * 9000); // Generate a 4-digit number
-
-    // Set up SMTP transporter using provided credentials
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: 'nik.823840@gmail.com', // SMTP email address
-        pass: 'jgmqtqislbckeinz', // SMTP password
-      },
+    // Create the new family
+    const newFamily = new Family({
+      familyId,
+      familyName,
+      region,
+      currency,
+      budgetlimit: budgetlimit || 0,
+      parentId: req.user.userId, // Attach the parentId from the authenticated user
+      family_members: family_members || [],
     });
 
-    const mailOptions = {
-      from: 'nik.823840@gmail.com',
-      to: email,
-      subject: 'Your OTP for Login',
-      text: `Your OTP is: ${otp}`, // OTP body message
-    };
+    // Save the new family to the database
+    await newFamily.save();
+    //const user = await User.findById(req.user.userId);
+    const user = await User.findOne({userId:userId});
+    //user.familyId.push(newFamily.familyId); 
+    if (user.familyId.length === 0) {
+      child.familyId.push(newFamily.familyId);  // Push the new familyId if the array is empty
+      await child.save();  // Save the updated child user
+    }
+    else{
+     return res.status(400).json({ status:0,message:"You already have a family!!"});
+    }
+  // Add the new familyId to the parent's familyId array
+    await user.save();
 
-    // Send OTP email
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error('Error sending OTP email:', error);
-        return res.status(500).json({ status: 0, message: 'Error sending OTP email' });
-      }
-      console.log('OTP email sent: ' + info.response);
+     // If the parent has any child users, update their familyId to the newly created family's ID
+    const children = await User.find({ parentId: user.userId, role: 'child' }); // Find all children of this parent
 
-      // After OTP is sent, create JWT token and send response
-      const token = jwt.sign(
-        { userId: user.userId, role: user.role },
-        process.env.JWT_SECRET,
-        { expiresIn: '15d' } // Token will expire in 15 days
-      );
+     // Update each child's familyId
+    // for (let child of children) {
+    //    child.familyId.push(newFamily.familyId);  // Add the familyId to each child's familyId array
+    //    await child.save();
+    // }
+    for (let child of children){ 
+       if (child.familyId.length === 0) {
+         child.familyId.push(newFamily.familyId);  // Push the new familyId if the array is empty
+         await child.save();  // Save the updated child user
+       }
+       else{
+        return res.status(400).json({ status:0,message:"You already have a family!!"});
+       }
+    }
 
-      // Send response with token
-      res.status(200).json({
-        status: 1,
-        message: 'Login successful',
-        otpstatus: 'OTP sent successfully',
-        token: token, // Send token, don't return OTP
-        userId: user.userId,
-        role: user.role,
-        name: user.name,
-      });
+
+    // Respond with the created family data
+    res.status(201).json({
+      status: 1,
+      message: 'Family created successfully',
+      family: newFamily,
     });
   } catch (err) {
-    console.error('Error logging in user:', err);
-    res.status(500).json({ status: 0, message: 'Server error' });
+    console.error('Error creating family:', err);
+    res.status(500).json({ status: 0, message: 'Internal server error' });
   }
 });
 
 
-// POST /create-user (Only parent can create child or guardian)
-app.post('/create-guardian', verifyParentRole, async (req, res) => {
+// logic is create family, then create guardian, inside guardian - family [family Id1, familyId2], inside child user- family [familyId] and guardian[guardian2,guardian2]
+app.post('/create-guardian', async (req, res) => {
   const { userId, name, gender, email, password, role, dob } = req.body;
 
   // Only allow 'child' or 'guardian' roles
@@ -408,7 +409,7 @@ app.post('/create-guardian', verifyParentRole, async (req, res) => {
     if (existingUser) {
       return res.status(400).json({ message: 'Email or User ID already exists' });
     }
-    const userIdFromToken = req.user.userId;
+    
     // Create the new user
     const newUser = new User({
       userId,
@@ -418,7 +419,7 @@ app.post('/create-guardian', verifyParentRole, async (req, res) => {
       password,
       role,
       dob,
-      parentId: userIdFromToken,
+      //parentId: userIdFromToken,
     });
 
     // Save the new user to the database
@@ -435,8 +436,8 @@ app.post('/create-child', verifyParentRole, async (req, res) => {
   const { userId, name, gender, email, password, role, dob, Totalpoints } = req.body;
 
   // Only allow 'child' or 'guardian' roles
-  if (role !== 'child' && role !== 'guardian') {
-    return res.status(400).json({ message: 'Role must be either "child" or "guardian"' });
+  if (role !== 'child') {
+    return res.status(400).json({ message: 'Role must be "child"' });
   }
 
   // Validate required fields
@@ -474,50 +475,7 @@ app.post('/create-child', verifyParentRole, async (req, res) => {
   }
 });
 
-// POST endpoint to assign a guardian to a child's task
-app.post('/assign-guardian', verifyToken, async (req, res) => {
-  const { childId, guardianId } = req.body;  // Getting childId and guardianId from the request body
-  
-  if (!childId || !guardianId) {
-    return res.status(400).json({ error: 'Both childId and guardianId are required' });
-  }
 
-  try {
-    // Find the task assigned to the child
-    const parent =req.user;
-    console.log(parent);
-    const task = await Task.findOne({ assignedTo: childId, taskStatus: 'not-started' });
-    
-
-    // if (!task) {
-    //   return res.status(404).json({ error: 'No task found for the child' });
-    // }
-
-    // Check if the parent is the one who created the task
-    if (task.createdBy !== parent.userId) {
-      return res.status(403).json({ error: 'Only the parent who created the task can assign a guardian' });
-    }
-
-    // Check if the guardian is already assigned to the task
-    if (task.guardians && task.guardians.includes(guardianId)) {
-      return res.status(400).json({ error: 'This guardian is already assigned to the task' });
-    }
-
-    // Assign the guardian to the task
-    task.guardians = task.guardians || [];  // Initialize guardians array if it doesn’t exist
-    task.guardians.push(guardianId);
-
-    // Save the task with the updated guardians list
-    await task.save();
-
-    return res.status(200).json({
-      message: 'Guardian assigned successfully',
-      task: task,
-    });
-  } catch (error) {
-    return res.status(500).json({ error: 'An error occurred while assigning the guardian' ,error});
-  }
-});
 
 app.get('/points',verifyToken, async (req, res) => {
   try {

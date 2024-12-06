@@ -17,8 +17,7 @@ const userSchema = new mongoose.Schema({
   dateOfJoining: { type: Date, default: Date.now },
   isActive: { type: Boolean, default: true },
   parentId: { 
-    type: String, 
-    ref: 'User',  // Refers to the User model itself
+    type: String,   // Refers to the User model itself
     required: function() {
       return this.role === 'child';  // Only required if the role is 'child'
     },
@@ -33,10 +32,11 @@ const userSchema = new mongoose.Schema({
    // default: null
   //},
   Totalpoints:{ type: Number, default: 0},
-  familyId:{ type: String, 
-  ref: 'Family',  
-},
-guardian: [{ type : String,
+  familyId:[{ 
+    type: String, 
+    ref: 'Family',  
+  }],
+  guardian: [{ type : String,
   ref:'User',
 }]
 });
