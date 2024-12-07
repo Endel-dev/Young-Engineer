@@ -313,68 +313,68 @@ app.post('/login', async (req, res) => {
 app.post('/create-family', verifyToken, async (req, res) => {
   const { familyId, familyName, region, currency, budgetlimit, family_members } = req.body;
   const userId = req.user.userId;
+
   console.log(userId);
+
   // Validate required fields
   if (!familyName) {
     return res.status(400).json({
       status: 0,
-      message: 'Family ID, Family Name, Region, and Currency are required',
+      message: 'Family Name is required',
     });
   }
 
-  if (req.user.role !== "parent"){
+  // Ensure only parents can create a family
+  if (req.user.role !== "parent") {
     return res.status(401).json({
-      status:0,
-      message:'Only parents can create family',
+      status: 0,
+      message: 'Only parents can create a family',
     });
-
   }
 
   try {
-    // Create the new family
+    // First, check if the parent already has a family
+    const user = await User.findOne({ userId: userId });
+    if (user.familyId && user.familyId.length > 0) {
+      return res.status(400).json({
+        status: 0,
+        message: "You already have a family!!", // Prevent parent from creating multiple families
+      });
+    }
+
+    // Also, check if any children associated with the parent already have a family
+    const children = await User.find({ parentId: user.userId, role: 'child' });
+    for (let child of children) {
+      if (child.familyId && child.familyId.length > 0) {
+        return res.status(400).json({
+          status: 0,
+          message: `One of your children (User ID: ${child.userId}) already has a family!`,
+        });
+      }
+    }
+
+    // Now, create the new family as no one is currently in a family
     const newFamily = new Family({
       familyId,
       familyName,
       region,
       currency,
       budgetlimit: budgetlimit || 0,
-      parentId: req.user.userId, // Attach the parentId from the authenticated user
-      family_members: family_members || [],
+      parentId: req.user.userId,
     });
 
     // Save the new family to the database
     await newFamily.save();
-    //const user = await User.findById(req.user.userId);
-    const user = await User.findOne({userId:userId});
-    //user.familyId.push(newFamily.familyId); 
-    if (user.familyId.length === 0) {
-      user.familyId.push(newFamily.familyId);  // Push the new familyId if the array is empty
-      await user.save();  // Save the updated child user
-    }
-    else{
-     return res.status(400).json({ status:0,message:"You already have a family!!"});
-    }
-  // Add the new familyId to the parent's familyId array
+
+    // Add the new familyId to the parent user
+    user.familyId.push(newFamily.familyId);  
     await user.save();
 
-     // If the parent has any child users, update their familyId to the newly created family's ID
-    const children = await User.find({ parentId: user.userId, role: 'child' }); // Find all children of this parent
-
-     // Update each child's familyId
-    // for (let child of children) {
-    //    child.familyId.push(newFamily.familyId);  // Add the familyId to each child's familyId array
-    //    await child.save();
-    // }
-    for (let child of children){ 
-       if (child.familyId.length === 0) {
-         child.familyId.push(newFamily.familyId);  // Push the new familyId if the array is empty
-         await child.save();  // Save the updated child user
-       }
-       else{
-        return res.status(400).json({ status:0,message:"You already have a family!!"});
-       }
+    // Assign the new familyId to each child of the parent
+    for (let child of children) {
+      child.familyId.push(newFamily.familyId);  
+      await child.save();
     }
-
 
     // Respond with the created family data
     res.status(201).json({
@@ -387,6 +387,7 @@ app.post('/create-family', verifyToken, async (req, res) => {
     res.status(500).json({ status: 0, message: 'Internal server error' });
   }
 });
+
 
 
 // logic is create family, then create guardian, inside guardian - family [family Id1, familyId2], inside child user- family [familyId] and guardian[guardian2,guardian2]
@@ -432,8 +433,113 @@ app.post('/create-guardian', async (req, res) => {
   }
 });
 
+app.post('/assign-guardians', verifyParentRole, async (req, res) => {
+  const { childId, guardian, familyId } = req.body;
+
+  // Validate required fields
+  if (!childId || !guardian || !familyId) {
+    return res.status(400).json({ message: 'Please provide childId, guardianIds, and familyId' });
+  }
+
+  if (!Array.isArray(guardian)) {
+    return res.status(400).json({ message: "guardian should be an array" });
+  }
+
+
+  try {
+    // Validate that the childId belongs to a 'child' user
+    const child = await User.findOne({userId:childId});
+    if (!child || child.role !== 'child') {
+      return res.status(400).json({ message: 'Invalid childId or the user is not a child' });
+    }
+
+    // Validate that the familyId exists and is associated with a valid family
+    const family = await Family.findOne({familyId:familyId});
+    if (!family) {
+      return res.status(400).json({ message: 'Invalid familyId or the family does not exist' });
+    }
+
+    // Validate guardian user roles
+    const guardians = await User.find({ 'userId': { $in: guardian }, role: 'guardian' }).select('userId role');
+    console.log(guardians);
+    if (guardians.length !== guardian.length) {
+      return res.status(400).json({ message: 'Some guardianIds are invalid or the users are not guardians',guardiansFound: guardians,  // Send back the found guardians for debugging
+        guardianIdsReceived: guardian });
+    }
+    const existingGuardians = child.guardian.filter(guardianId => guardian.includes(guardianId));
+    if (existingGuardians.length > 0) {
+      return res.status(400).json({ message: 'This guardians are already assigned to this child' });
+    }
+  
+    // Step 2: Add guardians to the child's list using $addToSet to avoid duplicates
+    const updateChild = await User.updateOne(
+      { 'userId':childId, role: 'child' },
+      { $addToSet: { guardian: { $each: guardian } } }
+    );
+
+    
+    
+    if (updateChild.modifiedCount === 0) {
+      return res.status(400).json({ message: 'Failed to update child guardian list.' });
+    }
+  
+    // Step 3: Add the child to each guardian's list using $addToSet to avoid duplicates
+    const guardianUpdates = await Promise.all(guardian.map(async (guardianId) => {
+      const guardian = await User.findOne({ userId: guardianId, role: 'guardian' });
+      if (!guardian) {
+        return { error: `Guardian with userId ${guardian} not found.` };
+      }
+  
+      const updateGuardian = await User.updateOne(
+        { userId: guardianId, role: 'guardian' },
+        { $addToSet: { familyId: familyId } }
+      );
+  
+      if (updateGuardian.modifiedCount === 0) {
+        return { error: `Failed to add child to guardian ${guardianId}` };
+      }
+  
+      return { success: `Child successfully added to guardian ${guardianId}` };
+    }));
+  
+    // Check if any guardian update failed
+    const errors = guardianUpdates.filter(update => update.error);
+    if (errors.length > 0) {
+      return res.status(400).json({ message: 'Some guardian updates failed', errors });
+    }
+  
+    // Success response
+    res.status(200).json({
+      message: 'Guardians assigned successfully',
+      //child: child,
+      guardians: guardians
+    });
+  
+    
+
+    // Add the existing familyId to the child and all guardians
+    //await User.updateOne({ userId: guardian }, { $push: { familyId: familyId } });
+
+    // Update all guardians to add this familyId to their record
+    //await User.updateMany({ 'userId': { $in: guardian } }, { $push: { familyId: familyId } });
+
+    // Optionally: update the child’s `guardian` field to include the assigned guardians
+    //await User.updateOne({ userId: childId }, { $push: { guardian: { $each: guardian } } });
+
+    // Respond with success message
+    //res.status(200).json({ message: 'Guardians assigned successfully and child added to family' });
+
+  } catch (err) {
+    console.error('Error assigning guardians:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
 app.post('/create-child', verifyParentRole, async (req, res) => {
   const { userId, name, gender, email, password, role, dob, Totalpoints } = req.body;
+  const parentId = req.user.userId; // Get the logged-in parent's userId
+  console.log(parentId);
 
   // Only allow 'child' or 'guardian' roles
   if (role !== 'child') {
@@ -452,6 +558,12 @@ app.post('/create-child', verifyParentRole, async (req, res) => {
       return res.status(400).json({ message: 'Email or User ID already exists' });
     }
     const userIdFromToken = req.user.userId;
+
+    const parent = await User.findOne({ userId: parentId });
+    if (!parent || !parent.familyId || parent.familyId.length === 0) {
+      return res.status(400).json({ message: 'Parent does not belong to any family' });
+    }
+
     // Create the new user
     const newUser = new User({
       userId,
@@ -462,7 +574,8 @@ app.post('/create-child', verifyParentRole, async (req, res) => {
       role,
       dob,
       parentId: userIdFromToken,
-      Totalpoints
+      Totalpoints,
+      familyId:parent.familyId
     });
 
     // Save the new user to the database
