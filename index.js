@@ -266,7 +266,7 @@ app.post('/login', async (req, res) => {
       service: 'gmail', // Or use your preferred email service
       auth: {
         user:'nik.823840@gmail.com', // SMTP email address
-        pass:'psdtdgeqwhciomgk', // SMTP password
+        pass:'psdtdgeqwhciomgkfgh', // SMTP password
       },
     });
 
