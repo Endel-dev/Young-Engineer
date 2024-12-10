@@ -29,7 +29,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 const limiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 100, 
+  max: 500, 
   message: 'Too many requests, please try again later.',
 });
 
@@ -265,20 +265,20 @@ app.post('/login', async (req, res) => {
     const transporter = nodemailer.createTransport({
       service: 'gmail', // Or use your preferred email service
       auth: {
-        user: 'nik.823840@gmail.com', // SMTP email address
-        pass: 'jgmqtqislbckeinz', // SMTP password
+        user:'nik.823840@gmail.com', // SMTP email address
+        pass:'psdtdgeqwhciomgk', // SMTP password
       },
     });
 
     const mailOptions = {
-      from: 'nik.823840@gmail.com',
+      from:'nik.823840@gmail.com',
       to: email,
       subject: 'Your OTP for Login',
       text: `Your OTP is: ${otp}`, // OTP body message
     };
 
     // Send OTP email
-    transporter.sendMail(mailOptions, (error, info) => {
+    transporter.sendMail(mailOptions, async (error, info) => {
       if (error) {
         console.error('Error sending OTP email:', error);
         return res.status(500).json({ status: 0, message: 'Error sending OTP email' });
@@ -292,6 +292,28 @@ app.post('/login', async (req, res) => {
         { expiresIn: '15d' } // Token will expire in 15 days
       );
 
+    
+      
+      // Fetch family details if familyId exists
+      //  let familyName;
+      //    if (user.familyId) {
+      //      // Use findOne to fetch family by familyId as string
+      //      Family.findOne({ familyId: user.familyId }).then(family => {
+      //        familyName = family ? family.familyName : null;
+      //        console.log(familyName);
+      //      })
+      //    }
+
+      let familyName = null;
+      if (user.familyId) {
+        try {
+          const family = await Family.findOne({ familyId: user.familyId });
+          familyName = family ? family.familyName : null; // Fetch the familyName
+        }catch(err) {
+          console.error('Error fetching family details:', err);
+        }
+      }
+      
       // Send response with token
       res.status(200).json({
         status: 1,
@@ -302,6 +324,8 @@ app.post('/login', async (req, res) => {
         userId: user.userId,
         role: user.role,
         name: user.name,
+        familyId:user.familyId || null ,
+        familyName:familyName || null,
       });
     });
   } catch (err) {
@@ -309,6 +333,9 @@ app.post('/login', async (req, res) => {
     res.status(500).json({ status: 0, message: 'Server error' });
   }
 });
+
+
+
 
 app.post('/create-family', verifyToken, async (req, res) => {
   const { familyId, familyName, region, currency, budgetlimit, family_members } = req.body;
