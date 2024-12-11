@@ -102,7 +102,7 @@ mongoose.connect('mongodb://localhost:27017/react-native-app')
 // User registration route
 // POST /register (For Parent User)
 app.post('/register', async (req, res) => {
-  const {  name, gender, email, password, role, dob, isActive, deviceId } = req.body;
+  const {  name, gender, email, password, role, dob } = req.body;
 
   // Ensure only 'parent' role user can register
   if (role !== 'parent' && role!='guardian') {
@@ -137,8 +137,8 @@ app.post('/register', async (req, res) => {
       password,
       role,
       dob,
-      isActive,
-      deviceId
+      //isActive,
+      //deviceId
     });
 
     // Save the new user to the database
