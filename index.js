@@ -25,7 +25,7 @@ const compression = require('compression');  // Import compression
 
 //const { sendNotification } = require('./notifications/sendNotification');
 
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json( ));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 const limiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
@@ -102,7 +102,10 @@ mongoose.connect('mongodb://localhost:27017/react-native-app')
 // User registration route
 // POST /register (For Parent User)
 app.post('/register', async (req, res) => {
-  const {  name, gender, email, password, role, dob } = req.body;
+  //console.log(req.body);
+  console.log('Request body:', req.body);
+  const { name, gender, email, password, role, dob } = req.body;
+  //console.log(req.body);  
 
   // Ensure only 'parent' role user can register
   if (role !== 'parent' && role!='guardian') {
