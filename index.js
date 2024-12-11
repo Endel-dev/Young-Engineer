@@ -110,8 +110,8 @@ app.post('/register', async (req, res) => {
   }
 
   // Validate required fields
-  if (!userId || !name || !email || !password || !dob || !gender) {
-    return res.status(400).json({ status: 0, message: 'Please provide all required fields' });
+  if ( !name || !email || !password || !dob || !gender) {
+    return res.status(400).json({ status: 0, message: 'Please provide all required fields:name,email,password,dob,gender' });
   }
 
   if (!role) {
@@ -263,18 +263,22 @@ app.post('/login', async (req, res) => {
 
     // Set up SMTP transporter using provided credentials
     const transporter = nodemailer.createTransport({
-      service: 'gmail', // Or use your preferred email service
+      host: 'mail.weighingworld.com',  // SMTP server
+      port: 465,  // SSL port
+      secure: true,  // Use SSL (true for port 465)
       auth: {
-        user:'nik.823840@gmail.com', // SMTP email address
-        pass:'psdtdgeqwhciomgkfgh', // SMTP password
-      },
+        user: 'no-reply@weighingworld.com',  // Email address (username)
+        pass: '$]IIWt4blS^_'  // Email password or app password
+      }
     });
+    
 
     const mailOptions = {
-      from:'nik.823840@gmail.com',
-      to: email,
-      subject: 'Your OTP for Login',
-      text: `Your OTP is: ${otp}`, // OTP body message
+      from: 'no-reply@weighingworld.com',  // Sender address
+      to: email,  // Receiver address (change this to your recipient email)
+      subject: 'Test Email',  // Subject line
+      text: `Your OTP is: ${otp}`,  // Plain text body
+      //html: '<p>This is a <strong>test email</strong> sent from Node.js!</p>'
     };
 
     // Send OTP email
@@ -427,7 +431,7 @@ app.post('/create-guardian', async (req, res) => {
   }
 
   // Validate required fields
-  if (!userId || !name || !email || !password || !dob) {
+  if ( !name || !email || !password || !dob) {
     return res.status(400).json({ message: 'Please provide all required fields' });
   }
 
@@ -574,7 +578,7 @@ app.post('/create-child', verifyParentRole, async (req, res) => {
   }
 
   // Validate required fields
-  if (!userId || !name || !email || !password || !dob) {
+  if ( !name || !email || !password || !dob) {
     return res.status(400).json({ message: 'Please provide all required fields' });
   }
 
@@ -586,10 +590,10 @@ app.post('/create-child', verifyParentRole, async (req, res) => {
     }
     const userIdFromToken = req.user.userId;
 
-    const parent = await User.findOne({ userId: parentId });
-    if (!parent || !parent.familyId || parent.familyId.length === 0) {
-      return res.status(400).json({ message: 'Parent does not belong to any family' });
-    }
+     const parent = await User.findOne({ userId: parentId });
+    // if (!parent || !parent.familyId || parent.familyId.length === 0) {
+    //   return res.status(400).json({ message: 'Parent does not belong to any family' });
+    // }
 
     // Create the new user
     const newUser = new User({
