@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const { v4: uuidv4 } = require('uuid');
 
 // Define the user schema
 const userSchema = new mongoose.Schema({
-  userId: { type: String, required: true, unique: true },
+  userId: { type: String, unique: true , default: uuidv4 },
   name: { type: String, required: true },
   gender: { type: String, enum: ['male', 'female', 'other'] },
   image: { type: String }, // URL or base64 of the image
