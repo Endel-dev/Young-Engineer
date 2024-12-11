@@ -25,7 +25,7 @@ const compression = require('compression');  // Import compression
 
 //const { sendNotification } = require('./notifications/sendNotification');
 
-app.use(express.json( ));
+app.use(express.json());
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 const limiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
@@ -104,6 +104,7 @@ mongoose.connect('mongodb://localhost:27017/react-native-app')
 app.post('/register', async (req, res) => {
   //console.log(req.body);
   console.log('Request body:', req.body);
+  console.log('Request Headers:', req.headers);
   const { name, gender, email, password, role, dob } = req.body;
   //console.log(req.body);  
 
@@ -127,7 +128,7 @@ app.post('/register', async (req, res) => {
 
   try {
     // Check if email or userId already exists
-    const existingUser = await User.findOne({ $or: [{ email }, { userId }] });
+    const existingUser = await User.findOne({ $or: [{ email }] });
     if (existingUser) {
       return res.status(400).json({ status: 0, message: 'Email or User ID already exists1234' });
     }
