@@ -106,10 +106,12 @@ app.post('/register', async (req, res) => {
   console.log('Request body:', req.body);
   console.log('Request Headers:', req.headers);
   const { name, gender, email, password, role, dob } = req.body;
+  const normalizedRole = role ? role.toLowerCase() : '';
   //console.log(req.body);  
 
   // Ensure only 'parent' role user can register
-  if (role !== ('parent' ||'Parent') && role!=('guardian' ||'Guardian')) {
+  //if (role !== 'parent' &&'Parent' && role!='guardian'&&'Guardian') {
+  if (normalizedRole !== 'parent' && normalizedRole !== 'guardian'){
     return res.status(400).json({ status: 0, message: 'Only parent and guardian role is allowed to register' });
   }
 
@@ -169,7 +171,7 @@ const verifyParentRole = (req, res, next) => {
     req.user = decoded;
 
     // Only allow if the role is parent
-    if (req.user.role !== ('parent'||'Parent') ){
+    if (req.user.role !== ('parent'&&'Parent') ){
       return res.status(403).json({ message: 'Access denied. Only parents are allowed to do perform this action .' });
     }
 
@@ -429,7 +431,7 @@ app.post('/create-guardian', async (req, res) => {
   const { userId, name, gender, email, password, role, dob } = req.body;
 
   // Only allow 'child' or 'guardian' roles
-  if ( role !== ('guardian'||'Guardian')) {
+  if ( role !== ('guardian'&&'Guardian')) {
     return res.status(400).json({ message: 'Role must be "guardian"' });
   }
 
@@ -494,7 +496,7 @@ app.post('/assign-guardians', verifyParentRole, async (req, res) => {
     }
 
     // Validate guardian user roles
-    const guardians = await User.find({ 'userId': { $in: guardian }, role: 'guardian' }).select('userId role');
+    const guardians = await User.find({ 'userId': { $in: guardian }, role: 'guardian'&&'Guardian' }).select('userId role');
     console.log(guardians);
     if (guardians.length !== guardian.length) {
       return res.status(400).json({ message: 'Some guardianIds are invalid or the users are not guardians',guardiansFound: guardians,  // Send back the found guardians for debugging
@@ -576,7 +578,7 @@ app.post('/create-child', verifyParentRole, async (req, res) => {
   console.log(parentId);
 
   // Only allow 'child' or 'guardian' roles
-  if (role !== ('child' ||'Child') ){
+  if (role !== ('child' && 'Child') ){
     return res.status(400).json({ message: 'Role must be "child"' });
   }
 
