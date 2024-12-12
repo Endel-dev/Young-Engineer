@@ -107,6 +107,7 @@ app.post('/register', async (req, res) => {
   console.log('Request Headers:', req.headers);
   const { name, gender, email, password, role, dob } = req.body;
   const normalizedRole = role ? role.toLowerCase() : '';
+  const normalizedgender = gender ? gender.toLowerCase() : '';
   //console.log(req.body);  
 
   // Ensure only 'parent' role user can register
@@ -138,7 +139,7 @@ app.post('/register', async (req, res) => {
     // Create the new user
     const newUser = new User({
       name,
-      gender,
+      gender:normalizedgender,
       email,
       password,
       role:normalizedRole,
@@ -169,9 +170,9 @@ const verifyParentRole = (req, res, next) => {
     // Verify token and extract user role
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
-
+    const normalizedRole = role ? role.toLowerCase() : '';
     // Only allow if the role is parent
-    if (req.user.role !== ('parent'&&'Parent') ){
+    if (req.user.role !== normalizedRole && req.user.role !== 'parent'){
       return res.status(403).json({ message: 'Access denied. Only parents are allowed to do perform this action .' });
     }
 
@@ -347,9 +348,9 @@ app.post('/login', async (req, res) => {
 
 
 app.post('/create-family', verifyToken, async (req, res) => {
-  const { familyId, familyName, region, currency, budgetlimit, family_members } = req.body;
+  const { familyId, familyName, region, currency, budgetlimit} = req.body;
   const userId = req.user.userId;
-
+  //const normalizedRole = role ? role.toLowerCase() : '';
   console.log(userId);
 
   // Validate required fields
@@ -361,7 +362,7 @@ app.post('/create-family', verifyToken, async (req, res) => {
   }
 
   // Ensure only parents can create a family
-  if (req.user.role !== "parent") {
+  if (req.user.role!== "parent") {
     return res.status(401).json({
       status: 0,
       message: 'Only parents can create a family',
@@ -429,9 +430,11 @@ app.post('/create-family', verifyToken, async (req, res) => {
 // logic is create family, then create guardian, inside guardian - family [family Id1, familyId2], inside child user- family [familyId] and guardian[guardian2,guardian2]
 app.post('/create-guardian', async (req, res) => {
   const { userId, name, gender, email, password, role, dob } = req.body;
+  const normalizedRole = role ? role.toLowerCase() : '';
+  const normalizedgender = gender ? gender.toLowerCase() : '';
 
   // Only allow 'child' or 'guardian' roles
-  if ( role !== ('guardian'&&'Guardian')) {
+  if ( normalizedRole !== 'guardian') {
     return res.status(400).json({ message: 'Role must be "guardian"' });
   }
 
@@ -451,10 +454,10 @@ app.post('/create-guardian', async (req, res) => {
     const newUser = new User({
       userId,
       name,
-      gender,
+      gender:normalizedgender,
       email,
       password,
-      role,
+      role:normalizedRole,
       dob,
       //parentId: userIdFromToken,
     });
@@ -485,7 +488,7 @@ app.post('/assign-guardians', verifyParentRole, async (req, res) => {
   try {
     // Validate that the childId belongs to a 'child' user
     const child = await User.findOne({userId:childId});
-    if (!child || child.role !== ('child'||'Child')) {
+    if (!child || child.role.toLowerCase() !=='child' ) {
       return res.status(400).json({ message: 'Invalid childId or the user is not a child' });
     }
 
@@ -496,7 +499,11 @@ app.post('/assign-guardians', verifyParentRole, async (req, res) => {
     }
 
     // Validate guardian user roles
-    const guardians = await User.find({ 'userId': { $in: guardian }, role: 'guardian'&&'Guardian' }).select('userId role');
+    //const guardians = await User.find({ 'userId': { $in: guardian }, role: 'guardian'&&'Guardian' }).select('userId role');
+    const guardians = await User.find({ 
+      'userId': { $in: guardian }, 
+      role: { $in: ['guardian', 'Guardian'].map(r => r.toLowerCase()) }
+    }).select('userId role');
     console.log(guardians);
     if (guardians.length !== guardian.length) {
       return res.status(400).json({ message: 'Some guardianIds are invalid or the users are not guardians',guardiansFound: guardians,  // Send back the found guardians for debugging
@@ -509,7 +516,7 @@ app.post('/assign-guardians', verifyParentRole, async (req, res) => {
   
     // Step 2: Add guardians to the child's list using $addToSet to avoid duplicates
     const updateChild = await User.updateOne(
-      { 'userId':childId, role: 'child'||'Child' },
+      { 'userId':childId, role: { $regex: '^child$', $options: 'i' } },
       { $addToSet: { guardian: { $each: guardian } } }
     );
 
@@ -521,13 +528,13 @@ app.post('/assign-guardians', verifyParentRole, async (req, res) => {
   
     // Step 3: Add the child to each guardian's list using $addToSet to avoid duplicates
     const guardianUpdates = await Promise.all(guardian.map(async (guardianId) => {
-      const guardian = await User.findOne({ userId: guardianId, role: 'guardian'||'Guardian' });
+      const guardian = await User.findOne({ userId: guardianId, role: { $regex: '^guardian$', $options: 'i' }  });
       if (!guardian) {
         return { error: `Guardian with userId ${guardian} not found.` };
       }
   
       const updateGuardian = await User.updateOne(
-        { userId: guardianId, role: 'guardian' ||'Guardian' },
+        { userId: guardianId, role: { $regex: '^guardian$', $options: 'i' } },
         { $addToSet: { familyId: familyId } }
       );
   
@@ -576,9 +583,10 @@ app.post('/create-child', verifyParentRole, async (req, res) => {
   const { userId, name, gender, email, password, role, dob, Totalpoints } = req.body;
   const parentId = req.user.userId; // Get the logged-in parent's userId
   console.log(parentId);
-
+  const normalizedRole = role ? role.toLowerCase() : '';
+  const normalizedgender = gender ? gender.toLowerCase() :'';
   // Only allow 'child' or 'guardian' roles
-  if (role !== ('child' && 'Child') ){
+  if (normalizedRole !== 'child' ){
     return res.status(400).json({ message: 'Role must be "child"' });
   }
 
@@ -604,10 +612,10 @@ app.post('/create-child', verifyParentRole, async (req, res) => {
     const newUser = new User({
       userId,
       name,
-      gender,
+      gender:normalizedgender,
       email,
       password,
-      role,
+      role:normalizedRole,
       dob,
       parentId: userIdFromToken,
       Totalpoints,
@@ -1165,7 +1173,6 @@ app.get('/view-tasks', verifyToken, async (req, res) => {
 app.get('/children', verifyToken, async (req, res) => {
   try {
     const parent = req.user;  // Get user info from the token
-
     // Ensure the logged-in user is a parent
     if (parent.role !== 'parent') {
       return res.status(403).json({ message: 'Access denied. You must be a parent.' });

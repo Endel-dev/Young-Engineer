@@ -6,7 +6,7 @@ const { v4: uuidv4 } = require('uuid');
 const userSchema = new mongoose.Schema({
   userId: { type: String, unique: true, default: uuidv4 },
   name: { type: String, required: true },
-  gender: { type: String, enum: ['male', 'female', 'other','Male','Female','Other'] },
+  gender: { type: String, enum: ['male', 'female', 'other'] },
   image: { type: String }, // URL or base64 of the image
   region: { type: String },
   currency: { type: String, default: 'INR' }, // Default to USD
