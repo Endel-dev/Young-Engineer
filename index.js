@@ -121,7 +121,7 @@ app.post('/register', async (req, res) => {
   }
 
   if (!role) {
-    return res.status(400).json({ status: 0, message: 'Please provide role of user' })
+    return res.status(400).json({ status: 0, message: 'Please provide role of user123' })
   }
   // if (gender === "") {
   //   return res.status(400).json({ status: 0, message: 'Gender cannot be empty' });
@@ -141,7 +141,7 @@ app.post('/register', async (req, res) => {
       gender,
       email,
       password,
-      role,
+      role:normalizedRole,
       dob,
       //isActive,
       //deviceId

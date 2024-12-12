@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema({
   currency: { type: String, default: 'INR' }, // Default to USD
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  role: { type: String, enum: ['parent', 'child', 'guardian', 'Guardian','Child','Parent'], default: 'parent' }, // Default role
+  role: { type: String, enum: ['parent', 'child', 'guardian'], default: 'parent' }, // Default role
   dob: { type: Date, required: true },
   balance: { type: Number, default: 0 },
   dateOfJoining: { type: Date, default: Date.now },
