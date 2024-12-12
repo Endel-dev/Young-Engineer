@@ -133,7 +133,7 @@ app.post('/register', async (req, res) => {
     // Check if email or userId already exists
     const existingUser = await User.findOne({ $or: [{ email }] });
     if (existingUser) {
-      return res.status(400).json({ status: 0, message: 'Email already exists' });
+      return res.status(200).json({ status: 0, message: 'Email already exists' });
     }
 
     // Create the new user
@@ -150,7 +150,7 @@ app.post('/register', async (req, res) => {
 
     // Save the new user to the database
     await newUser.save();
-    res.status(201).json({ status: 1, message: 'Parent registered successfully', user: newUser });
+    res.status(200).json({ status: 1, message: 'Parent registered successfully', user: newUser });
 
   } catch (err) {
     console.error('Error registering user:', err);
