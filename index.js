@@ -109,7 +109,7 @@ app.post('/register', async (req, res) => {
   //console.log(req.body);  
 
   // Ensure only 'parent' role user can register
-  if (role !== 'parent' && role!='guardian') {
+  if (role !== ('parent' ||'Parent') && role!=('guardian' ||'Guardian')) {
     return res.status(400).json({ status: 0, message: 'Only parent and guardian role is allowed to register' });
   }
 
@@ -130,7 +130,7 @@ app.post('/register', async (req, res) => {
     // Check if email or userId already exists
     const existingUser = await User.findOne({ $or: [{ email }] });
     if (existingUser) {
-      return res.status(400).json({ status: 0, message: 'Email or User ID already exists1234' });
+      return res.status(400).json({ status: 0, message: 'Email already exists' });
     }
 
     // Create the new user
@@ -169,7 +169,7 @@ const verifyParentRole = (req, res, next) => {
     req.user = decoded;
 
     // Only allow if the role is parent
-    if (req.user.role !== 'parent') {
+    if (req.user.role !== ('parent'||'Parent') ){
       return res.status(403).json({ message: 'Access denied. Only parents are allowed to do perform this action .' });
     }
 
@@ -429,7 +429,7 @@ app.post('/create-guardian', async (req, res) => {
   const { userId, name, gender, email, password, role, dob } = req.body;
 
   // Only allow 'child' or 'guardian' roles
-  if ( role !== 'guardian') {
+  if ( role !== ('guardian'||'Guardian')) {
     return res.status(400).json({ message: 'Role must be "guardian"' });
   }
 
@@ -440,9 +440,9 @@ app.post('/create-guardian', async (req, res) => {
 
   try {
     // Check if email or userId already exists
-    const existingUser = await User.findOne({ $or: [{ email }, { userId }] });
+    const existingUser = await User.findOne({ $or: [{ email }] });
     if (existingUser) {
-      return res.status(400).json({ message: 'Email or User ID already exists' });
+      return res.status(400).json({ message: 'Email already exists' });
     }
     
     // Create the new user
@@ -483,7 +483,7 @@ app.post('/assign-guardians', verifyParentRole, async (req, res) => {
   try {
     // Validate that the childId belongs to a 'child' user
     const child = await User.findOne({userId:childId});
-    if (!child || child.role !== 'child') {
+    if (!child || child.role !== ('child'||'Child')) {
       return res.status(400).json({ message: 'Invalid childId or the user is not a child' });
     }
 
@@ -507,7 +507,7 @@ app.post('/assign-guardians', verifyParentRole, async (req, res) => {
   
     // Step 2: Add guardians to the child's list using $addToSet to avoid duplicates
     const updateChild = await User.updateOne(
-      { 'userId':childId, role: 'child' },
+      { 'userId':childId, role: 'child'||'Child' },
       { $addToSet: { guardian: { $each: guardian } } }
     );
 
@@ -519,13 +519,13 @@ app.post('/assign-guardians', verifyParentRole, async (req, res) => {
   
     // Step 3: Add the child to each guardian's list using $addToSet to avoid duplicates
     const guardianUpdates = await Promise.all(guardian.map(async (guardianId) => {
-      const guardian = await User.findOne({ userId: guardianId, role: 'guardian' });
+      const guardian = await User.findOne({ userId: guardianId, role: 'guardian'||'Guardian' });
       if (!guardian) {
         return { error: `Guardian with userId ${guardian} not found.` };
       }
   
       const updateGuardian = await User.updateOne(
-        { userId: guardianId, role: 'guardian' },
+        { userId: guardianId, role: 'guardian' ||'Guardian' },
         { $addToSet: { familyId: familyId } }
       );
   
@@ -576,7 +576,7 @@ app.post('/create-child', verifyParentRole, async (req, res) => {
   console.log(parentId);
 
   // Only allow 'child' or 'guardian' roles
-  if (role !== 'child') {
+  if (role !== ('child' ||'Child') ){
     return res.status(400).json({ message: 'Role must be "child"' });
   }
 
@@ -587,9 +587,9 @@ app.post('/create-child', verifyParentRole, async (req, res) => {
 
   try {
     // Check if email or userId already exists
-    const existingUser = await User.findOne({ $or: [{ email }, { userId }] });
+    const existingUser = await User.findOne({ $or: [{ email }] });
     if (existingUser) {
-      return res.status(400).json({ message: 'Email or User ID already exists' });
+      return res.status(400).json({ message: 'Email already exists' });
     }
     const userIdFromToken = req.user.userId;
 
