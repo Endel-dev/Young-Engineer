@@ -530,7 +530,7 @@ app.post('/create-family', verifyToken, async (req, res) => {
     }
 
     // Respond with the created family data
-    res.status(201).json({
+    res.status(200).json({
       status: 1,
       message: 'Family created successfully',
       family: newFamily,
@@ -563,7 +563,7 @@ app.post('/create-guardian', async (req, res) => {
     // Check if email or userId already exists
     const existingUser = await User.findOne({ $or: [{ email },{name}] });
     if (existingUser) {
-      return res.status(200).json({ message: 'Email already exists' });
+      return res.status(200).json({ message: 'Email or Name already exists' });
     }
     
     // Create the new user
