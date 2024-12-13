@@ -131,10 +131,11 @@ app.post('/register', async (req, res) => {
 
   try {
     // Check if email or userId already exists
-    const existingUser = await User.findOne({ $or: [{ email }] });
+    const existingUser = await User.findOne({ $or: [{ email },{name}] });
     if (existingUser) {
-      return res.status(200).json({ status: 0, message: 'Email already exists' });
+      return res.status(200).json({ status: 0, message: 'Email or Name already exists' });
     }
+    //const existingName = await User.findOne
 
     // Create the new user
     const newUser = new User({
@@ -170,9 +171,10 @@ const verifyParentRole = (req, res, next) => {
     // Verify token and extract user role
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
-    const normalizedRole = role ? role.toLowerCase() : '';
+    console.log(req.user.role);
+    //const normalizedRole = role ? role.toLowerCase() : '';
     // Only allow if the role is parent
-    if (req.user.role !== normalizedRole && req.user.role !== 'parent'){
+    if (req.user.role !== "parent" ){ //&& req.user.role !== 'parent'
       return res.status(403).json({ message: 'Access denied. Only parents are allowed to do perform this action .' });
     }
 
@@ -242,25 +244,144 @@ app.use((err, req, res, next) => {
 
 
 //Login API
-app.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+// app.post('/login', async (req, res) => {
+//   const { email, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ status: 0, message: 'Please provide email and password' });
+//   if (!email || !password) {
+//     return res.status(400).json({ status: 0, message: 'Please provide email and password' });
+//   }
+
+//   try {
+//     // Check if user exists by email
+//     const user = await User.findOne({ email });
+//     if (!user) {
+//       return res.status(401).json({ status: 0, message: 'Not User' });
+//     }
+
+//     // Compare the provided password with the stored password
+//     const isMatch = await bcrypt.compare(password, user.password);
+//     if (!isMatch) {
+//       return res.status(401).json({
+//         status: 0, message: 'Invalid email or password'
+//       });
+//     }
+
+//     // Generate a 4-digit OTP (after successful password verification)
+//     const otp = Math.floor(1000 + Math.random() * 9000); // Generate a 4-digit number
+
+//     // Set up SMTP transporter using provided credentials
+//     const transporter = nodemailer.createTransport({
+//       host: 'mail.weighingworld.com',  // SMTP server
+//       port: 465,  // SSL port
+//       secure: true,  // Use SSL (true for port 465)
+//       auth: {
+//         user: 'no-reply@weighingworld.com',  // Email address (username)
+//         pass: '$]IIWt4blS^_'  // Email password or app password
+//       }
+//     });
+    
+
+//     const mailOptions = {
+//       from: 'no-reply@weighingworld.com',  // Sender address
+//       to: email,  // Receiver address (change this to your recipient email)
+//       subject: 'Test Email',  // Subject line
+//       text: `Your OTP is: ${otp}`,  // Plain text body
+//       //html: '<p>This is a <strong>test email</strong> sent from Node.js!</p>'
+//     };
+
+//     // Send OTP email
+//     transporter.sendMail(mailOptions, async (error, info) => {
+//       if (error) {
+//         console.error('Error sending OTP email:', error);
+//         return res.status(500).json({ status: 0, message: 'Error sending OTP email' });
+//       }
+//       console.log('OTP email sent: ' + info.response);
+
+//       // After OTP is sent, create JWT token and send response
+//       const token = jwt.sign(
+//         { userId: user.userId, role: user.role },
+//         process.env.JWT_SECRET,
+//         { expiresIn: '15d' } // Token will expire in 15 days
+//       );
+
+    
+      
+//       // Fetch family details if familyId exists
+//       //  let familyName;
+//       //    if (user.familyId) {
+//       //      // Use findOne to fetch family by familyId as string
+//       //      Family.findOne({ familyId: user.familyId }).then(family => {
+//       //        familyName = family ? family.familyName : null;
+//       //        console.log(familyName);
+//       //      })
+//       //    }
+
+//       let familyName = null;
+//       if (user.familyId) {
+//         try {
+//           const family = await Family.findOne({ familyId: user.familyId });
+//           familyName = family ? family.familyName : null; // Fetch the familyName
+//         }catch(err) {
+//           console.error('Error fetching family details:', err);
+//         }
+//       }
+      
+//       // Send response with token
+//       res.status(200).json({
+//         status: 1,
+//         message: 'Login successful',
+//         otpstatus: 'OTP sent successfully',
+//         otp: otp, // In real cases, do not return OTP in response
+//         token: token,
+//         userId: user.userId,
+//         role: user.role,
+//         name: user.name,
+//         familyId:user.familyId || null ,
+//         familyName:familyName || null,
+//       });
+//     });
+//   } catch (err) {
+//     console.error('Error logging in user:', err);
+//     res.status(500).json({ status: 0, message: 'Server error' });
+//   }
+// });
+
+app.post('/login', async (req, res) => {
+  const { email, name, password } = req.body;
+
+  // Check if email or name is provided along with the password
+  if (!password) {
+    return res.status(400).json({ status: 0, message: 'Please provide password' });
   }
 
   try {
-    // Check if user exists by email
-    const user = await User.findOne({ email });
+    let user;
+
+    // If email is provided, search for user by email
+    if (email) {
+      user = await User.findOne({ email });
+    } else if (name) {
+      // If no email, check if it's a child and search by name
+      user = await User.findOne({ name });
+
+      // Ensure user is found and the role is 'child' if name is provided
+      if (!user || user.role !== 'child') {
+        return res.status(401).json({ status: 0, message: 'User not found or not a child user' });
+      }
+    } else {
+      return res.status(400).json({ status: 0, message: 'Please provide either email or name' });
+    }
+
     if (!user) {
-      return res.status(401).json({ status: 0, message: 'Not User' });
+      return res.status(401).json({ status: 0, message: 'User not found' });
     }
 
     // Compare the provided password with the stored password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({
-        status: 0, message: 'Invalid email or password'
+        status: 0,
+        message: 'Invalid email/name or password',
       });
     }
 
@@ -269,82 +390,77 @@ app.post('/login', async (req, res) => {
 
     // Set up SMTP transporter using provided credentials
     const transporter = nodemailer.createTransport({
-      host: 'mail.weighingworld.com',  // SMTP server
-      port: 465,  // SSL port
-      secure: true,  // Use SSL (true for port 465)
+      host: 'mail.weighingworld.com', // SMTP server
+      port: 465, // SSL port
+      secure: true, // Use SSL (true for port 465)
       auth: {
-        user: 'no-reply@weighingworld.com',  // Email address (username)
-        pass: '$]IIWt4blS^_'  // Email password or app password
-      }
+        user: 'no-reply@weighingworld.com', // Email address (username)
+        pass: '$]IIWt4blS^_', // Email password or app password
+      },
     });
-    
 
     const mailOptions = {
-      from: 'no-reply@weighingworld.com',  // Sender address
-      to: email,  // Receiver address (change this to your recipient email)
-      subject: 'Test Email',  // Subject line
-      text: `Your OTP is: ${otp}`,  // Plain text body
-      //html: '<p>This is a <strong>test email</strong> sent from Node.js!</p>'
+      from: 'no-reply@weighingworld.com', // Sender address
+      to: user.email, // Receiver address (only if email exists)
+      subject: 'Test Email', // Subject line
+      text: `Your OTP is: ${otp}`, // Plain text body
     };
 
-    // Send OTP email
-    transporter.sendMail(mailOptions, async (error, info) => {
-      if (error) {
-        console.error('Error sending OTP email:', error);
-        return res.status(500).json({ status: 0, message: 'Error sending OTP email' });
-      }
-      console.log('OTP email sent: ' + info.response);
+    // Send OTP email if email is provided
+    if (user.email) {
+      transporter.sendMail(mailOptions, async (error, info) => {
+        if (error) {
+          console.error('Error sending OTP email:', error);
+          return res.status(500).json({ status: 0, message: 'Error sending OTP email' });
+        }
+        console.log('OTP email sent: ' + info.response);
 
-      // After OTP is sent, create JWT token and send response
+        // After OTP is sent, create JWT token and send response
+        const token = jwt.sign(
+          { userId: user.userId, role: user.role },
+          process.env.JWT_SECRET,
+          { expiresIn: '15d' } // Token will expire in 15 days
+        );
+
+        // Send response with token
+        return res.status(200).json({
+          status: 1,
+          message: 'Login successful',
+          otpstatus: 'OTP sent successfully',
+          otp: otp, // In real cases, do not return OTP in response
+          token: token,
+          userId: user.userId,
+          role: user.role,
+          name: user.name,
+          familyId: user.familyId || null,
+          familyName: user.familyId ? await Family.findOne({ familyId: user.familyId }).familyName : null,
+        });
+      });
+    } else {
+      // If no email is provided for the child, skip sending OTP and directly issue the token
       const token = jwt.sign(
         { userId: user.userId, role: user.role },
         process.env.JWT_SECRET,
         { expiresIn: '15d' } // Token will expire in 15 days
       );
 
-    
-      
-      // Fetch family details if familyId exists
-      //  let familyName;
-      //    if (user.familyId) {
-      //      // Use findOne to fetch family by familyId as string
-      //      Family.findOne({ familyId: user.familyId }).then(family => {
-      //        familyName = family ? family.familyName : null;
-      //        console.log(familyName);
-      //      })
-      //    }
-
-      let familyName = null;
-      if (user.familyId) {
-        try {
-          const family = await Family.findOne({ familyId: user.familyId });
-          familyName = family ? family.familyName : null; // Fetch the familyName
-        }catch(err) {
-          console.error('Error fetching family details:', err);
-        }
-      }
-      
-      // Send response with token
-      res.status(200).json({
+      // Send response with token for child (no OTP sent)
+      return res.status(200).json({
         status: 1,
         message: 'Login successful',
-        otpstatus: 'OTP sent successfully',
-        otp: otp, // In real cases, do not return OTP in response
         token: token,
         userId: user.userId,
         role: user.role,
         name: user.name,
-        familyId:user.familyId || null ,
-        familyName:familyName || null,
+        familyId: user.familyId || null,
+        familyName: user.familyId ? await Family.findOne({ familyId: user.familyId }).familyName : null,
       });
-    });
+    }
   } catch (err) {
     console.error('Error logging in user:', err);
     res.status(500).json({ status: 0, message: 'Server error' });
   }
 });
-
-
 
 
 app.post('/create-family', verifyToken, async (req, res) => {
@@ -445,9 +561,9 @@ app.post('/create-guardian', async (req, res) => {
 
   try {
     // Check if email or userId already exists
-    const existingUser = await User.findOne({ $or: [{ email }] });
+    const existingUser = await User.findOne({ $or: [{ email },{name}] });
     if (existingUser) {
-      return res.status(400).json({ message: 'Email already exists' });
+      return res.status(200).json({ message: 'Email already exists' });
     }
     
     // Create the new user
@@ -464,7 +580,7 @@ app.post('/create-guardian', async (req, res) => {
 
     // Save the new user to the database
     await newUser.save();
-    res.status(201).json({ message: 'User created successfully', user: newUser });
+    res.status(200).json({ message: 'User created successfully', user: newUser });
 
   } catch (err) {
     console.error('Error creating user:', err);
@@ -591,15 +707,15 @@ app.post('/create-child', verifyParentRole, async (req, res) => {
   }
 
   // Validate required fields
-  if ( !name || !email || !password || !dob) {
+  if ( !name || !password || !dob) {
     return res.status(400).json({ message: 'Please provide all required fields' });
   }
 
   try {
     // Check if email or userId already exists
-    const existingUser = await User.findOne({ $or: [{ email }] });
+    const existingUser = await User.findOne({ $or: [{ email },{name}] });
     if (existingUser) {
-      return res.status(400).json({ message: 'Email already exists' });
+      return res.status(200).json({ message: 'Email or Name already exists' });
     }
     const userIdFromToken = req.user.userId;
 
@@ -613,7 +729,7 @@ app.post('/create-child', verifyParentRole, async (req, res) => {
       userId,
       name,
       gender:normalizedgender,
-      email,
+      email: email || null,
       password,
       role:normalizedRole,
       dob,
@@ -624,7 +740,7 @@ app.post('/create-child', verifyParentRole, async (req, res) => {
 
     // Save the new user to the database
     await newUser.save();
-    res.status(201).json({ message: 'User created successfully', user: newUser });
+    res.status(200).json({ message: 'User created successfully', user: newUser });
 
   } catch (err) {
     console.error('Error creating user:', err);

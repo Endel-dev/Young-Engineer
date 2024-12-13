@@ -5,12 +5,16 @@ const { v4: uuidv4 } = require('uuid');
 // Define the user schema
 const userSchema = new mongoose.Schema({
   userId: { type: String, unique: true, default: uuidv4 },
-  name: { type: String, required: true },
+  name: { type: String, required: true ,unique:true},
   gender: { type: String, enum: ['male', 'female', 'other'] },
   image: { type: String }, // URL or base64 of the image
   region: { type: String },
   currency: { type: String, default: 'INR' }, // Default to USD
-  email: { type: String, required: true, unique: true },
+  email: { type: String, 
+    unique: true,
+    required: function() {
+      return this.role === 'parent' || this.role === 'guardian';
+    } },
   password: { type: String, required: true },
   role: { type: String, enum: ['parent', 'child', 'guardian'], default: 'parent' }, // Default role
   dob: { type: Date, required: true },
