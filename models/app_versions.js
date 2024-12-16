@@ -28,6 +28,6 @@ const app_versionSchema = new mongoose.Schema(
 app_versionSchema.plugin(AutoIncrement, { inc_field: "id" });
  
 // Create and export the model
-const app_version = mongoose.model("AppVersion", app_versionSchema);
+const app_version = mongoose.model("App_version", app_versionSchema);
 module.exports = app_version;
  
