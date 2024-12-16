@@ -206,7 +206,7 @@ app.post('/register', async (req, res) => {
       { userId: newUser.userId, role: newUser.role },
       process.env.JWT_SECRET, // Token will expire in 15 days
     );
-    const verificationLink = `${FRONTEND_URL}/verify-email?token=${token}&email=${email}`;
+    const verificationLink = `https://endel-dev.github.io/Young-Engineer/templates/sample.html?verify-email?token=${token}&email=${email}`;
 
     // Save the token in the database (or cache it for 24 hours expiration)
     const verificationToken = new VerificationToken({
