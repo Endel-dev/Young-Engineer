@@ -182,7 +182,7 @@ app.post('/register', async (req, res) => {
   }
 
   try {
-    const existingUser = await User.findOne({ $or: [{ email }, { name }] });
+    const existingUser = await User.findOne({ $or: [{ email }, { name }] }).where('deleted').equals(false);
     if (existingUser) {
       return res.status(200).json({ status: 0, message: 'Email or Name already exists' });
     }
