@@ -20,7 +20,7 @@ const admin = require('firebase-admin');
 const Reward = require('./models/reward');
 const rateLimit = require('express-rate-limit'); 
 const compression = require('compression');  // Import compression
-const app_version = require("./models/app_versions");
+const app_versions = require("./models/app_versions");
 
 //const Redemption = require('./models/Redemption');
 
