@@ -20,6 +20,8 @@ const admin = require('firebase-admin');
 const Reward = require('./models/reward');
 const rateLimit = require('express-rate-limit'); 
 const compression = require('compression');  // Import compression
+const VerificationToken = require('./models/VerificationToken');
+const FRONTEND_URL='templates/sample.html';
 //const app_versions = require("./models/app_versions");
 
 //const Redemption = require('./models/Redemption');
@@ -102,7 +104,7 @@ mongoose.connect('mongodb://localhost:27017/react-native-app')
 
 // User registration route
 // POST /register (For Parent User)
-app.post('/register', async (req, res) => {
+app.post('/register-user', async (req, res) => {
   //console.log(req.body);
   console.log('Request body:', req.body);
   console.log('Request Headers:', req.headers);
@@ -162,6 +164,132 @@ app.post('/register', async (req, res) => {
   } catch (err) {
     console.error('Error registering user:', err);
     res.status(500).json({ status: 0, message: 'Server error' ,err});
+  }
+});
+
+app.post('/register', async (req, res) => {
+  const { name, gender, email, password, role, dob } = req.body;
+  const normalizedRole = role ? role.toLowerCase() : '';
+  const normalizedgender = gender ? gender.toLowerCase() : '';
+
+  if (normalizedRole !== 'parent' && normalizedRole !== 'guardian') {
+    return res.status(400).json({ status: 0, message: 'Only parent and guardian role is allowed to register' });
+  }
+
+  // Validate required fields
+  if (!name || !email || !password || !dob || !gender) {
+    return res.status(400).json({ status: 0, message: 'Please provide all required fields' });
+  }
+
+  try {
+    const existingUser = await User.findOne({ $or: [{ email }, { name }] });
+    if (existingUser) {
+      return res.status(200).json({ status: 0, message: 'Email or Name already exists' });
+    }
+
+    // Create the new user
+    const newUser = new User({
+      name,
+      gender: normalizedgender,
+      email,
+      password,
+      role: normalizedRole,
+      dob,
+    });
+
+    // Save the new user to the database
+    await newUser.save();
+
+    // Create a unique email verification token with 24 hours expiration
+    //const token = crypto.randomBytes(32).toString('hex');  // 32 bytes token
+    const token = jwt.sign(
+      { userId: newUser.userId, role: newUser.role },
+      process.env.JWT_SECRET, // Token will expire in 15 days
+    );
+    const verificationLink = `${FRONTEND_URL}/verify-email?token=${token}&email=${email}`;
+
+    // Save the token in the database (or cache it for 24 hours expiration)
+    const verificationToken = new VerificationToken({
+      email,
+      token,
+      expiresAt: Date.now() + 24 * 60 * 60 * 1000, // expires in 24 hours
+    });
+    await verificationToken.save();
+
+    // Send the verification link to the user's email
+    const transporter = nodemailer.createTransport({
+      host: 'mail.weighingworld.com',
+      port: 465,
+      secure: true,
+      auth: {
+        user: 'no-reply@weighingworld.com',
+        pass: '$]IIWt4blS^_',
+      },
+    });
+
+    const mailOptions = {
+      from: 'no-reply@weighingworld.com',
+      to: email,
+      subject: 'Email Verification',
+      text: `Please verify your email by clicking on the following link: ${verificationLink}`,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        return res.status(500).json({ status: 0, message: 'Error sending verification email' });
+      }
+
+      res.status(200).json({
+        status: 1,
+        message: 'Registration successful. A verification email has been sent.',
+      });
+    });
+
+  } catch (err) {
+    console.error('Error registering user:', err);
+    res.status(500).json({ status: 0, message: 'Server error' });
+  }
+});
+
+app.post('/verify-email', async (req, res) => {
+  const { token, email } = req.query;
+
+  // Check if token and email are provided
+  if (!token || !email) {
+    return res.status(400).json({ status: 0, message: 'Token and email are required' });
+  }
+
+  try {
+    // Find the verification token in the database
+    const verificationToken = await VerificationToken.findOne({ email, token });
+
+    if (!verificationToken) {
+      return res.status(400).json({ status: 0, message: 'Invalid or expired token' });
+    }
+
+    // Check if the token has expired
+    if (verificationToken.expiresAt < Date.now()) {
+      return res.status(400).json({ status: 0, message: 'Token has expired' });
+    }
+
+    // Mark user as verified in the User model (or update `isActive` field)
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ status: 0, message: 'User not found' });
+    }
+
+    // Mark user as active/verified
+    user.isActive = true; // You can add an `isActive` field in the User schema to track verification status
+    await user.save();
+
+    // Delete the verification token (optional)
+    await VerificationToken.deleteOne({ email, token });
+
+    res.status(200).json({ status: 1, message: 'Email successfully verified' });
+
+  } catch (err) {
+    console.error('Error verifying email:', err);
+    res.status(500).json({ status: 0, message: 'Server error' });
   }
 });
 
