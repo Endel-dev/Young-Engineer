@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,6 +17,7 @@
       height: 100vh;
       color: #333;
     }
+
     .container {
       background-color: #fff;
       padding: 30px;
@@ -25,15 +27,18 @@
       width: 90%;
       max-width: 500px;
     }
+
     h1 {
       font-size: 24px;
       margin-bottom: 20px;
       color: #4caf50;
     }
+
     p {
       font-size: 18px;
       margin-bottom: 20px;
     }
+
     .btn {
       padding: 10px 20px;
       background-color: #4caf50;
@@ -42,24 +47,65 @@
       border-radius: 5px;
       font-size: 16px;
     }
+
     .btn:hover {
       background-color: #45a049;
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h1>Email Successfully Verified!</h1>
     <p>Your email address has been successfully verified. You can now enjoy full access to your account.</p>
     <p>If you didn't initiate this verification, please contact support immediately.</p>
-    <a href="" class="btn">Verify</a>
+    <a href="#" class="btn" onclick="verifyEmail()">Verify</a>
   </div>
+  <script>
+    function verifyEmail() {
+      // Extract token and email from the query parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+      const email = urlParams.get('email');
 
-  <!-- <script>
-    // Optionally, you can redirect the user after a delay (e.g., after 5 seconds)
-    setTimeout(function() {
-      window.location.href = "https://your-login-page-url.com";  // Redirect to your login page or home page
-    }, 5000);  // 5000 milliseconds = 5 seconds
-  </script> -->
+      // Ensure both token and email are present
+      if (!token || !email) {
+        alert('Token or email is missing!');
+        return;
+      }
+
+      // Send POST request to backend for verification and user creation
+      fetch('/verify-email', {
+        method: 'POST', // POST method to process the verification
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === 1) {
+            alert('User verified and added successfully!');
+            // Redirect to login page after successful verification
+            window.location.href = '/login'; // Replace with your actual login page URL
+          } else {
+            alert('Verification failed: ' + data.message);
+          }
+        })
+        .catch(err => {
+          console.error('Error during verification:', err);
+          alert('There was an error. Please try again later.');
+        });
+    }
+  </script>
+  </body>
+  </html>
+
+  // <!-- <>
+  //   // Optionally, you can redirect the user after a delay (e.g., after 5 seconds)
+  //   setTimeout(function() {
+  //     window.location.href = "https://your-login-page-url.com";  // Redirect to your login page or home page
+  //   }, 5000);  // 5000 milliseconds = 5 seconds
+  
 </body>
+
 </html>

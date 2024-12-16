@@ -186,8 +186,21 @@ app.post('/register', async (req, res) => {
     if (existingUser) {
       return res.status(200).json({ status: 0, message: 'Email or Name already exists' });
     }
+    // const salt = await bcrypt.genSalt(10);
+    // const hashedPassword = await bcrypt.hash(password, salt);
+    // const newUser = new User({
+    //   name,
+    //   gender: normalizedgender,
+    //   email,
+    //   password:hashedPassword,  // Make sure to hash the password before saving
+    //   role: normalizedRole,
+    //   dob,
+    // });
 
-    // Create the new user
+    
+
+
+    //Create the new user
     // const newUser = new User({
     //   name,
     //   gender: normalizedgender,
@@ -209,9 +222,16 @@ app.post('/register', async (req, res) => {
     const verificationLink = `https://endel-dev.github.io/Young-Engineer/templates/sample.html?token=${token}&email=${email}`;
 
     // Save the token in the database (or cache it for 24 hours expiration)
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
     const verificationToken = new VerificationToken({
       email,
       token,
+      name,
+      role:normalizedRole,
+      gender:normalizedgender,
+      dob,
+      password:hashedPassword,
       expiresAt: Date.now() + 24 * 60 * 60 * 1000, // expires in 24 hours
     });
     await verificationToken.save();
@@ -251,6 +271,62 @@ app.post('/register', async (req, res) => {
   }
 });
 
+// router.post('/verify-email', async (req, res) => {
+//   const { token, email } = req.query;
+
+//   // Check if token and email are provided
+//   if (!token || !email) {
+//     return res.status(400).json({ status: 0, message: 'Token and email are required' });
+//   }
+
+//   try {
+//     // Find the verification token in the database
+//     const verificationToken = await VerificationToken.findOne({ email, token });
+//     if (!verificationToken) {
+//       return res.status(400).json({ status: 0, message: 'Invalid or expired token' });
+//     }
+
+//     // Check if the token has expired
+//     if (verificationToken.expiresAt < Date.now()) {
+//       return res.status(400).json({ status: 0, message: 'Token has expired' });
+//     }
+
+//     // Check if user already exists (optional)
+//     const existingUser = await User.findOne({ email });
+//     if (existingUser) {
+//       return res.status(400).json({ status: 0, message: 'User already exists' });
+//     }
+
+//     // Create a new user based on the verification token details
+//     const newUser = new User({
+//       name: verificationToken.name,
+//       gender: verificationToken.gender,
+//       email: verificationToken.email,
+//       password: verificationToken.password, // It is assumed the password is hashed when saving the token
+//       role: verificationToken.role,
+//       dob: verificationToken.dob,
+//     });
+
+//     // Hash the password before saving the user (if not already done)
+//     const salt = await bcrypt.genSalt(10);
+//     newUser.password = await bcrypt.hash(newUser.password, salt);
+
+//     // Save the new user to the database
+//     await newUser.save();
+
+//     // Mark the verification token as verified
+//     verificationToken.verified = true;
+//     await verificationToken.save();
+
+//     res.status(200).json({ status: 1, message: 'Email successfully verified and user added' });
+//   } catch (err) {
+//     console.error('Error verifying email:', err);
+//     res.status(500).json({ status: 0, message: 'Server error' });
+//   }
+// });
+
+//module.exports = router;
+
 app.post('/verify-email', async (req, res) => {
   const { token, email } = req.query;
 
@@ -279,11 +355,22 @@ app.post('/verify-email', async (req, res) => {
     }
 
     // Mark user as active/verified
-    user.isActive = true; // You can add an `isActive` field in the User schema to track verification status
-    await user.save();
+    //user.isActive = true; // You can add an `isActive` field in the User schema to track verification status
+    const newUser = new newUser({
+      email:verificationToken.email,
+      name:verificationToken.name,
+      role:verificationToken.role,
+      gender:verificationToken.gender,
+      dob:verificationToken.dob,
+      password:verificationToken.password,
+    })
+    
+    await newUser.save();
 
     // Delete the verification token (optional)
-    await VerificationToken.deleteOne({ email, token });
+    verificationToken.verified = true;
+    await verificationToken.save();
+    //await VerificationToken.deleteOne({ email, token });
 
     res.status(200).json({ status: 1, message: 'Email successfully verified' });
 

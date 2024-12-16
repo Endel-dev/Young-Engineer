@@ -52,14 +52,45 @@
     <h1>Email Successfully Verified!</h1>
     <p>Your email address has been successfully verified. You can now enjoy full access to your account.</p>
     <p>If you didn't initiate this verification, please contact support immediately.</p>
-    <a href="https://your-login-page-url.com" class="btn">Go to Login</a>
+    <!-- Button to trigger email verification -->
+    <a href="templates/verify-email.html" class="btn" onclick="verifyEmail()">Verify</a>
   </div>
 
   <script>
-    // Optionally, you can redirect the user after a delay (e.g., after 5 seconds)
-    setTimeout(function() {
-      window.location.href = "https://your-login-page-url.com";  // Redirect to your login page or home page
-    }, 5000);  // 5000 milliseconds = 5 seconds
+    function verifyEmail() {
+      // Extract token and email from the query parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+      const email = urlParams.get('email');
+
+      // Ensure both token and email are present
+      if (!token || !email) {
+        alert('Token or email is missing!');
+        return;
+      }
+
+      // Send POST request to backend for verification and user creation
+      fetch(`/verify-email?token=${token}&email=${email}`, {
+        method: 'POST', // Or 'GET', depending on your API design
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 1) {
+          alert('User verified and added successfully!');
+          // Redirect to login page after successful verification
+          window.location.href = '/login'; // Replace with your actual login page URL
+        } else {
+          alert('Verification failed: ' + data.message);
+        }
+      })
+      .catch(err => {
+        console.error('Error during verification:', err);
+        alert('There was an error. Please try again later.');
+      });
+    }
   </script>
 </body>
 </html>
