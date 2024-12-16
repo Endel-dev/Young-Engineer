@@ -152,7 +152,12 @@ app.post('/register', async (req, res) => {
 
     // Save the new user to the database
     await newUser.save();
-    res.status(200).json({ status: 1, message: 'Parent registered successfully', user: newUser });
+    const token = jwt.sign(
+      { userId: newUser.userId, role: newUser.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '15d' } // Token will expire in 15 days
+    );
+    res.status(200).json({ status: 1, message: 'Parent registered successfully', user: newUser, token:token});
 
   } catch (err) {
     console.error('Error registering user:', err);
