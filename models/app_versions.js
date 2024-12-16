@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const AutoIncrement = require("mongoose-sequence")(mongoose);
  
 // Define the schema
-const appVersionSchema = new mongoose.Schema(
+const app_versionSchema = new mongoose.Schema(
   {
     platform: {
       type: String,
@@ -25,9 +25,9 @@ const appVersionSchema = new mongoose.Schema(
 );
  
 // Add auto-incrementing id field
-appVersionSchema.plugin(AutoIncrement, { inc_field: "id" });
+app_versionSchema.plugin(AutoIncrement, { inc_field: "id" });
  
 // Create and export the model
-const AppVersion = mongoose.model("AppVersion", appVersionSchema);
-module.exports = AppVersion;
+const app_version = mongoose.model("AppVersion", app_versionSchema);
+module.exports = app_version;
  
