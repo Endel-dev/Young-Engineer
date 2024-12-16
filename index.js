@@ -188,22 +188,22 @@ app.post('/register', async (req, res) => {
     }
 
     // Create the new user
-    const newUser = new User({
-      name,
-      gender: normalizedgender,
-      email,
-      password,
-      role: normalizedRole,
-      dob,
-    });
+    // const newUser = new User({
+    //   name,
+    //   gender: normalizedgender,
+    //   email,
+    //   password,
+    //   role: normalizedRole,
+    //   dob,
+    // });
 
-    // Save the new user to the database
-    await newUser.save();
+    // // Save the new user to the database
+    // await newUser.save();
 
     // Create a unique email verification token with 24 hours expiration
     //const token = crypto.randomBytes(32).toString('hex');  // 32 bytes token
     const token = jwt.sign(
-      { userId: newUser.userId, role: newUser.role },
+      {email  }, //userId: newUser.userId, role: newUser.role
       process.env.JWT_SECRET, // Token will expire in 15 days
     );
     const verificationLink = `https://endel-dev.github.io/Young-Engineer/templates/sample.html?token=${token}&email=${email}`;
