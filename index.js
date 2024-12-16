@@ -20,6 +20,7 @@ const admin = require('firebase-admin');
 const Reward = require('./models/reward');
 const rateLimit = require('express-rate-limit'); 
 const compression = require('compression');  // Import compression
+const AppVersion = require("./models/app_versions");
 
 //const Redemption = require('./models/Redemption');
 
@@ -2000,6 +2001,75 @@ app.put('/rewards/redemption/:rewardId', verifyToken, async (req, res) => {
     console.error(error);
     res.status(500).json({ status: 0, message: 'Failed to approve reward.' });
 
+  }
+});
+
+app.post("/create-children", async (req, res) => {
+  const {
+    parentEmail, // Verify the parent using email (or another identifier)
+    userId,
+    name,
+    gender,
+    email,
+    password,
+    role,
+    dob,
+    Totalpoints,
+  } = req.body;
+ 
+  // Ensure the provided role is "child"
+  if (role !== "child") {
+    return res.status(400).json({ message: 'Role must be "child"' });
+  }
+ 
+  // Validate required fields
+  if (!parentEmail || !name || !email || !password || !dob) {
+    return res
+      .status(400)
+      .json({ message: "Please provide all required fields" });
+  }
+ 
+  try {
+    // Verify the parent exists in the database
+    const parent = await User.findOne({ email: parentEmail, role: "parent" });
+    if (!parent) {
+      return res.status(404).json({
+        message: "Parent user not found. Please provide a valid parent email.",
+      });
+    }
+ 
+    // Check if email or userId already exists
+    const existingUser = await User.findOne({ $or: [{ email }, { userId }] });
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ message: "Email or User ID already exists" });
+    }
+ 
+    // Create the child user
+    const newUser = new User({
+      userId,
+      name,
+      gender,
+      email,
+      password,
+      role,
+      dob,
+      parentId: parent.userId, // Link to the parent user
+      Totalpoints,
+      familyId: parent.familyId, // Inherit the parent's familyId
+    });
+ 
+    // Save the child user to the database
+    await newUser.save();
+ 
+    res.status(200).json({
+      message: "Child user created successfully",
+      user: newUser,
+    });
+  } catch (err) {
+    console.error("Error creating child user:", err);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
