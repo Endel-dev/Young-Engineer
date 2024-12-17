@@ -178,7 +178,7 @@ app.post('/register-user', async (req, res) => {
   }
 });
 
-app.post('/register', async (req, res) => {
+app.post('/registers', async (req, res) => {
   const { name, gender, email, password, role, dob } = req.body;
   const normalizedRole = role ? role.toLowerCase() : '';
   const normalizedgender = gender ? gender.toLowerCase() : '';
@@ -274,6 +274,79 @@ app.post('/register', async (req, res) => {
         return res.status(500).json({ status: 0, message: 'Error sending verification email' });
       }
 
+      res.status(200).json({
+        status: 1,
+        message: 'Registration successful. A verification email has been sent.',
+      });
+    });
+
+  } catch (err) {
+    console.error('Error registering user:', err);
+    res.status(500).json({ status: 0, message: 'Server error' });
+  }
+});
+
+
+// POST /register
+app.post('/register', async (req, res) => {
+  const { name, gender, email, password, role, dob } = req.body;
+
+  const normalizedRole = role ? role.toLowerCase() : '';
+  const normalizedGender = gender ? gender.toLowerCase() : '';
+
+  if (normalizedRole !== 'parent' && normalizedRole !== 'guardian') {
+    return res.status(400).json({ status: 0, message: 'Only parent and guardian roles are allowed to register' });
+  }
+
+  if (!name || !email || !password || !dob || !gender) {
+    return res.status(400).json({ status: 0, message: 'Please provide all required fields' });
+  }
+
+  try {
+    const existingUser = await User.findOne({ $or: [{ email }, { name }] }).where('deleted').equals(false);
+    if (existingUser) {
+      return res.status(400).json({ status: 0, message: 'Email or Name already exists' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '24h' });
+    const verificationLink = `http://localhost:5001/verify-email?token=${token}&email=${email}`;
+
+    const verificationToken = new VerificationToken({
+      email,
+      token,
+      name,
+      role: normalizedRole,
+      gender: normalizedGender,
+      dob,
+      password: hashedPassword,
+      expiresAt: Date.now() + 24 * 60 * 60 * 1000, // expires in 24 hours
+    });
+    await verificationToken.save();
+
+    const transporter = nodemailer.createTransport({
+      host: 'mail.weighingworld.com',
+      port: 465,
+      secure: true,
+      auth: {
+        user: 'no-reply@weighingworld.com',
+        pass: '$]IIWt4blS^_',
+      },
+    });
+
+    const mailOptions = {
+      from: 'no-reply@weighingworld.com',
+      to: email,
+      subject: 'Email Verification',
+      text: `Please verify your email by clicking on the following link: ${verificationLink}`,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        return res.status(500).json({ status: 0, message: 'Error sending verification email' });
+      }
       res.status(200).json({
         status: 1,
         message: 'Registration successful. A verification email has been sent.',
@@ -400,27 +473,25 @@ app.post('/register', async (req, res) => {
 //   }
 // });
 
+// POST /verify-email
 app.post('/verify-email', async (req, res) => {
   const { token, email } = req.body;
 
-  // Validate token and email
   if (!token || !email) {
     return res.status(400).json({ status: 0, message: 'Token and email are required' });
   }
 
   try {
-    // Find the verification token in the database
     const verificationToken = await VerificationToken.findOne({ email, token });
+
     if (!verificationToken) {
       return res.status(400).json({ status: 0, message: 'Invalid or expired token' });
     }
 
-    // Check if the token has expired
     if (verificationToken.expiresAt < Date.now()) {
       return res.status(400).json({ status: 0, message: 'Token has expired' });
     }
 
-    // Mark the user as verified and create a new user in the main `User` model
     const newUser = new User({
       email: verificationToken.email,
       name: verificationToken.name,
@@ -431,8 +502,6 @@ app.post('/verify-email', async (req, res) => {
     });
 
     await newUser.save();
-
-    // Optionally, delete the verification token (for cleanup)
     await VerificationToken.deleteOne({ email, token });
 
     res.status(200).json({ status: 1, message: 'Email successfully verified' });
@@ -442,6 +511,7 @@ app.post('/verify-email', async (req, res) => {
     res.status(500).json({ status: 0, message: 'Server error' });
   }
 });
+
 
 
 
