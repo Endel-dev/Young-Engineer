@@ -366,6 +366,7 @@ app.post('/verify-email', async (req, res) => {
     })
     
     await newUser.save();
+    console.log(newUser);
 
     // Delete the verification token (optional)
     verificationToken.verified = true;
