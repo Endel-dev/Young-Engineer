@@ -1279,6 +1279,7 @@ app.post('/create-task', verifyParentOrGuardianRole, async (req, res) => {
   try {
     // Check if taskId already exists
     console.log('User ID from token:', req.user.userId);
+    console.log(token);
 
     const existingTask = await Task.findOne({ taskId });
     if (existingTask) {
