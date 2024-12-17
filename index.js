@@ -363,7 +363,7 @@ app.post('/verify-email', async (req, res) => {
 
     // Mark user as active/verified
     //user.isActive = true; // You can add an `isActive` field in the User schema to track verification status
-    const newUser = new newUser({
+    const newUser = new User({
       email:verificationToken.email,
       name:verificationToken.name,
       role:verificationToken.role,
