@@ -384,7 +384,7 @@ app.post('/verify-email', async (req, res) => {
 
   } catch (err) {
     console.error('Error verifying email:', err);
-    res.status(500).json({ status: 0, message: 'Server error' });
+    res.status(500).json({ status: 0, message: 'Server error '+err });
   }
 });
 
