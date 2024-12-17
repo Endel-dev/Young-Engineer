@@ -62,12 +62,42 @@
     <a href="#" class="btn" onclick="verifyEmail()">Verify</a>
   </div>
   <script>
-    
+    async function verifyEmail() {
+      // Extract the token and email from the URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+      const email = urlParams.get('email');
+
+      // Check if token and email are present
+      if (!token || !email) {
+        alert('Missing token or email.');
+        return;
+      }
+
+      try {
+        // Call the /verify-email API endpoint
+        const response = await fetch(`/verify-email?token=${token}&email=${email}`, {
+          method: 'POST',  // Use POST method as per your API definition
+        });
+        const data = await response.json();
+
+        // Handle the response based on the server's reply
+        if (response.ok) {
+          alert(data.message);  // Success message
+        } else {
+          alert(data.message);  // Error message
+        }
+      } catch (error) {
+        alert('An error occurred. Please try again later.');
+        console.error('Error:', error);
+      }
+    }
+
   </script>
   </body>
   </html>
 
-  // <!-- <>
+   <!-- <>
   //   // Optionally, you can redirect the user after a delay (e.g., after 5 seconds)
   //   setTimeout(function() {
   //     window.location.href = "https://your-login-page-url.com";  // Redirect to your login page or home page
