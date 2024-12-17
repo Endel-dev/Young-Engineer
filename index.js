@@ -23,14 +23,13 @@ const compression = require('compression');  // Import compression
 const VerificationToken = require('./models/VerificationToken');
 const FRONTEND_URL='templates/sample.html';
 //const app_versions = require("./models/app_versions");
-app.get('/sample.html', (req, res) => {
-  res.sendFile(path.join('Young-Engineer', 'sample.html'));  // Adjust path if needed
-});
+
 //const Redemption = require('./models/Redemption');
 
 //const { sendNotification } = require('./notifications/sendNotification');
 
 app.use(express.json());
+app.use(express.static(path.join(__dirname,'public')));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 const limiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
@@ -44,6 +43,9 @@ app.use(compression());
 app.get('/large-data', (req, res) => {
   const largeData = // large data payload //
   res.json(largeData); // The response will be compressed before being sent to the client
+});
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 
@@ -221,7 +223,7 @@ app.post('/register', async (req, res) => {
       {email  }, //userId: newUser.userId, role: newUser.role
       process.env.JWT_SECRET, // Token will expire in 15 days
     );
-    const verificationLink = `http://93.127.172.167:5001/templates/sample.html?token=${token}&email=${email}`;
+    const verificationLink = `http://93.127.172.167:5001/Young-Engineer/templates/sample.html?token=${token}&email=${email}`;
 
     // Save the token in the database (or cache it for 24 hours expiration)
     const salt = await bcrypt.genSalt(10);
