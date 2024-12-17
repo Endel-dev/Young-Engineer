@@ -219,7 +219,7 @@ app.post('/register', async (req, res) => {
       {email  }, //userId: newUser.userId, role: newUser.role
       process.env.JWT_SECRET, // Token will expire in 15 days
     );
-    const verificationLink = `http:93.127.172.167:5001/Young-Engineer/templates/sample.html?token=${token}&email=${email}`;
+    const verificationLink = `http://93.127.172.167:5001/Young-Engineer/templates/sample.html?token=${token}&email=${email}`;
 
     // Save the token in the database (or cache it for 24 hours expiration)
     const salt = await bcrypt.genSalt(10);
