@@ -50,6 +50,10 @@ app.get('/', (req, res) => {
 app.get('/sample.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'sample.html'));
 });
+app.get('/verify-email.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'verify-email.html'));
+});
+
 
 
 //const serviceAccount = require('C:/Users/admin/Downloads/react-native-app-8b283-firebase-adminsdk-5jj6x-e268f24026.json'); // Your Firebase service account JSON file
@@ -235,7 +239,7 @@ app.post('/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
     const verificationToken = new VerificationToken({
       email,
-      token,
+      token:token,
       name,
       role:normalizedRole,
       gender:normalizedgender,
@@ -244,7 +248,6 @@ app.post('/register', async (req, res) => {
       expiresAt: Date.now() + 24 * 60 * 60 * 1000, // expires in 24 hours
     });
     await verificationToken.save();
-
     
 
     // Send the verification link to the user's email
@@ -353,7 +356,7 @@ app.post('/verify-email', async (req, res) => {
     // if (!verificationToken) {
     //   return res.status(400).json({ status: 0, message: 'Invalid or expired token' });
     // }
-
+     
     // Check if the token has expired
     if (verificationToken.expiresAt < Date.now()) {
       return res.status(400).json({ status: 0, message: 'Token has expired' });
