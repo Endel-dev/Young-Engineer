@@ -50,12 +50,12 @@ app.get('/', (req, res) => {
 // app.get('/sample.html', (req, res) => {
 //   res.sendFile(path.join(__dirname, 'sample.html'));
 // });
-app.get('/verify-email', (req, res) => {
-  res.sendFile(path.join(__dirname, 'verify-email.html'));
-});
-app.get('/verify-email.js', (req, res) => {
-  res.sendFile(path.join(__dirname, 'verify-email.js'));
-});
+// app.get('/verify-email', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'verify-email.html'));
+// });
+// app.get('/verify-email.js', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'verify-email.js'));
+// });
 
 
 
