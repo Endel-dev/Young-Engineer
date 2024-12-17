@@ -328,7 +328,7 @@ app.post('/register', async (req, res) => {
 //module.exports = router;
 
 app.post('/verify-email', async (req, res) => {
-  const { token, email } = req.query;
+  const { token, email } = req.body;
 
   // Check if token and email are provided
   if (!token || !email) {
