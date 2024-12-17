@@ -62,53 +62,59 @@
     <a href="#" class="btn" onclick="verifyEmail()">Verify</a>
   </div>
   <script>
-    // async function verifyEmail() {
-    //   // Extract the token and email from the URL parameters
-    //   const urlParams = new URLSearchParams(window.location.search);
-    //   const token = urlParams.get('token');
-    //   const email = urlParams.get('email');
 
-    //   // Check if token and email are present
-    //   if (!token || !email) {
-    //     alert('Missing token or email.');
-    //     return;
-    //   }
 
-    //   try {
-    //     // Call the /verify-email API endpoint
-    //     const response = await fetch(`http://93.127.172.167:5001/verify-email.html`, {
-    //       method: 'POST',
-    //       headers: {
-    //         'Content-Type': 'application/json',  // Add content type header if needed
-    //       },
-    //       body: JSON.stringify({ token, email })  // Use POST method as per your API definition
-    //     });
-    //     const data = await response.json();
 
-    //     // Handle the response based on the server's reply
-    //     if (response.ok) {
-    //       alert(data.message);  // Success message
-    //     } else {
-    //       alert(data.message);  // Error message
-    //     }
-    //   } catch (error) {
-    //     alert('An error occurred. Please try again later.');
-    //     console.error('Error:', error);
-    //   }
-    // }
+
+
+
+// Function to extract query parameters from the URL
+function getQueryParam(param) {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(param);
+}
+
+// The main function that triggers on button click
+function verifyEmail() {
+  // Extract email and token from the URL
+  const email = getQueryParam('email');
+  const token = getQueryParam('token');
+
+  if (!email || !token) {
+    alert('Missing email or token in the URL.');
+    return;
+  }
+
+  // Create the AJAX request to verify the email
+  const xhr = new XMLHttpRequest();
+  const url = 'http://93.127.172.167:5001/verify-email1';
+
+  xhr.open('POST', url, true);
+  xhr.setRequestHeader('Content-Type', 'application/json');
+
+  // Prepare the request payload
+  const data = JSON.stringify({ email, token });
+
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === XMLHttpRequest.DONE) {
+      if (xhr.status === 200) {
+        alert('Email verification successful!');
+      } else {
+        alert('Email verification failed. Please try again.');
+      }
+    }
+  };
+
+  // Send the request
+  xhr.send(data);
+}
+
 
   </script>
-  <script src="verify-email.js"></script>
-</body>
 
-</html>
-
-<!-- <>
-  //   // Optionally, you can redirect the user after a delay (e.g., after 5 seconds)
-  //   setTimeout(function() {
-  //     window.location.href = "https://your-login-page-url.com";  // Redirect to your login page or home page
-  //   }, 5000);  // 5000 milliseconds = 5 seconds
+  </script>
   
 </body>
 
 </html>
+
