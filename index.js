@@ -45,7 +45,7 @@ app.get('/large-data', (req, res) => {
   res.json(largeData); // The response will be compressed before being sent to the client
 });
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 
