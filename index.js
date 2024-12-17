@@ -481,7 +481,7 @@ app.post('/register', async (req, res) => {
 // });
 
 // POST /verify-email
-app.post('/verify-email', async (req, res) => {
+app.post('/verify-email1', async (req, res) => {
   const { token, email } = req.body;
 
   if (!token || !email) {
