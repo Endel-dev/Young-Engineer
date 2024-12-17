@@ -47,9 +47,9 @@ app.get('/large-data', (req, res) => {
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
-// app.get('/sample.html', (req, res) => {
-//   res.sendFile(path.join(__dirname, 'sample.html'));
-// });
+app.get('/sample', (req, res) => {
+  res.sendFile(path.join(__dirname, 'sample.html'));
+});
 app.get('/verify-email', (req, res) => {
   res.sendFile(path.join(__dirname, 'verify-email.html'));
 });
