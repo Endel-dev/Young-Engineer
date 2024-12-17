@@ -32,5 +32,5 @@ async function verifyEmail() {
   }
   
   // Call verifyEmail function when the page loads
-  document.addEventListener('DOMContentLoaded', verifyEmail);
+  //document.addEventListener('DOMContentLoaded', verifyEmail);
   
