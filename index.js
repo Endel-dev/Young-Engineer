@@ -344,7 +344,7 @@ app.post('/verify-email', async (req, res) => {
 
   try {
     // Find the verification token in the database
-    const verificationToken = await VerificationToken.findOne({ email, token });
+    const verificationToken = await VerificationToken.findOne({ email, token }).where('deleted').equals(false);
 
     if (!verificationToken) {
       return res.status(400).json({ status: 0, message: 'Invalid or expired token' });
