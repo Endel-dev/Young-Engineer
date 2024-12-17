@@ -350,9 +350,9 @@ app.post('/verify-email', async (req, res) => {
     // Find the verification token in the database
     const verificationToken = await VerificationToken.findOne({ email, token })
 
-    if (!verificationToken) {
-      return res.status(400).json({ status: 0, message: 'Invalid or expired token' });
-    }
+    // if (!verificationToken) {
+    //   return res.status(400).json({ status: 0, message: 'Invalid or expired token' });
+    // }
 
     // Check if the token has expired
     if (verificationToken.expiresAt < Date.now()) {
