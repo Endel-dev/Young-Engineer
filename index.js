@@ -47,6 +47,9 @@ app.get('/large-data', (req, res) => {
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
+app.get('/sample.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'sample.html'));
+});
 
 
 //const serviceAccount = require('C:/Users/admin/Downloads/react-native-app-8b283-firebase-adminsdk-5jj6x-e268f24026.json'); // Your Firebase service account JSON file
@@ -223,7 +226,7 @@ app.post('/register', async (req, res) => {
       {email  }, //userId: newUser.userId, role: newUser.role
       process.env.JWT_SECRET, // Token will expire in 15 days
     );
-    const verificationLink = `http://93.127.172.167:5001/Young-Engineer/templates/sample.html?token=${token}&email=${email}`;
+    const verificationLink = `http://93.127.172.167:5001/Young-Engineer/sample.html?token=${token}&email=${email}`;
 
     // Save the token in the database (or cache it for 24 hours expiration)
     const salt = await bcrypt.genSalt(10);
