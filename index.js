@@ -24,7 +24,7 @@ const VerificationToken = require('./models/VerificationToken');
 const FRONTEND_URL='templates/sample.html';
 //const app_versions = require("./models/app_versions");
 app.get('/sample.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'sample.html'));  // Adjust path if needed
+  res.sendFile(path.join('Young-Engineer', 'sample.html'));  // Adjust path if needed
 });
 //const Redemption = require('./models/Redemption');
 
