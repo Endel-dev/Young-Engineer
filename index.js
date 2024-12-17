@@ -50,9 +50,9 @@ app.get('/', (req, res) => {
 app.get('/sample', (req, res) => {
   res.sendFile(path.join(__dirname, 'sample.html'));
 });
-app.get('/verify-email', (req, res) => {
-  res.sendFile(path.join(__dirname, 'verify-email.html'));
-});
+// app.get('/verify-email', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'verify-email.html'));
+// });
 app.get('/verify-email.js', (req, res) => {
   res.sendFile(path.join(__dirname, 'verify-email.js'));
 });
@@ -241,7 +241,7 @@ app.post('/registers', async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: '24h' } // Token will expire in 15 days
     );
-    const verificationLink = `http://93.127.172.167:5001/verify-email?token=${token}&email=${email}`;
+    const verificationLink = `http://93.127.172.167:5001/sample?token=${token}&email=${email}`;
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -319,7 +319,7 @@ app.post('/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '24h' });
-    const verificationLink = `http://localhost:5001/verify-email?token=${token}&email=${email}`;
+    const verificationLink = `http://localhost:5001/sample?token=${token}&email=${email}`;
 
     const verificationToken = new VerificationToken({
       email,
