@@ -4,93 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Email Verification</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f4f4f9;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      color: #333;
-    }
-    .container {
-      background-color: #fff;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      width: 90%;
-      max-width: 500px;
-    }
-    h1 {
-      font-size: 24px;
-      margin-bottom: 20px;
-      color: #4caf50;
-    }
-    p {
-      font-size: 18px;
-      margin-bottom: 20px;
-    }
-    .btn {
-      padding: 10px 20px;
-      background-color: #4caf50;
-      color: white;
-      text-decoration: none;
-      border-radius: 5px;
-      font-size: 16px;
-    }
-    .btn:hover {
-      background-color: #45a049;
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="container">
     <h1>Email Successfully Verified!</h1>
     <p>Your email address has been successfully verified. You can now enjoy full access to your account.</p>
     <p>If you didn't initiate this verification, please contact support immediately.</p>
-    <!-- Button to trigger email verification -->
-    <a href="templates/verify-email.html" class="btn" onclick="verifyEmail()">Verify</a>
+    <button onclick="verifyEmail()">Verify</button>
   </div>
 
-  <script>
-    function verifyEmail() {
-      // Extract token and email from the query parameters
-      const urlParams = new URLSearchParams(window.location.search);
-      const token = urlParams.get('token');
-      const email = urlParams.get('email');
-
-      // Ensure both token and email are present
-      if (!token || !email) {
-        alert('Token or email is missing!');
-        return;
-      }
-
-      // Send POST request to backend for verification and user creation
-      fetch(`/verify-email?token=${token}&email=${email}`, {
-        method: 'POST', // Or 'GET', depending on your API design
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.status === 1) {
-          alert('User verified and added successfully!');
-          // Redirect to login page after successful verification
-          window.location.href = '/login'; // Replace with your actual login page URL
-        } else {
-          alert('Verification failed: ' + data.message);
-        }
-      })
-      .catch(err => {
-        console.error('Error during verification:', err);
-        alert('There was an error. Please try again later.');
-      });
-    }
-  </script>
+  <script src="verify-email.js"></script>
 </body>
 </html>

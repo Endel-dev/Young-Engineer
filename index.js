@@ -29,7 +29,7 @@ const FRONTEND_URL='templates/sample.html';
 //const { sendNotification } = require('./notifications/sendNotification');
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname,'public')));
+//app.use(express.static(path.join(__dirname,'public')));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 const limiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
@@ -47,10 +47,10 @@ app.get('/large-data', (req, res) => {
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
-app.get('/sample.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'sample.html'));
-});
-app.get('/verify-email.html', (req, res) => {
+// app.get('/sample.html', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'sample.html'));
+// });
+app.get('/verify-email', (req, res) => {
   res.sendFile(path.join(__dirname, 'verify-email.html'));
 });
 
@@ -231,9 +231,10 @@ app.post('/register', async (req, res) => {
    
     const token = jwt.sign(
       {email  }, //userId: newUser.userId, role: newUser.role
-      process.env.JWT_SECRET, // Token will expire in 15 days
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' } // Token will expire in 15 days
     );
-    const verificationLink = `http://93.127.172.167:5001/sample.html?token=${token}&email=${email}`;
+    const verificationLink = `http://93.127.172.167:5001/verify-email?token=${token}&email=${email}`;
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -341,59 +342,107 @@ app.post('/register', async (req, res) => {
 
 //module.exports = router;
 
+
+
+
+
+// app.post('/verify-email', async (req, res) => {
+//   const { token, email } = req.body;
+
+//   // Check if token and email are provided
+//   if (!token || !email) {
+//     return res.status(400).json({ status: 0, message: 'Token and email are required' });
+//   }
+
+//   try {
+//     // Find the verification token in the database
+//     const verificationToken = await VerificationToken.findOne({ email, token })
+
+//     // if (!verificationToken) {
+//     //   return res.status(400).json({ status: 0, message: 'Invalid or expired token' });
+//     // }
+     
+//     // Check if the token has expired
+//     if (verificationToken.expiresAt < Date.now()) {
+//       return res.status(400).json({ status: 0, message: 'Token has expired' });
+//     }
+
+//     // Mark user as verified in the User model (or update `isActive` field)
+//     const user = await User.findOne({ email });
+//     if (!user) {
+//       return res.status(404).json({ status: 0, message: 'User not found' });
+//     }
+
+//     // Mark user as active/verified
+//     //user.isActive = true; // You can add an `isActive` field in the User schema to track verification status
+//     const newUser = new User({
+//       email:verificationToken.email,
+//       name:verificationToken.name,
+//       role:verificationToken.role,
+//       gender:verificationToken.gender,
+//       dob:verificationToken.dob,
+//       password:verificationToken.password,
+//     })
+    
+//     await newUser.save();
+//     console.log(newUser);
+
+//     // Delete the verification token (optional)
+//     verificationToken.verified = true;
+//     await verificationToken.save();
+//     //await VerificationToken.deleteOne({ email, token });
+
+//     res.status(200).json({ status: 1, message: 'Email successfully verified' });
+
+//   } catch (err) {
+//     console.error('Error verifying email:', err);
+//     res.status(500).json({ status: 0, message: 'Server error '+err });
+//   }
+// });
+
 app.post('/verify-email', async (req, res) => {
   const { token, email } = req.body;
 
-  // Check if token and email are provided
+  // Validate token and email
   if (!token || !email) {
     return res.status(400).json({ status: 0, message: 'Token and email are required' });
   }
 
   try {
     // Find the verification token in the database
-    const verificationToken = await VerificationToken.findOne({ email, token })
+    const verificationToken = await VerificationToken.findOne({ email, token });
+    if (!verificationToken) {
+      return res.status(400).json({ status: 0, message: 'Invalid or expired token' });
+    }
 
-    // if (!verificationToken) {
-    //   return res.status(400).json({ status: 0, message: 'Invalid or expired token' });
-    // }
-     
     // Check if the token has expired
     if (verificationToken.expiresAt < Date.now()) {
       return res.status(400).json({ status: 0, message: 'Token has expired' });
     }
 
-    // Mark user as verified in the User model (or update `isActive` field)
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ status: 0, message: 'User not found' });
-    }
-
-    // Mark user as active/verified
-    //user.isActive = true; // You can add an `isActive` field in the User schema to track verification status
+    // Mark the user as verified and create a new user in the main `User` model
     const newUser = new User({
-      email:verificationToken.email,
-      name:verificationToken.name,
-      role:verificationToken.role,
-      gender:verificationToken.gender,
-      dob:verificationToken.dob,
-      password:verificationToken.password,
-    })
-    
-    await newUser.save();
-    console.log(newUser);
+      email: verificationToken.email,
+      name: verificationToken.name,
+      role: verificationToken.role,
+      gender: verificationToken.gender,
+      dob: verificationToken.dob,
+      password: verificationToken.password,
+    });
 
-    // Delete the verification token (optional)
-    verificationToken.verified = true;
-    await verificationToken.save();
-    //await VerificationToken.deleteOne({ email, token });
+    await newUser.save();
+
+    // Optionally, delete the verification token (for cleanup)
+    await VerificationToken.deleteOne({ email, token });
 
     res.status(200).json({ status: 1, message: 'Email successfully verified' });
 
   } catch (err) {
     console.error('Error verifying email:', err);
-    res.status(500).json({ status: 0, message: 'Server error '+err });
+    res.status(500).json({ status: 0, message: 'Server error' });
   }
 });
+
 
 
 const verifyParentRole = (req, res, next) => {
