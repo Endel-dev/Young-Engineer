@@ -224,6 +224,13 @@ app.post('/register', async (req, res) => {
     //const token = crypto.randomBytes(32).toString('hex');  // 32 bytes token
 
     // Save the token in the database (or cache it for 24 hours expiration)
+   
+    const token = jwt.sign(
+      {email  }, //userId: newUser.userId, role: newUser.role
+      process.env.JWT_SECRET, // Token will expire in 15 days
+    );
+    const verificationLink = `http://93.127.172.167:5001/sample.html?token=${token}&email=${email}`;
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
     const verificationToken = new VerificationToken({
@@ -237,11 +244,6 @@ app.post('/register', async (req, res) => {
       expiresAt: Date.now() + 24 * 60 * 60 * 1000, // expires in 24 hours
     });
     await verificationToken.save();
-    const token = jwt.sign(
-      {email  }, //userId: newUser.userId, role: newUser.role
-      process.env.JWT_SECRET, // Token will expire in 15 days
-    );
-    const verificationLink = `http://93.127.172.167:5001/sample.html?token=${token}&email=${email}`;
 
     
 
