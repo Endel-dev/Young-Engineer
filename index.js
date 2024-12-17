@@ -51,8 +51,10 @@ app.get('/', (req, res) => {
 //   res.sendFile(path.join(__dirname, 'sample.html'));
 // });
 app.get('/verify-email', (req, res) => {
-  res.sendFile(path.join(__dirname, 'verify-email.html'));
+  res.sendFile(path.join(__dirname, 'verify-email.js'));
 });
+
+
 
 
 
