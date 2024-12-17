@@ -1067,24 +1067,24 @@ app.post('/create-child', verifyParentRole, async (req, res) => {
 
   // Only allow 'child' role
   if (normalizedRole !== 'child') {
-    return res.status(400).json({ message: 'Role must be "child"' });
+    return res.status(400).json({ status:0,message: 'Role must be "child"' });
   }
 
   // Validate required fields
   if (!name || !password || !dob) {
-    return res.status(400).json({ message: 'Please provide all required fields' });
+    return res.status(400).json({ status: 0,message: 'Please provide all required fields' });
   }
 
   try {
     // Check if email or userId already exists
     const existingUser = await User.findOne({ $or: [{ email }, { name }] });
     if (existingUser) {
-      return res.status(400).json({ message: 'Email or Name already exists' });
+      return res.status(200).json({status:0, message: 'Email or Name already exists' });
     }
     // Find the parent user
     const parent = await User.findOne({ userId: parentId });
     if (!parent) {
-      return res.status(400).json({ message: 'Parent not found' });
+      return res.status(400).json({ status:0,message: 'Parent not found' });
     }
 
     // Create the new user (child)
@@ -1102,7 +1102,7 @@ app.post('/create-child', verifyParentRole, async (req, res) => {
 
     // Save the new user to the database
     await newUser.save();
-    res.status(200).json({ message: 'User created successfully', user: newUser });
+    res.status(200).json({ status: 1,message: 'User created successfully', user: newUser });
 
   } catch (err) {
     console.error('Error creating user:', err);
