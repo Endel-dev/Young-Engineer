@@ -2427,10 +2427,10 @@ app.post("/app_versions", async (req, res) => {
   const { platform, version, url } = req.body;
 
   // Validate the input
-  if (!platform || !version ||!url ) {
+  if (!platform || !version ) {
     return res.status(400).json({
       status: 0,
-      message: "Please provide all required fields: platform, version and url",
+      message: "Please provide all required fields: platform, version",
     });
   }
 
@@ -2439,7 +2439,7 @@ app.post("/app_versions", async (req, res) => {
     const newAppVersion = new app_versions({
       platform,
       version,
-      url,
+      url:'https://drive.google.com/uc?export=download&id=1BLb6HJEZaCiIA_NpvrtFofkDAFYMuREP',
     });
 
     // Save the record to the database
