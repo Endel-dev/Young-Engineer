@@ -2525,7 +2525,7 @@ app.get("/check-update", async (req, res) => {
       data: {
         platform: latestAppVersion.platform,
         version: latestAppVersion.version,
-        url: latestAppVersion.url,
+        url:'https://drive.google.com/uc?export=download&id=17YvOk2a1N1mNN8QezoGn2235yI0Z5T0e',
       },
     });
   } catch (err) {
