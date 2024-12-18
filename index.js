@@ -752,7 +752,7 @@ app.post('/login', async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     console.log(user.password);
     console.log('Password match result:', isMatch);
-    console.log("Password entered: ", hashedPassword);
+    console.log("Password entered: ", password);
 
     if (!isMatch) {
       return res.status(401).json({
