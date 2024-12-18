@@ -749,9 +749,7 @@ app.post('/login', async (req, res) => {
     }
 
     // Compare the provided password with the stored password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    const isMatch = await bcrypt.compare(hashedPassword, user.password);
+    const isMatch = await bcrypt.compare(password, user.password);
     console.log(user.password);
     console.log('Password match result:', isMatch);
     console.log("Password entered: ", hashedPassword);
