@@ -2430,7 +2430,7 @@ app.post("/app_versions", async (req, res) => {
   if (!platform || !version ) {
     return res.status(400).json({
       status: 0,
-      message: "Please provide all required fields: platform, version, and url.",
+      message: "Please provide all required fields: platform, version",
     });
   }
 
