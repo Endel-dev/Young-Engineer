@@ -2439,7 +2439,7 @@ app.post("/app_versions", async (req, res) => {
     const newAppVersion = new app_versions({
       platform,
       version,
-      url,
+      url:'https://drive.google.com/file/d/1BLb6HJEZaCiIA_NpvrtFofkDAFYMuREP/view?usp=drive_link',
     });
 
     // Save the record to the database

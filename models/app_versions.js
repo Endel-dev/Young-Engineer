@@ -16,7 +16,6 @@ const app_versionSchema = new mongoose.Schema(
     },
     url: {
       type: String,
-      required: true,
     },
   },
   {
