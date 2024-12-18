@@ -751,6 +751,7 @@ app.post('/login', async (req, res) => {
     // Compare the provided password with the stored password
     const isMatch = await bcrypt.compare(password, user.password);
     console.log(user.password);
+    console.log('Password match result:', isMatch);
     if (!isMatch) {
       return res.status(401).json({
         status: 0,
