@@ -336,6 +336,7 @@ app.post('/register', async (req, res) => {
       expiresAt: Date.now() + 24 * 60 * 60 * 1000, // expires in 24 hours
     });
     await verificationToken.save();
+    console.log(verificationToken);
 
     const transporter = nodemailer.createTransport({
       host: 'mail.weighingworld.com',
