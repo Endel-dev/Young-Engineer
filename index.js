@@ -22,7 +22,7 @@ const rateLimit = require('express-rate-limit');
 const compression = require('compression');  // Import compression
 const VerificationToken = require('./models/VerificationToken');
 const FRONTEND_URL='templates/sample.html';
-//const app_versions = require("./models/app_versions");
+const app_versions = require("./models/app_versions");
 
 //const Redemption = require('./models/Redemption');
 
@@ -2419,6 +2419,52 @@ app.post('/flush-verificationtokens', async (req, res) => {
     res.status(500).json({
       status: 'error',
       message: 'Failed to flush data',
+    });
+  }
+});
+
+// API to check for updates
+app.get('/check-update', async (req, res) => {
+  const { platform, version } = req.query;  // Platform and current version passed as query params
+
+  if (!platform || !version) {
+    return res.status(400).json({
+      status: 0,
+      message: 'Please provide both platform and current version'
+    });
+  }
+
+  try {
+    // Find the latest version for the specified platform
+    const latestVersion = await app_versions.findOne({ platform }).sort({ created_at: -1 });  // Sort by created_at, so the latest version is first
+
+    if (!latestVersion) {
+      return res.status(404).json({
+        status: 0,
+        message: 'No version found for the specified platform'
+      });
+    }
+
+    // Check if the current version is up-to-date
+    if (version === latestVersion.version) {
+      return res.status(200).json({
+        status: 1,
+        message: 'Your app is up-to-date'
+      });
+    }
+
+    // If the current version is less than the latest version, return the latest version and update details
+    return res.status(200).json({
+      status: 1,
+      message: 'A new update is available',
+      latestVersion: latestVersion.version,
+      downloadUrl: latestVersion.url,
+    });
+  } catch (err) {
+    console.error('Error checking update:', err);
+    return res.status(500).json({
+      status: 0,
+      message: 'Server error',
     });
   }
 });
