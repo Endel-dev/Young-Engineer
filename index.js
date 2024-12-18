@@ -2423,6 +2423,43 @@ app.post('/flush-verificationtokens', async (req, res) => {
   }
 });
 
+app.post("/app_versions", async (req, res) => {
+  const { platform, version, url } = req.body;
+
+  // Validate the input
+  if (!platform || !version || !url) {
+    return res.status(400).json({
+      status: 0,
+      message: "Please provide all required fields: platform, version, and url.",
+    });
+  }
+
+  try {
+    // Create a new app version record
+    const newAppVersion = new app_versions({
+      platform,
+      version,
+      url,
+    });
+
+    // Save the record to the database
+    const savedAppVersion = await newAppVersion.save();
+
+    // Send the response
+    return res.status(201).json({
+      status: 1,
+      message: "App version created successfully",
+      data: savedAppVersion,
+    });
+  } catch (err) {
+    console.error("Error creating app version:", err);
+    return res.status(500).json({
+      status: 0,
+      message: "Server error. Failed to create app version.",
+    });
+  }
+});
+
 // API to check for updates
 app.get('/check-update', async (req, res) => {
   const { platform, version } = req.query;  // Platform and current version passed as query params
