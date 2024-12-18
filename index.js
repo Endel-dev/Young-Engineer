@@ -2439,7 +2439,7 @@ app.post("/app_versions", async (req, res) => {
     const newAppVersion = new app_versions({
       platform,
       version,
-      url:'https://drive.google.com/file/d/1BLb6HJEZaCiIA_NpvrtFofkDAFYMuREP/view?usp=drive_link',
+      url:'https://drive.google.com/uc?export=download&id=1BLb6HJEZaCiIA_NpvrtFofkDAFYMuREP',
     });
 
     // Save the record to the database
@@ -2495,7 +2495,7 @@ app.get('/check-update', async (req, res) => {
       status: 1,
       message: 'A new update is available',
       latestVersion: latestVersion.version,
-      downloadUrl:'https://drive.google.com/file/d/1BLb6HJEZaCiIA_NpvrtFofkDAFYMuREP/view?usp=drive_link',
+      downloadUrl:'https://drive.google.com/uc?export=download&id=1BLb6HJEZaCiIA_NpvrtFofkDAFYMuREP',
     });
   } catch (err) {
     console.error('Error checking update:', err);
