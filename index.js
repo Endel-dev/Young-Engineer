@@ -493,7 +493,7 @@ app.post('/verify-email1', async (req, res) => {
   }
 
   try {
-    console.log(req.body);s
+    console.log(req.body);
     const verificationToken = await VerificationToken.findOne({ email, token });
 
     if (!verificationToken) {
@@ -2379,6 +2379,26 @@ app.post('/flush-data', async (req, res) => {
   try {
     // Flush all data from the "users" collection
     const result = await User.deleteMany({});
+
+    // Return a success response
+    res.status(200).json({
+      status: 'success',
+      message: 'All data has been flushed successfully',
+      deletedCount: result.deletedCount,
+    });
+  } catch (err) {
+    console.error('Error flushing data:', err);
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to flush data',
+    });
+  }
+});
+
+app.post('/flush-verificationtokens', async (req, res) => {
+  try {
+    // Flush all data from the "users" collection
+    const result = await VerificationToken.deleteMany({});
 
     // Return a success response
     res.status(200).json({
