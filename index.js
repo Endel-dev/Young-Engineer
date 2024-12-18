@@ -2495,7 +2495,7 @@ app.get('/check-update', async (req, res) => {
       status: 1,
       message: 'A new update is available',
       latestVersion: latestVersion.version,
-      downloadUrl: latestVersion.url,
+      downloadUrl:'https://drive.google.com/file/d/1BLb6HJEZaCiIA_NpvrtFofkDAFYMuREP/view?usp=drive_link',
     });
   } catch (err) {
     console.error('Error checking update:', err);
