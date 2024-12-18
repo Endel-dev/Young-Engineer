@@ -921,19 +921,19 @@ app.post('/create-guardian', async (req, res) => {
 
   // Only allow 'child' or 'guardian' roles
   if ( normalizedRole !== 'guardian') {
-    return res.status(400).json({ message: 'Role must be "guardian"' });
+    return res.status(400).json({ status:0,message: 'Role must be "guardian"' });
   }
 
   // Validate required fields
   if ( !name || !email || !password || !dob) {
-    return res.status(400).json({ message: 'Please provide all required fields' });
+    return res.status(400).json({ status:0,message: 'Please provide all required fields' });
   }
 
   try {
     // Check if email or userId already exists
     const existingUser = await User.findOne({ $or: [{ email },{name}] });
     if (existingUser) {
-      return res.status(200).json({ message: 'Email or Name already exists' });
+      return res.status(200).json({ status:0,message: 'Email or Name already exists' });
     }
     
     // Create the new user
@@ -950,11 +950,11 @@ app.post('/create-guardian', async (req, res) => {
 
     // Save the new user to the database
     await newUser.save();
-    res.status(200).json({ message: 'User created successfully', user: newUser });
+    res.status(200).json({ status:1,message: 'User created successfully', user: newUser });
 
   } catch (err) {
     console.error('Error creating user:', err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ status:0,message: 'Server error' });
   }
 });
 
