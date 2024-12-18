@@ -493,6 +493,7 @@ app.post('/verify-email1', async (req, res) => {
   }
 
   try {
+    console.log(req.body);s
     const verificationToken = await VerificationToken.findOne({ email, token });
 
     if (!verificationToken) {
