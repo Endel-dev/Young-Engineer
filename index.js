@@ -2461,47 +2461,78 @@ app.post("/app_versions", async (req, res) => {
 });
 
 // API to check for updates
-app.get('/check-update', async (req, res) => {
-  const { platform, version } = req.query;  // Platform and current version passed as query params
+// app.get('/check-update', async (req, res) => {
+//   const { platform, version } = req.query;  // Platform and current version passed as query params
 
-  if (!platform || !version) {
-    return res.status(400).json({
-      status: 0,
-      message: 'Please provide both platform and current version'
-    });
-  }
+//   if (!platform || !version) {
+//     return res.status(400).json({
+//       status: 0,
+//       message: 'Please provide both platform and current version'
+//     });
+//   }
 
+//   try {
+//     // Find the latest version for the specified platform
+//     const latestVersion = await app_versions.findOne({ platform }).sort({ created_at: -1 });  // Sort by created_at, so the latest version is first
+
+//     if (!latestVersion) {
+//       return res.status(404).json({
+//         status: 0,
+//         message: 'No version found for the specified platform'
+//       });
+//     }
+
+//     // Check if the current version is up-to-date
+//     if (version === latestVersion.version) {
+//       return res.status(200).json({
+//         status: 1,
+//         message: 'Your app is up-to-date'
+//       });
+//     }
+
+//     // If the current version is less than the latest version, return the latest version and update details
+//     return res.status(200).json({
+//       status: 1,
+//       message: 'A new update is available',
+//       latestVersion: latestVersion.version,
+//       downloadUrl:'https://drive.google.com/uc?export=download&id=1BLb6HJEZaCiIA_NpvrtFofkDAFYMuREP',
+//     });
+//   } catch (err) {
+//     console.error('Error checking update:', err);
+//     return res.status(500).json({
+//       status: 0,
+//       message: 'Server error',
+//     });
+//   }
+// });
+app.get("/check-update", async (req, res) => {
   try {
-    // Find the latest version for the specified platform
-    const latestVersion = await app_versions.findOne({ platform }).sort({ created_at: -1 });  // Sort by created_at, so the latest version is first
+    // Find the most recent app version by sorting the collection in descending order of version
+    const latestAppVersion = await app_versions.findOne().sort({ version: -1 });
 
-    if (!latestVersion) {
+    // If no app version is found
+    if (!latestAppVersion) {
       return res.status(404).json({
         status: 0,
-        message: 'No version found for the specified platform'
+        message: "No app versions found.",
       });
     }
 
-    // Check if the current version is up-to-date
-    if (version === latestVersion.version) {
-      return res.status(200).json({
-        status: 1,
-        message: 'Your app is up-to-date'
-      });
-    }
-
-    // If the current version is less than the latest version, return the latest version and update details
+    // Send the latest app version as the response
     return res.status(200).json({
       status: 1,
-      message: 'A new update is available',
-      latestVersion: latestVersion.version,
-      downloadUrl:'https://drive.google.com/uc?export=download&id=1BLb6HJEZaCiIA_NpvrtFofkDAFYMuREP',
+      message: "Latest app version retrieved successfully.",
+      data: {
+        platform: latestAppVersion.platform,
+        version: latestAppVersion.version,
+        url: latestAppVersion.url,
+      },
     });
   } catch (err) {
-    console.error('Error checking update:', err);
+    console.error("Error retrieving the latest app version:", err);
     return res.status(500).json({
       status: 0,
-      message: 'Server error',
+      message: "Server error. Failed to retrieve the latest app version.",
     });
   }
 });
