@@ -10,7 +10,7 @@ async function verifyEmail() {
     }
   
     try {
-      const response = await fetch('http://93.127.172.167:5001/verify-email', {
+      const response = await fetch('http://93.127.172.167:5001/verify-email1', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
