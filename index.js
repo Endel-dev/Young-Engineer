@@ -319,8 +319,8 @@ app.post('/register', async (req, res) => {
       return res.status(400).json({ status: 0, message: 'Email or Name already exists' });
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    // const salt = await bcrypt.genSalt(10);
+    // const hashedPassword = await bcrypt.hash(password, salt);
 
     const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '24h' });
     const verificationLink = `http://93.127.172.167:5001/sample?token=${token}&email=${email}`;
@@ -332,7 +332,7 @@ app.post('/register', async (req, res) => {
       role: normalizedRole,
       gender: normalizedGender,
       dob,
-      password: hashedPassword,
+      password,
       expiresAt: Date.now() + 24 * 60 * 60 * 1000, // expires in 24 hours
     });
     await verificationToken.save();
@@ -838,77 +838,7 @@ app.post('/login', async (req, res) => {
   }
 });
 
-app.post('/logins', async (req, res) => {
-  const { email, name, password } = req.body;
 
-  // Check if email or name is provided along with the password
-  if (!password) {
-    return res.status(400).json({ status: 0, message: 'Please provide password' });
-  }
-
-  try {
-    let user;
-
-    // If email is provided, search for user by email
-    if (email) {
-      user = await User.findOne({ email });
-    } else if (name) {
-      // If no email, check if it's a child and search by name
-      user = await User.findOne({ name });
-
-      // Ensure user is found and the role is 'child' if name is provided
-      if (!user || user.role !== 'child') {
-        return res.status(401).json({ status: 0, message: 'User not found or not a child user' });
-      }
-    } else {
-      return res.status(400).json({ status: 0, message: 'Please provide either email or name' });
-    }
-
-    if (!user) {
-      return res.status(401).json({ status: 0, message: 'User not found' });
-    }
-
-    // Compare the provided password with the stored password hash
-    const isMatch = await bcrypt.compare(password, user.password);
-    console.log('Password match result:', isMatch);
-
-    if (!isMatch) {
-      return res.status(401).json({
-        status: 0,
-        message: 'Invalid email/name or password',
-      });
-    }
-
-    // Generate a 4-digit OTP (after successful password verification)
-    const otp = Math.floor(1000 + Math.random() * 9000); // Generate a 4-digit number
-
-    // Send OTP email if email is provided
-    if (user.email) {
-      // SMTP email sending code here
-    } else {
-      // Skip OTP sending for child users
-      const token = jwt.sign(
-        { userId: user.userId, role: user.role },
-        process.env.JWT_SECRET,
-        { expiresIn: '15d' } // Token will expire in 15 days
-      );
-
-      // Send response with token for child (no OTP sent)
-      return res.status(200).json({
-        status: 1,
-        message: 'Login successful',
-        token: token,
-        userId: user.userId,
-        role: user.role,
-        name: user.name,
-        familyId: user.familyId || null,
-      });
-    }
-  } catch (err) {
-    console.error('Error logging in user:', err);
-    res.status(500).json({ status: 0, message: 'Server error' });
-  }
-});
 
 
 
