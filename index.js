@@ -319,7 +319,7 @@ app.post('/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '24h' });
-    const verificationLink = `http://93.127.172.167:5001/verify-email?token=${token}&email=${email}`;
+    const verificationLink = `http://93.127.172.167:5001/sample?token=${token}&email=${email}`;
 
     const verificationToken = new VerificationToken({
       email,
