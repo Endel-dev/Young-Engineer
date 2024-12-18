@@ -1741,7 +1741,7 @@ app.get('/children', verifyToken, async (req, res) => {
     const parent = req.user;  // Get user info from the token
     // Ensure the logged-in user is a parent
     if (parent.role !== 'parent') {
-      return res.status(403).json({ message: 'Access denied. You must be a parent.' });
+      return res.status(403).json({ status:0 ,message: 'Access denied. You must be a parent.' });
     }
 
     // Fetch children where the parent's userId is the parentId
@@ -1750,7 +1750,7 @@ app.get('/children', verifyToken, async (req, res) => {
       .sort({ name: 1 });  // Optional: Sort children by name or any other criteria
 
     if (children.length === 0) {
-      return res.status(404).json({ message: 'No children found for this parent.' });
+      return res.status(404).json({ status:0,message: 'No children found for this parent.' });
     }
 
     // Fetch tasks related to each child (populate the tasks with fairAmount and fairType)
@@ -1778,7 +1778,7 @@ app.get('/children', verifyToken, async (req, res) => {
 
   } catch (err) {
     console.error('Error fetching children:', err);
-    res.status(500).json({ message: 'Server error while fetching children' });
+    res.status(500).json({ status:0,message: 'Server error while fetching children' });
   }
 });
 
