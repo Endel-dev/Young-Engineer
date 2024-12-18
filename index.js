@@ -499,6 +499,10 @@ app.post('/verify-email1', async (req, res) => {
       return res.status(400).json({ status: 0, message: 'Token has expired' });
     }
 
+    if (VerificationToken.verified ==true){
+      return res.status(200).json({ status:0, message:'Email already verified'});
+    }
+
     const newUser = new User({
       email: verificationToken.email,
       name: verificationToken.name,
