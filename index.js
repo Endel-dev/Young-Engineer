@@ -376,6 +376,7 @@ app.post('/register', async (req, res) => {
 
 
 app.post('/registers', async (req, res) => {
+  console.log('Register endpoint hit'); 
   const { name, gender, email, password, role, dob } = req.body;
 
   const normalizedRole = role ? role.toLowerCase() : '';
