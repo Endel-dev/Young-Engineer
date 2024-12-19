@@ -777,6 +777,7 @@ app.post('/verify-email1', async (req, res) => {
   try {
     console.log(req.body);
     const verificationToken = await VerificationToken.findOne({ email, token });
+    console.log(verificationToken);
 
     if (!verificationToken) {
       return res.status(400).json({ status: 0, message: 'Invalid or expired token' });
