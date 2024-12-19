@@ -389,26 +389,23 @@ app.post('/registers', async (req, res) => {
   }
 
   try {
-    // Check if email or name already exists in the database (User model)
+    // 1. Check if user already exists in the User model (they are verified)
     const existingUser = await User.findOne({ email }).where('deleted').equals(false);
-    console.log(existingUser);
-
-    // If user already exists, return message indicating they are already verified
     if (existingUser) {
       return res.status(400).json({ status: 0, message: 'User already verified' });
     }
 
-    // Check if there is already a verification token sent for this email
+    // 2. Check if there's already a verification token sent for this email (prevents duplicate requests)
     const existingVerificationToken = await VerificationToken.findOne({ email });
     if (existingVerificationToken) {
       return res.status(400).json({ status: 0, message: 'Mail already sent for email verification' });
     }
 
-    // Continue with registration if no existing user or verification token found
+    // 3. Proceed with registration if no existing user or verification token
     const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '24h' });
     const verificationLink = `http://93.127.172.167:5001/sample?token=${token}&email=${email}`;
 
-    // Create a verification token
+    // Save verification token to the database
     const verificationToken = new VerificationToken({
       email,
       token,
@@ -457,6 +454,7 @@ app.post('/registers', async (req, res) => {
     res.status(500).json({ status: 0, message: 'Server error', err });
   }
 });
+
 
 // router.post('/verify-email', async (req, res) => {
 //   const { token, email } = req.query;
