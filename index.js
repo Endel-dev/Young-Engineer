@@ -377,11 +377,8 @@ app.post('/register', async (req, res) => {
 
 // Define the route
 app.post('/registers', async (req, res) => {
-  console.log('Register route hit'); // Check if route is hit
+  console.log('Register route hit');
   const { name, gender, email, password, role, dob } = req.body;
-
-  // Check if request body is parsed correctly
-  console.log('Request body:', req.body);  // Verify the request body
 
   const normalizedRole = role ? role.toLowerCase() : '';
   const normalizedGender = gender ? gender.toLowerCase() : '';
@@ -404,10 +401,15 @@ app.post('/registers', async (req, res) => {
       return res.status(400).json({ status: 0, message: 'User already verified' });
     }
 
-    // Check if there's already an email verification token for this email
-    const existingVerificationToken = await VerificationToken.findOne({ email });
+    // Check if there's already an email verification token for this email and name
+    const existingVerificationToken = await VerificationToken.findOne({
+      email,
+      name,
+      expiresAt: { $gt: Date.now() }, // Check if the token is not expired
+    });
+
     if (existingVerificationToken) {
-      return res.status(400).json({ status: 0, message: 'Mail already sent for email verification' });
+      return res.status(400).json({ status: 0, message: 'Mail already sent for email verification and token not expired' });
     }
 
     // Proceed with registration if no existing user or verification token
@@ -428,7 +430,7 @@ app.post('/registers', async (req, res) => {
 
     // Save the verification token to the database
     await verificationToken.save();
-    console.log('Verification Token:', verificationToken); // Log the saved token
+    console.log('Verification Token:', verificationToken);
 
     // Send verification email
     const transporter = nodemailer.createTransport({
@@ -465,6 +467,7 @@ app.post('/registers', async (req, res) => {
     res.status(500).json({ status: 0, message: 'Server error', err });
   }
 });
+
 
 
 
