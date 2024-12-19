@@ -367,7 +367,7 @@ app.post('/register', async (req, res) => {
 
   } catch (err) {
     console.error('Error registering user:', err);
-    res.status(500).json({ status: 0, message: 'Server error'+err });
+    res.status(500).json({ status: 0, message: 'Server error',err });
   }
 });
 
@@ -963,7 +963,7 @@ app.post('/create-guardian', async (req, res) => {
 
   } catch (err) {
     console.error('Error creating user:', err);
-    res.status(500).json({ status:0,message: 'Server error'+err });
+    res.status(500).json({ status:0,message: 'Server error',err });
   }
 });
 
@@ -1128,7 +1128,7 @@ app.post('/create-child', verifyParentRole, async (req, res) => {
 
   } catch (err) {
     console.error('Error creating user:', err);
-    res.status(500).json({ message: 'Server error'+err });
+    res.status(500).json({ message: 'Server error',err });
   }
 });
 
@@ -1341,7 +1341,7 @@ app.post('/create-task', verifyParentOrGuardianRole, async (req, res) => {
 
   } catch (err) {
     console.error('Error creating task:', err);
-    res.status(500).json({ status: 0, message: 'Server error' });
+    res.status(500).json({ status: 0, message: 'Server error',err });
   }
 });
 //End of task
@@ -1456,7 +1456,7 @@ app.get('/categorize-tasks', verifyToken, async (req, res) => {
 
   } catch (err) {
     console.error('Error categorizing tasks:', err);
-    res.status(500).json({ message: 'Server error while categorizing tasks' });
+    res.status(500).json({ message: 'Server error while categorizing tasks',err });
   }
 });
 
@@ -1715,7 +1715,7 @@ app.get('/children', verifyToken, async (req, res) => {
 
   } catch (err) {
     console.error('Error fetching children:', err);
-    res.status(500).json({ status:0,message: 'Server error while fetching children' });
+    res.status(500).json({ status:0,message: 'Server error while fetching children',err });
   }
 });
 
