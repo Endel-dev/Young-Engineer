@@ -391,6 +391,7 @@ app.post('/registers', async (req, res) => {
   try {
     // Check if email or name already exists in the database (User model)
     const existingUser = await User.findOne({ email }).where('deleted').equals(false);
+    console.log(existingUser);
 
     // If user already exists, return message indicating they are already verified
     if (existingUser) {
