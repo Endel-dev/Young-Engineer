@@ -378,7 +378,6 @@ app.post('/register', async (req, res) => {
 app.post('/registers', async (req, res) => {
   const { name, gender, email, password, role, dob } = req.body;
 
-  // Normalize role and gender to lowercase
   const normalizedRole = role ? role.toLowerCase() : '';
   const normalizedGender = gender ? gender.toLowerCase() : '';
 
@@ -393,22 +392,21 @@ app.post('/registers', async (req, res) => {
   }
 
   try {
-    // 1. Check if the user already exists in the User model (i.e., already verified)
+    // Check if email already exists in the User model (i.e., already verified)
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ status: 0, message: 'User already verified' });
     }
 
-    // 2. Check if there's already a verification token for this email (prevents duplicate requests)
+    // Check if there's already a verification token for this email (prevents duplicate requests)
     const existingVerificationToken = await VerificationToken.findOne({ email });
     if (existingVerificationToken) {
       return res.status(400).json({ status: 0, message: 'Mail already sent for email verification' });
     }
 
-    // 3. Proceed with registration if no existing user or verification token
+    // Proceed with registration if no existing user or verification token
     const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '24h' });
     const verificationLink = `http://93.127.172.167:5001/sample?token=${token}&email=${email}`;
-    console.log(verificationLink.email);
 
     // Save verification token to the database
     const verificationToken = new VerificationToken({
@@ -460,6 +458,7 @@ app.post('/registers', async (req, res) => {
     res.status(500).json({ status: 0, message: 'Server error', err });
   }
 });
+
 
 // app.post('/registers', async (req, res) => {
 //   const { name, gender, email, password, role, dob } = req.body;
