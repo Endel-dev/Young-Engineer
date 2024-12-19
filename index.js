@@ -1095,7 +1095,7 @@ app.post('/create-child', verifyParentRole, async (req, res) => {
   try {
     // Check if email or userId already exists
     const existingUser = await User.findOne({
-      $or: [{ name }, { email: email || null }]
+      $or: [{ name }, { email: email ||email!== null }]
     });
     if (existingUser) {
       return res.status(200).json({status:0, message: 'Email or Name already exists' });
