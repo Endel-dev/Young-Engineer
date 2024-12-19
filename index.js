@@ -1108,7 +1108,7 @@ app.post('/create-child', verifyParentRole, async (req, res) => {
     const newUser = new User({
       name,
       gender: normalizedGender,
-      email: email || null,
+      email: email ||'',
       password,
       role: 'child',
       dob,
