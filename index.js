@@ -617,59 +617,59 @@ app.post('/registers', async (req, res) => {
 
 
 
-// app.post('/verify-email', async (req, res) => {
-//   const { token, email } = req.body;
+app.post('/verify-email', async (req, res) => {
+  const { token, email } = req.body;
 
-//   // Check if token and email are provided
-//   if (!token || !email) {
-//     return res.status(400).json({ status: 0, message: 'Token and email are required' });
-//   }
+  // Check if token and email are provided
+  if (!token || !email) {
+    return res.status(400).json({ status: 0, message: 'Token and email are required' });
+  }
 
-//   try {
-//     // Find the verification token in the database
-//     const verificationToken = await VerificationToken.findOne({ email, token })
+  try {
+    // Find the verification token in the database
+    const verificationToken = await VerificationToken.findOne({ email, token })
 
-//     // if (!verificationToken) {
-//     //   return res.status(400).json({ status: 0, message: 'Invalid or expired token' });
-//     // }
+    // if (!verificationToken) {
+    //   return res.status(400).json({ status: 0, message: 'Invalid or expired token' });
+    // }
      
-//     // Check if the token has expired
-//     if (verificationToken.expiresAt < Date.now()) {
-//       return res.status(400).json({ status: 0, message: 'Token has expired' });
-//     }
+    // Check if the token has expired
+    if (verificationToken.expiresAt < Date.now()) {
+      return res.status(400).json({ status: 0, message: 'Token has expired' });
+    }
 
-//     // Mark user as verified in the User model (or update `isActive` field)
-//     const user = await User.findOne({ email });
-//     if (!user) {
-//       return res.status(404).json({ status: 0, message: 'User not found' });
-//     }
+    // Mark user as verified in the User model (or update `isActive` field)
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ status: 0, message: 'User not found' });
+    }
 
-//     // Mark user as active/verified
-//     //user.isActive = true; // You can add an `isActive` field in the User schema to track verification status
-//     const newUser = new User({
-//       email:verificationToken.email,
-//       name:verificationToken.name,
-//       role:verificationToken.role,
-//       gender:verificationToken.gender,
-//       dob:verificationToken.dob,
-//       password:verificationToken.password,
-//     })
+    // Mark user as active/verified
+    //user.isActive = true; // You can add an `isActive` field in the User schema to track verification status
+    const newUser = new User({
+      email:verificationToken.email,
+      name:verificationToken.name,
+      role:verificationToken.role,
+      gender:verificationToken.gender,
+      dob:verificationToken.dob,
+      password:verificationToken.password,
+    })
     
-//     await newUser.save();
-//     console.log(newUser);
+    await newUser.save();
+    console.log(newUser);
 
-//     // Delete the verification token (optional)
-//     verificationToken.verified = true;
-//     await verificationToken.save();
-//     //await VerificationToken.deleteOne({ email, token });
+    // Delete the verification token (optional)
+    verificationToken.verified = true;
+    await verificationToken.save();
+    //await VerificationToken.deleteOne({ email, token });
 
-//     res.status(200).json({ status: 1, message: 'Email successfully verified' });
+    res.status(200).json({ status: 1, message: 'Email successfully verified' });
 
-//   } catch (err) {
-//     console.error('Error verifying email:', err);
-//     res.status(500).json({ status: 0, message: 'Server error '+err });
-//   }
-// });
+  } catch (err) {
+    console.error('Error verifying email:', err);
+    res.status(500).json({ status: 0, message: 'Server error '+err });
+  }
+});
 
 // POST /verify-email
 app.post('/verify-email1', async (req, res) => {
