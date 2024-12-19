@@ -408,6 +408,7 @@ app.post('/registers', async (req, res) => {
     // 3. Proceed with registration if no existing user or verification token
     const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '24h' });
     const verificationLink = `http://93.127.172.167:5001/sample?token=${token}&email=${email}`;
+    console.log(verificationLink.email);
 
     // Save verification token to the database
     const verificationToken = new VerificationToken({
