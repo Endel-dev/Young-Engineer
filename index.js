@@ -299,7 +299,7 @@ app.post('/register-user', async (req, res) => {
 
 
 // POST /register
-app.post('/register', async (req, res) => {
+app.post('/registers', async (req, res) => {
   console.log('Register endpoint hit'); 
   const { name, gender, email, password, role, dob } = req.body;
 
@@ -376,7 +376,7 @@ app.post('/register', async (req, res) => {
 });
 
 // Define the route
-app.post('/registers', async (req, res) => {
+app.post('/register', async (req, res) => {
   console.log('Register endpoint hit'); 
   const { name, gender, email, password, role, dob } = req.body;
 
