@@ -375,10 +375,13 @@ app.post('/register', async (req, res) => {
   }
 });
 
-
+// Define the route
 app.post('/registers', async (req, res) => {
-  console.log('Register endpoint hit'); 
+  console.log('Register route hit'); // Check if route is hit
   const { name, gender, email, password, role, dob } = req.body;
+
+  // Check if request body is parsed correctly
+  console.log('Request body:', req.body);  // Verify the request body
 
   const normalizedRole = role ? role.toLowerCase() : '';
   const normalizedGender = gender ? gender.toLowerCase() : '';
@@ -396,7 +399,7 @@ app.post('/registers', async (req, res) => {
   try {
     // Check if email already exists in the User model
     const existingUser = await User.findOne({ email });
-    console.log(existingUser);
+    console.log('Existing user:', existingUser); // Log the found user
     if (existingUser) {
       return res.status(400).json({ status: 0, message: 'User already verified' });
     }
@@ -425,8 +428,7 @@ app.post('/registers', async (req, res) => {
 
     // Save the verification token to the database
     await verificationToken.save();
-
-    console.log('Verification Token:', verificationToken);
+    console.log('Verification Token:', verificationToken); // Log the saved token
 
     // Send verification email
     const transporter = nodemailer.createTransport({
@@ -463,6 +465,8 @@ app.post('/registers', async (req, res) => {
     res.status(500).json({ status: 0, message: 'Server error', err });
   }
 });
+
+
 
 
 
