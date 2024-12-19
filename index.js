@@ -1092,27 +1092,39 @@ app.post('/create-child', verifyParentRole, async (req, res) => {
     return res.status(400).json({ status: 0,message: 'Please provide all required fields' });
   }
 
+  // try {
+  //   // Check if email or userId already exists
+  //   const existingUser = await User.findOne({
+  //     $or: [{ name }, { email: email || null }]
+  //   });
+  //   if (existingUser) {
+  //     return res.status(200).json({status:0, message: 'Email or Name already exists' });
+  //   }
+  //   // Find the parent user
+  //   const parent = await User.findOne({ userId: parentId });
+  //   if (!parent) {
+  //     return res.status(400).json({ status:0,message: 'Parent not found' });
+  //   }
+
   try {
-    // Check if email or userId already exists
-    // const existingUser = await User.findOne({
-    //   $or: [{ name }, { email: email || null }]
-    // });
-    const existingUser = await User.findOne({
-      $or: [{ name }]
-    });
+    // Check if name already exists
+    const existingUser = await User.findOne({ name });
     if (existingUser) {
-      return res.status(200).json({status:0, message: 'Name already exists' });
+      return res.status(200).json({ status: 0, message: 'Name already exists' });
     }
+
+    // Only check for email if it's provided (not null or undefined)
     if (email) {
       const existingEmail = await User.findOne({ email });
       if (existingEmail) {
         return res.status(200).json({ status: 0, message: 'Email already exists' });
       }
     }
+
     // Find the parent user
     const parent = await User.findOne({ userId: parentId });
     if (!parent) {
-      return res.status(400).json({ status:0,message: 'Parent not found' });
+      return res.status(400).json({ status: 0, message: 'Parent not found' });
     }
 
   
@@ -1120,7 +1132,7 @@ app.post('/create-child', verifyParentRole, async (req, res) => {
     const newUser = new User({
       name,
       gender: normalizedGender,
-      email: email || null,
+      email: email | undefined,
       password,
       role: 'child',
       dob,
