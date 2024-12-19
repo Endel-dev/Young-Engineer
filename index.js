@@ -1078,7 +1078,7 @@ app.post('/create-child', verifyParentRole, async (req, res) => {
   const parentId = req.user.userId; // Get the parentId from the decoded token
   console.log('Parent ID:', parentId);
 
-  const { name, gender, password, role, dob, Totalpoints } = req.body;
+  const { name, gender, email, password, role, dob, Totalpoints } = req.body;
   const normalizedRole = role ? role.toLowerCase() : '';
   const normalizedGender = gender ? gender.toLowerCase() : '';
 
