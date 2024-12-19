@@ -12,6 +12,7 @@ const userSchema = new mongoose.Schema({
   currency: { type: String, default: 'INR' }, // Default to USD
   email: { type: String, 
     unique: true,
+    sparse: true,
     required: function() {
       return this.role === 'parent' || this.role === 'guardian';
     } },
