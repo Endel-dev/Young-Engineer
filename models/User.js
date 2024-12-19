@@ -11,11 +11,21 @@ const userSchema = new mongoose.Schema({
   region: { type: String },
   currency: { type: String, default: 'INR' }, // Default to USD
   email: { type: String, 
-    unique: true,
     sparse: true,
     required: function() {
       return this.role === 'parent' || this.role === 'guardian';
-    } },
+    },
+    validate: {
+      // Custom validation to enforce uniqueness for parent and guardian roles only
+      validator: async function(value) {
+        if (this.role === 'parent' || this.role === 'guardian') {
+          const existingUser = await mongoose.model('User').findOne({ email: value });
+          return !existingUser;  // Ensures no duplicate emails for 'parent' or 'guardian' roles
+        }
+        return true;  // If the role is 'child', email can be null or undefined
+      },
+      message: 'Email must be unique for parent and guardian roles',
+    }, },
   password: { type: String, required: true },
   role: { type: String, enum: ['parent', 'child', 'guardian'], default: 'parent' }, // Default role
   dob: { type: Date, required: true },
