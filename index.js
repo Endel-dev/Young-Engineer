@@ -315,8 +315,16 @@ app.post('/register', async (req, res) => {
 
   try {
     const existingUser = await User.findOne({ $or: [{ email }, { name }] }).where('deleted').equals(false);
+    // if (existingUser) {
+    //   return res.status(400).json({ status: 0, message: 'Email or Name already exists' });
+    // }
     if (existingUser) {
-      return res.status(400).json({ status: 0, message: 'Email or Name already exists' });
+      return res.status(400).json({ status: 0, message: 'User already verified!' });
+    }
+
+    const existingVerificationToken = await verificationToken.findOne({ $or: [{ email }, { name }] }).where('deleted').equals(false);
+    if(existingVerificationToken){
+      return res.status(200).json({ status:0, message:'Verification Mail already sent!'});
     }
 
     // const salt = await bcrypt.genSalt(10);
