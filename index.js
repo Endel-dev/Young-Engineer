@@ -2975,10 +2975,12 @@ app.delete('/delete-account', async (req, res) => {
     if (parentUser.role !== 'parent') {
       return res.status(400).json({ status: 0, message: 'Only parent accounts can delete themselves and child accounts.' });
     }
-
+    await VerificationToken.deleteMany({ email: parentUser.email });
     // Find and delete all child accounts associated with this parent (via parentId)
     const childAccounts = await User.deleteMany({ parentId: parentUser.userId });
     console.log(`${childAccounts.deletedCount} child accounts deleted.`);
+    const childEmails = childAccounts.map(child => child.email);
+    await VerificationToken.deleteMany({ email: { $in: childEmails } });
 
     // Delete the parent account
     await User.deleteOne({ userId });
