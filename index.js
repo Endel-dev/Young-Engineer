@@ -1092,20 +1092,39 @@ app.post('/create-child', verifyParentRole, async (req, res) => {
     return res.status(400).json({ status: 0,message: 'Please provide all required fields' });
   }
 
+  // try {
+  //   // Check if email or userId already exists
+  //   const existingUser = await User.findOne({
+  //     $or: [{ name }, { email: email || null }]
+  //   });
+  //   if (existingUser) {
+  //     return res.status(200).json({status:0, message: 'Email or Name already exists' });
+  //   }
+  //   // Find the parent user
+  //   const parent = await User.findOne({ userId: parentId });
+  //   if (!parent) {
+  //     return res.status(400).json({ status:0,message: 'Parent not found' });
+  //   }
   try {
-    // Check if email or userId already exists
-    const existingUser = await User.findOne({
-      $or: [{ name }, { email: email || null }]
-    });
+    // Check if name already exists
+    const existingUser = await User.findOne({ name });
     if (existingUser) {
-      return res.status(200).json({status:0, message: 'Email or Name already exists' });
+      return res.status(200).json({ status: 0, message: 'Name already exists' });
     }
+
+    // Check if email exists, but only if email is provided
+    if (email) {
+      const existingEmail = await User.findOne({ email });
+      if (existingEmail) {
+        return res.status(200).json({ status: 0, message: 'Email already exists' });
+      }
+    }
+
     // Find the parent user
     const parent = await User.findOne({ userId: parentId });
     if (!parent) {
-      return res.status(400).json({ status:0,message: 'Parent not found' });
+      return res.status(400).json({ status: 0, message: 'Parent not found' });
     }
-
   
     // Create the new user (child)
     const newUser = new User({
