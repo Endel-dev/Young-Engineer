@@ -2954,6 +2954,46 @@ app.get("/check-update", async (req, res) => {
   }
 });
 
+// Assuming you are using Express.js and Mongoose
+app.delete('/delete-account', async (req, res) => {
+  const { userId } = req.body; // The user ID of the parent account
+
+  if (!userId) {
+    return res.status(400).json({ status: 0, message: 'User ID is required to delete the account.' });
+  }
+
+  try {
+    // Find the parent user by userId
+    const parentUser = await User.findOne({ userId });
+
+    if (!parentUser) {
+      return res.status(404).json({ status: 0, message: 'Parent user not found.' });
+    }
+
+    // Check if the user is a parent
+    if (parentUser.role !== 'parent') {
+      return res.status(400).json({ status: 0, message: 'Only parent accounts can delete themselves and child accounts.' });
+    }
+
+    // Find and delete all child accounts associated with this parent (via parentId)
+    const childAccounts = await User.deleteMany({ parentId: parentUser.userId });
+    console.log(`${childAccounts.deletedCount} child accounts deleted.`);
+
+    // Delete the parent account
+    await User.deleteOne({ userId });
+
+    res.status(200).json({
+      status: 1,
+      message: 'Parent user and all associated child accounts have been successfully deleted.'
+    });
+  } catch (err) {
+    console.error('Error deleting user account:', err);
+    res.status(500).json({ status: 0, message: 'Server error occurred while deleting the account.' });
+  }
+});
+
+
+
 
 
 
