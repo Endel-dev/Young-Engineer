@@ -1146,7 +1146,7 @@ app.post('/create-child', verifyParentRole, async (req, res) => {
 
   } catch (err) {
     console.error('Error creating user:', err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error'+err });
   }
 });
 
