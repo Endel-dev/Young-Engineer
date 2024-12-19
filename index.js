@@ -381,24 +381,25 @@ app.post('/registers', async (req, res) => {
   const normalizedRole = role ? role.toLowerCase() : '';
   const normalizedGender = gender ? gender.toLowerCase() : '';
 
-  // Check if role is either 'parent' or 'guardian'
+  // Validate role
   if (normalizedRole !== 'parent' && normalizedRole !== 'guardian') {
     return res.status(400).json({ status: 0, message: 'Only parent and guardian roles are allowed to register' });
   }
 
-  // Check if all required fields are present
+  // Validate required fields
   if (!name || !email || !password || !dob || !gender) {
     return res.status(400).json({ status: 0, message: 'Please provide all required fields' });
   }
 
   try {
-    // Check if email already exists in the User model (i.e., already verified)
+    // Check if email already exists in the User model
     const existingUser = await User.findOne({ email });
+    console.log(existingUser);
     if (existingUser) {
       return res.status(400).json({ status: 0, message: 'User already verified' });
     }
 
-    // Check if there's already a verification token for this email (prevents duplicate requests)
+    // Check if there's already an email verification token for this email
     const existingVerificationToken = await VerificationToken.findOne({ email });
     if (existingVerificationToken) {
       return res.status(400).json({ status: 0, message: 'Mail already sent for email verification' });
@@ -408,7 +409,7 @@ app.post('/registers', async (req, res) => {
     const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '24h' });
     const verificationLink = `http://93.127.172.167:5001/sample?token=${token}&email=${email}`;
 
-    // Save verification token to the database
+    // Create a new verification token
     const verificationToken = new VerificationToken({
       email,
       token,
@@ -419,6 +420,8 @@ app.post('/registers', async (req, res) => {
       password,
       expiresAt: Date.now() + 24 * 60 * 60 * 1000, // expires in 24 hours
     });
+
+    // Save the verification token to the database
     await verificationToken.save();
 
     console.log('Verification Token:', verificationToken);
@@ -458,6 +461,7 @@ app.post('/registers', async (req, res) => {
     res.status(500).json({ status: 0, message: 'Server error', err });
   }
 });
+
 
 
 // app.post('/registers', async (req, res) => {
