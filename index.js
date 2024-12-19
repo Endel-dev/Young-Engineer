@@ -834,7 +834,7 @@ app.post('/login', async (req, res) => {
     }
   } catch (err) {
     console.error('Error logging in user:', err);
-    res.status(500).json({ status: 0, message: 'Server error' });
+    res.status(500).json({ status: 0, message: 'Server error'+err});
   }
 });
 
@@ -963,7 +963,7 @@ app.post('/create-guardian', async (req, res) => {
 
   } catch (err) {
     console.error('Error creating user:', err);
-    res.status(500).json({ status:0,message: 'Server error' });
+    res.status(500).json({ status:0,message: 'Server error'+err });
   }
 });
 
