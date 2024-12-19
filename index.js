@@ -469,6 +469,97 @@ app.post('/register', async (req, res) => {
   }
 });
 
+app.post('/registered', async (req, res) => {
+  const { name, gender, email, password, role, dob } = req.body;
+
+  const normalizedRole = role ? role.toLowerCase() : '';
+  const normalizedGender = gender ? gender.toLowerCase() : '';
+
+  // Validate role
+  if (normalizedRole !== 'parent' && normalizedRole !== 'guardian') {
+    return res.status(400).json({ status: 0, message: 'Only parent and guardian roles are allowed to register' });
+  }
+
+  // Validate required fields
+  if (!name || !email || !password || !dob || !gender) {
+    return res.status(400).json({ status: 0, message: 'Please provide all required fields' });
+  }
+
+  try {
+    // Check if the email already exists in the User model
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ status: 0, message: 'User already verified' });
+    }
+
+    // Check if the email exists in the VerificationToken model and is expired
+    const existingVerificationToken = await VerificationToken.findOne({
+      email,
+      expiresAt: { $gt: Date.now() }, // Check if the token is still valid (not expired)
+    });
+
+    if (existingVerificationToken) {
+      // If verification token exists and is not expired, don't send mail
+      return res.status(400).json({ status: 0, message: 'Mail already sent for email verification and token is still valid' });
+    }
+
+    // If no valid verification token exists, proceed with sending the verification email
+    const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '24h' });
+    const verificationLink = `http://93.127.172.167:5001/sample?token=${token}&email=${email}`;
+
+    // Create a new verification token
+    const verificationToken = new VerificationToken({
+      email,
+      token,
+      name,
+      role: normalizedRole,
+      gender: normalizedGender,
+      dob,
+      password,
+      expiresAt: Date.now() + 24 * 60 * 60 * 1000, // expires in 24 hours
+    });
+
+    // Save the verification token to the database
+    await verificationToken.save();
+
+    console.log('Verification Token:', verificationToken);
+
+    // Send verification email
+    const transporter = nodemailer.createTransport({
+      host: 'mail.weighingworld.com',
+      port: 465,
+      secure: true,
+      auth: {
+        user: 'no-reply@weighingworld.com',
+        pass: '$]IIWt4blS^_',
+      },
+    });
+
+    const mailOptions = {
+      from: 'no-reply@weighingworld.com',
+      to: email,
+      subject: 'Email Verification',
+      text: `Please verify your email by clicking on the following link: ${verificationLink}`,
+    };
+
+    // Send the email
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        return res.status(500).json({ status: 0, message: 'Error sending verification email' });
+      }
+
+      // Respond with success message if email is sent
+      res.status(200).json({
+        status: 1,
+        message: 'Registration successful. A verification email has been sent.',
+      });
+    });
+  } catch (err) {
+    console.error('Error registering user:', err);
+    res.status(500).json({ status: 0, message: 'Server error', err });
+  }
+});
+
 
 
 
