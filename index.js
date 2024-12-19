@@ -189,113 +189,113 @@ app.post('/register-user', async (req, res) => {
   }
 });
 
-app.post('/registers', async (req, res) => {
-  const { name, gender, email, password, role, dob } = req.body;
-  const normalizedRole = role ? role.toLowerCase() : '';
-  const normalizedgender = gender ? gender.toLowerCase() : '';
+// app.post('/registers', async (req, res) => {
+//   const { name, gender, email, password, role, dob } = req.body;
+//   const normalizedRole = role ? role.toLowerCase() : '';
+//   const normalizedgender = gender ? gender.toLowerCase() : '';
 
-  if (normalizedRole !== 'parent' && normalizedRole !== 'guardian') {
-    return res.status(400).json({ status: 0, message: 'Only parent and guardian role is allowed to register' });
-  }
+//   if (normalizedRole !== 'parent' && normalizedRole !== 'guardian') {
+//     return res.status(400).json({ status: 0, message: 'Only parent and guardian role is allowed to register' });
+//   }
 
-  // Validate required fields
-  if (!name || !email || !password || !dob || !gender) {
-    return res.status(400).json({ status: 0, message: 'Please provide all required fields' });
-  }
+//   // Validate required fields
+//   if (!name || !email || !password || !dob || !gender) {
+//     return res.status(400).json({ status: 0, message: 'Please provide all required fields' });
+//   }
 
-  try {
-    const existingUser = await User.findOne({ $or: [{ email }, { name }] }).where('deleted').equals(false);
-    if (existingUser) {
-      return res.status(200).json({ status: 0, message: 'Email or Name already exists' });
-    }
-    // const salt = await bcrypt.genSalt(10);
-    // const hashedPassword = await bcrypt.hash(password, salt);
-    // const newUser = new User({
-    //   name,
-    //   gender: normalizedgender,
-    //   email,
-    //   password:hashedPassword,  // Make sure to hash the password before saving
-    //   role: normalizedRole,
-    //   dob,
-    // });
+//   try {
+//     const existingUser = await User.findOne({ $or: [{ email }, { name }] }).where('deleted').equals(false);
+//     if (existingUser) {
+//       return res.status(200).json({ status: 0, message: 'Email or Name already exists' });
+//     }
+//     // const salt = await bcrypt.genSalt(10);
+//     // const hashedPassword = await bcrypt.hash(password, salt);
+//     // const newUser = new User({
+//     //   name,
+//     //   gender: normalizedgender,
+//     //   email,
+//     //   password:hashedPassword,  // Make sure to hash the password before saving
+//     //   role: normalizedRole,
+//     //   dob,
+//     // });
 
     
 
 
-    //Create the new user
-    // const newUser = new User({
-    //   name,
-    //   gender: normalizedgender,
-    //   email,
-    //   password,
-    //   role: normalizedRole,
-    //   dob,
-    // });
+//     //Create the new user
+//     // const newUser = new User({
+//     //   name,
+//     //   gender: normalizedgender,
+//     //   email,
+//     //   password,
+//     //   role: normalizedRole,
+//     //   dob,
+//     // });
 
-    // // Save the new user to the database
-    // await newUser.save();
+//     // // Save the new user to the database
+//     // await newUser.save();
 
-    // Create a unique email verification token with 24 hours expiration
-    //const token = crypto.randomBytes(32).toString('hex');  // 32 bytes token
+//     // Create a unique email verification token with 24 hours expiration
+//     //const token = crypto.randomBytes(32).toString('hex');  // 32 bytes token
 
-    // Save the token in the database (or cache it for 24 hours expiration)
+//     // Save the token in the database (or cache it for 24 hours expiration)
    
-    const token = jwt.sign(
-      {email  }, //userId: newUser.userId, role: newUser.role
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' } // Token will expire in 15 days
-    );
-    const verificationLink = `http://93.127.172.167:5001/verify-email?token=${token}&email=${email}`;
+//     const token = jwt.sign(
+//       {email  }, //userId: newUser.userId, role: newUser.role
+//       process.env.JWT_SECRET,
+//       { expiresIn: '24h' } // Token will expire in 15 days
+//     );
+//     const verificationLink = `http://93.127.172.167:5001/verify-email?token=${token}&email=${email}`;
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    const verificationToken = new VerificationToken({
-      email,
-      token:token,
-      name,
-      role:normalizedRole,
-      gender:normalizedgender,
-      dob,
-      password:hashedPassword,
-      expiresAt: Date.now() + 24 * 60 * 60 * 1000, // expires in 24 hours
-    });
-    await verificationToken.save();
+//     const salt = await bcrypt.genSalt(10);
+//     const hashedPassword = await bcrypt.hash(password, salt);
+//     const verificationToken = new VerificationToken({
+//       email,
+//       token:token,
+//       name,
+//       role:normalizedRole,
+//       gender:normalizedgender,
+//       dob,
+//       password:hashedPassword,
+//       expiresAt: Date.now() + 24 * 60 * 60 * 1000, // expires in 24 hours
+//     });
+//     await verificationToken.save();
     
 
-    // Send the verification link to the user's email
-    const transporter = nodemailer.createTransport({
-      host: 'mail.weighingworld.com',
-      port: 465,
-      secure: true,
-      auth: {
-        user: 'no-reply@weighingworld.com',
-        pass: '$]IIWt4blS^_',
-      },
-    });
+//     // Send the verification link to the user's email
+//     const transporter = nodemailer.createTransport({
+//       host: 'mail.weighingworld.com',
+//       port: 465,
+//       secure: true,
+//       auth: {
+//         user: 'no-reply@weighingworld.com',
+//         pass: '$]IIWt4blS^_',
+//       },
+//     });
 
-    const mailOptions = {
-      from: 'no-reply@weighingworld.com',
-      to: email,
-      subject: 'Email Verification',
-      text: `Please verify your email by clicking on the following link: ${verificationLink}`,
-    };
+//     const mailOptions = {
+//       from: 'no-reply@weighingworld.com',
+//       to: email,
+//       subject: 'Email Verification',
+//       text: `Please verify your email by clicking on the following link: ${verificationLink}`,
+//     };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        return res.status(500).json({ status: 0, message: 'Error sending verification email' });
-      }
+//     transporter.sendMail(mailOptions, (error, info) => {
+//       if (error) {
+//         return res.status(500).json({ status: 0, message: 'Error sending verification email' });
+//       }
 
-      res.status(200).json({
-        status: 1,
-        message: 'Registration successful. A verification email has been sent.',
-      });
-    });
+//       res.status(200).json({
+//         status: 1,
+//         message: 'Registration successful. A verification email has been sent.',
+//       });
+//     });
 
-  } catch (err) {
-    console.error('Error registering user:', err);
-    res.status(500).json({ status: 0, message: 'Server error' });
-  }
-});
+//   } catch (err) {
+//     console.error('Error registering user:', err);
+//     res.status(500).json({ status: 0, message: 'Server error' });
+//   }
+// });
 
 
 // POST /register
@@ -377,31 +377,28 @@ app.post('/register', async (req, res) => {
 
 // Define the route
 app.post('/registers', async (req, res) => {
-  console.log('Register route hit');
+  console.log('Register endpoint hit'); 
   const { name, gender, email, password, role, dob } = req.body;
 
   const normalizedRole = role ? role.toLowerCase() : '';
   const normalizedGender = gender ? gender.toLowerCase() : '';
 
-  // Validate role
   if (normalizedRole !== 'parent' && normalizedRole !== 'guardian') {
     return res.status(400).json({ status: 0, message: 'Only parent and guardian roles are allowed to register' });
   }
 
-  // Validate required fields
   if (!name || !email || !password || !dob || !gender) {
     return res.status(400).json({ status: 0, message: 'Please provide all required fields' });
   }
 
   try {
-    // Check if email already exists in the User model
+    //const existingUser = await User.findOne({ $or: [{ email }, { name }] }).where('deleted').equals(false);
     const existingUser = await User.findOne({ email });
     console.log('Existing user:', existingUser); // Log the found user
     if (existingUser) {
-      return res.status(400).json({ status: 0, message: 'User already verified' });
+       return res.status(400).json({ status: 0, message: 'User already verified' });
     }
 
-    // Check if there's already an email verification token for this email and name
     const existingVerificationToken = await VerificationToken.findOne({
       email,
       name,
@@ -412,11 +409,19 @@ app.post('/registers', async (req, res) => {
       return res.status(400).json({ status: 0, message: 'Mail already sent for email verification and token not expired' });
     }
 
-    // Proceed with registration if no existing user or verification token
+    // if (existingUser) {
+    //   return res.status(400).json({ status: 0, message: 'Email or Name already exists' });
+    // }
+    // if (existingUser) {
+    //   return res.status(400).json({ status: 0, message: 'Email or Name already exists' });
+    // }
+
+    // const salt = await bcrypt.genSalt(10);
+    // const hashedPassword = await bcrypt.hash(password, salt);
+
     const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '24h' });
     const verificationLink = `http://93.127.172.167:5001/sample?token=${token}&email=${email}`;
 
-    // Create a new verification token
     const verificationToken = new VerificationToken({
       email,
       token,
@@ -427,12 +432,10 @@ app.post('/registers', async (req, res) => {
       password,
       expiresAt: Date.now() + 24 * 60 * 60 * 1000, // expires in 24 hours
     });
-
-    // Save the verification token to the database
+    
     await verificationToken.save();
-    console.log('Verification Token:', verificationToken);
+    console.log(verificationToken);
 
-    // Send verification email
     const transporter = nodemailer.createTransport({
       host: 'mail.weighingworld.com',
       port: 465,
@@ -450,21 +453,19 @@ app.post('/registers', async (req, res) => {
       text: `Please verify your email by clicking on the following link: ${verificationLink}`,
     };
 
-    // Send the email
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         return res.status(500).json({ status: 0, message: 'Error sending verification email' });
       }
-
-      // Respond with success message if email is sent
       res.status(200).json({
         status: 1,
         message: 'Registration successful. A verification email has been sent.',
       });
     });
+
   } catch (err) {
     console.error('Error registering user:', err);
-    res.status(500).json({ status: 0, message: 'Server error', err });
+    res.status(500).json({ status: 0, message: 'Server error',err });
   }
 });
 
