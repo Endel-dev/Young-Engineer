@@ -376,7 +376,7 @@ app.post('/registers', async (req, res) => {
 });
 
 // Define the route
-app.post('/register', async (req, res) => {
+app.post('/registered', async (req, res) => {
   console.log('Register endpoint hit'); 
   const { name, gender, email, password, role, dob } = req.body;
 
@@ -469,7 +469,7 @@ app.post('/register', async (req, res) => {
   }
 });
 
-app.post('/registered', async (req, res) => {
+app.post('/register', async (req, res) => {
   const { name, gender, email, password, role, dob } = req.body;
 
   const normalizedRole = role ? role.toLowerCase() : '';
