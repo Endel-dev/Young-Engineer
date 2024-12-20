@@ -3022,6 +3022,52 @@ app.delete('/delete-account', async (req, res) => {
   }
 });
 
+// API to get both primary and secondary families based on guardianId
+app.get('/get-family', verifyToken, async (req, res) => {
+  const { guardianId } = req.user;  // Assuming the token contains the guardianId
+
+  if (!guardianId) {
+    return res.status(400).json({ status: 0, message: 'Guardian ID is required.' });
+  }
+
+  try {
+    // Find the guardian (user) by guardianId
+    const guardian = await User.findOne({ guardianId });
+
+    if (!guardian) {
+      return res.status(404).json({ status: 0, message: 'Guardian not found.' });
+    }
+
+    // Find the primary family by familyId (from the guardian)
+    const primaryFamily = await Family.findOne({ familyId: guardian.familyId });
+
+    if (!primaryFamily) {
+      return res.status(404).json({ status: 0, message: 'Primary family not found.' });
+    }
+
+    // Find the secondary family by guardianId (used as familyId in user)
+    const secondaryFamily = await Family.findOne({ familyId: guardianId });
+
+    if (!secondaryFamily) {
+      return res.status(404).json({ status: 0, message: 'Secondary family not found.' });
+    }
+
+    // Respond with the primary and secondary family details
+    res.status(200).json({
+      status: 1,
+      message: 'Families retrieved successfully.',
+      data: {
+        primaryFamily,
+        secondaryFamily
+      }
+    });
+  } catch (err) {
+    console.error('Error fetching family data:', err);
+    res.status(500).json({ status: 0, message: 'Server error occurred while fetching family data.' });
+  }
+});
+
+
 
 
 
