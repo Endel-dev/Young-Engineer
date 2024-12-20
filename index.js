@@ -1339,16 +1339,16 @@ app.post('/create-family', verifyToken, async (req, res) => {
 
 
 // logic is create family, then create guardian, inside guardian - family [family Id1, familyId2], inside child user- family [familyId] and guardian[guardian2,guardian2]
-app.post('/create-guardian', async (req, res) => {
+app.post('/create-guardian',verifyParentRole,async (req, res) => {
   const { userId, name, gender, email, password, role, dob } = req.body;
   const normalizedRole = role ? role.toLowerCase() : '';
   const normalizedgender = gender ? gender.toLowerCase() : '';
-
+  
   // Only allow 'child' or 'guardian' roles
   if ( normalizedRole !== 'guardian') {
     return res.status(400).json({ status:0,message: 'Role must be "guardian"' });
   }
-
+  
   // Validate required fields
   if ( !name || !email || !password || !dob) {
     return res.status(400).json({ status:0,message: 'Please provide all required fields' });
