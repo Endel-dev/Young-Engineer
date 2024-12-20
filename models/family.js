@@ -13,12 +13,16 @@ const familySchema = new mongoose.Schema({
   dateOfCreation: { type: Date, default: Date.now },
   isActive: { type: Boolean, default: true },
   parentId: { 
-    type: String,   // Refers to the User model itself
-    required: function() {
-      return this.role === 'child';  // Only required if the role is 'child'
-    },
-    default: null
+    type: String
   },
+  guardianIds: [{ 
+    type: String,  // Array of User IDs (secondary family members)
+    default: []
+  }],
+  children: [{ 
+    type: String,   // Array of User IDs for the children in this family
+    default: []
+  }]
 
 });
 

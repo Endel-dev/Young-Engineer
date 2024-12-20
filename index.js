@@ -1343,6 +1343,72 @@ app.post('/create-family', verifyToken, async (req, res) => {
   }
 });
 
+app.post('/create-families', verifyToken, async (req, res) => {
+  const { familyName, region, currency, budgetlimit } = req.body;
+  const userId = req.user.userId;
+
+  // Find the parent user
+  const user = await User.findOne({ userId: userId });
+
+  // Validate required fields
+  if (!familyName) {
+    return res.status(400).json({
+      status: 0,
+      message: 'Family Name is required',
+    });
+  }
+
+  // Ensure only parents can create a family
+  if (user.role !== 'parent') {
+    return res.status(401).json({
+      status: 0,
+      message: 'Only parents can create a family',
+    });
+  }
+
+  try {
+    // If the parent already has a family (familyId[0]), prevent them from creating another
+    if (user.familyId && user.familyId.length > 0) {
+      return res.status(400).json({
+        status: 0,
+        message: 'You already have a family!',
+      });
+    }
+
+    // Create the new family
+    const newFamily = new Family({
+      familyName,
+      region,
+      currency,
+      budgetlimit,
+      parentId: user.userId,  // Assign parentId
+    });
+
+    // Save the family
+    await newFamily.save();
+
+    // Update parent user with new familyId
+    user.familyId.push(newFamily.familyId);
+    await user.save();
+
+    // Update children with the new familyId (if any)
+    const children = await User.find({ parentId: user.userId, role: 'child' });
+    for (let child of children) {
+      child.familyId.push(newFamily.familyId);
+      await child.save();
+    }
+
+    // Respond with the created family data
+    res.status(200).json({
+      status: 1,
+      message: 'Family created successfully',
+      family: newFamily,
+    });
+  } catch (err) {
+    console.error('Error creating family:', err);
+    res.status(500).json({ status: 0, message: 'Internal server error' });
+  }
+});
 
 
 // logic is create family, then create guardian, inside guardian - family [family Id1, familyId2], inside child user- family [familyId] and guardian[guardian2,guardian2]
@@ -3068,6 +3134,37 @@ app.get('/get-family', verifyToken, async (req, res) => {
 });
 
 
+
+app.get('/user/families',verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;  // assuming you get the user's ID from a JWT or session
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ status: 0, message: 'User not found' });
+    }
+
+    // Fetch the primary family based on the user's familyId
+    const primaryFamily = await Family.findOne({ familyId: user.familyId });
+
+    if (!primaryFamily) {
+      return res.status(404).json({ status: 0, message: 'Primary family not found' });
+    }
+
+    // Fetch secondary families based on the guardianIds array
+    const secondaryFamilies = await Family.find({
+      familyId: { $in: user.guardianIds },
+    });
+
+    // Combine primary and secondary families
+    const families = [primaryFamily, ...secondaryFamilies];
+
+    return res.status(200).json({ status: 1, families });
+  } catch (err) {
+    console.error('Error fetching families:', err);
+    return res.status(500).json({ status: 0, message: 'Server error' });
+  }
+});
 
 
 
