@@ -1283,6 +1283,7 @@ app.post('/create-family', verifyToken, async (req, res) => {
   try {
     // First, check if the parent already has a family
     const user = await User.findOne({ userId: userId });
+    console.log(user.familyId);
     if (user.familyId && user.familyId.length > 0) {
       return res.status(400).json({
         status: 0,
