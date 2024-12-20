@@ -1290,7 +1290,7 @@ app.post('/create-family', verifyToken, async (req, res) => {
     // First, check if the parent already has a family
     const user = await User.findOne({ userId: userId });
     console.log(user.familyId[0]);
-    if (user.familyId && user.familyId.length > 0) {
+    if (user.familyId && user.familyId.length > 1) {
       return res.status(400).json({
         status: 0,
         message: "You already have a family!!", // Prevent parent from creating multiple families
