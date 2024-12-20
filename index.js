@@ -3040,7 +3040,7 @@ app.get('/user-families', verifyToken, async (req, res) => {
         const role = family.members.find(member => member.userId.toString() === userId.toString())?.role || 'No role';
 
         familiesInfo.push({
-          familyId: family.familyId,
+          familyId: family._id,
           familyName: family.familyName,
           role: role
         });
