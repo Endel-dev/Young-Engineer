@@ -1345,8 +1345,10 @@ app.post('/create-guardian',verifyParentRole,async (req, res) => {
   const normalizedgender = gender ? gender.toLowerCase() : '';
   const parentId = req.user.userId;
   const userRole =req.user.role;
+  const parentFamily=req.user.familyId;
   console.log(parentId);
   console.log(userRole);
+  console.log(parentFamily);
 
   if (userRole !=="parent"){
     return res.status(400).json({status:0, message:'Only a parent user can create guardians'});
@@ -1367,6 +1369,9 @@ app.post('/create-guardian',verifyParentRole,async (req, res) => {
     if (existingUser) {
       return res.status(200).json({ status:0,message: 'Email or Name already exists' });
     }
+
+    const userUuid = uuidv4(); // This generates a unique UUID for the user
+    const familyId = userUuid.slice(-4); // Extract the last 4 characters for the family ID
     
     // Create the new user
     const newUser = new User({
@@ -1377,6 +1382,8 @@ app.post('/create-guardian',verifyParentRole,async (req, res) => {
       password,
       role:normalizedRole,
       dob,
+      familyId: [familyId],
+      guardianId:[parentFamily]
       //parentId: userIdFromToken,
     });
 
