@@ -1372,8 +1372,8 @@ app.post('/create-families', async (req, res) => {
     await newFamily.save();
 
     // Add the familyId to the parent and children
-    parent.familyId.push(newFamily.familyId);
-    await parent.save();
+    // parent.familyId.push(newFamily.familyId);
+    // await parent.save();
 
     // Now update the children and guardians with the familyId
     // const children = await User.find({ parentId: parent.userId });
@@ -3131,34 +3131,49 @@ app.get('/get-family', verifyToken, async (req, res) => {
 
 
 
-app.get('/user/families',verifyToken, async (req, res) => {
+app.get('/get-user-families/:userId', async (req, res) => {
+  const { userId } = req.params;  // User ID from the URL parameter
+
   try {
-    const userId = req.user.userId;  // assuming you get the user's ID from a JWT or session
-    const user = await User.findById(userId);
+    // Find the user by userId
+    const user = await User.findOne({ userId: userId });
 
     if (!user) {
       return res.status(404).json({ status: 0, message: 'User not found' });
     }
 
-    // Fetch the primary family based on the user's familyId
-    const primaryFamily = await Family.findOne({ familyId: user.familyId });
+    // Fetch the families associated with the user
+    let familyIds = [];
 
-    if (!primaryFamily) {
-      return res.status(404).json({ status: 0, message: 'Primary family not found' });
+    // Add user's familyId (if any) to the list
+    if (user.familyId && user.familyId.length > 0) {
+      familyIds = [...familyIds, ...user.familyId];
     }
 
-    // Fetch secondary families based on the guardianIds array
-    const secondaryFamilies = await Family.find({
-      familyId: { $in: user.guardianIds },
+    // Add the families where the user is a guardian (guardianId) to the list
+    if (user.guardianId) {
+      const guardianFamilies = await Family.find({ guardianIds: user.userId });
+      const guardianFamilyIds = guardianFamilies.map(family => family.familyId);
+      familyIds = [...familyIds, ...guardianFamilyIds];
+    }
+
+    // Add the families where the user is a child (parentId) to the list
+    const childFamilies = await Family.find({ parentId: user.userId });
+    const childFamilyIds = childFamilies.map(family => family.familyId);
+    familyIds = [...familyIds, ...childFamilyIds];
+
+    // Remove duplicates by converting to a Set
+    familyIds = [...new Set(familyIds)];
+
+    // Return the familyIds
+    res.status(200).json({
+      status: 1,
+      message: 'Family IDs associated with user fetched successfully',
+      familyIds,
     });
-
-    // Combine primary and secondary families
-    const families = [primaryFamily, ...secondaryFamilies];
-
-    return res.status(200).json({ status: 1, families });
   } catch (err) {
-    console.error('Error fetching families:', err);
-    return res.status(500).json({ status: 0, message: 'Server error' });
+    console.error('Error fetching user families:', err);
+    res.status(500).json({ status: 0, message: 'Server error' });
   }
 });
 
