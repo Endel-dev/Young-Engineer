@@ -21,8 +21,8 @@ async function verifyEmail() {
   
       if (response.ok) {
         alert(data.message);
-        window.location.href = data.redirectUrl;
-        // window.location.href = '/login'; // Redirect to login page
+        //window.location.href = data.redirectUrl;
+         window.location.href = '/login'; // Redirect to login page
       } else {
         alert(data.message);
       }
