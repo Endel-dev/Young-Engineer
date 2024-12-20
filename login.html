@@ -61,6 +61,15 @@
     <p>If you have any questions or issues, feel free to contact our support team.</p>
     <!--<a href="/login" class="btn">Go to Login</a>-->
   </div>
+  <script>
+    // This code will prevent back navigation after successful email verification
+    if (window.history && window.history.pushState) {
+      window.history.pushState(null, null, window.location.href);
+      window.onpopstate = function () {
+        window.history.go(1); // This will prevent the user from going back to the previous page (email verification page)
+      };
+    }
+  </script>
 </body>
 
 </html>
