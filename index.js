@@ -1343,60 +1343,52 @@ app.post('/create-family', verifyToken, async (req, res) => {
   }
 });
 
-app.post('/create-families', verifyToken, async (req, res) => {
+// API to create family by parent
+app.post('/create-families', async (req, res) => {
   const { familyName, region, currency, budgetlimit } = req.body;
-  const userId = req.user.userId;
+  const parentId = req.user.userId;  // Parent's userId from the JWT token
+  const parent = await User.findOne({ userId: parentId });
 
-  // Find the parent user
-  const user = await User.findOne({ userId: userId });
+  // if (parent.role !== 'parent') {
+  //   return res.status(400).json({ status: 0, message: 'Only a parent can create a family' });
+  // }
 
-  // Validate required fields
-  if (!familyName) {
-    return res.status(400).json({
-      status: 0,
-      message: 'Family Name is required',
-    });
-  }
-
-  // Ensure only parents can create a family
-  if (user.role !== 'parent') {
-    return res.status(401).json({
-      status: 0,
-      message: 'Only parents can create a family',
-    });
+  if (!parent.familyId || parent.familyId.length === 0) {
+    return res.status(400).json({ status: 0, message: 'Parent must have a familyId to create a family' });
   }
 
   try {
-    // If the parent already has a family (familyId[0]), prevent them from creating another
-    if (user.familyId && user.familyId.length > 1) {
-      return res.status(400).json({
-        status: 0,
-        message: 'You already have a family!',
-      });
-    }
-
-    // Create the new family
+    // Create the family document with the parent's familyId
     const newFamily = new Family({
+      familyId: parent.familyId[0],  // Use the parent's familyId
       familyName,
       region,
-      currency,
-      budgetlimit,
-      parentId: user.userId,  // Assign parentId
+      currency: currency || 'INR',
+      budgetlimit: budgetlimit || 0,
+      parentId: parentId,  // Link the parentId to the family
     });
 
-    // Save the family
+    // Save the family to the database
     await newFamily.save();
 
-    // Update parent user with new familyId
-    user.familyId.push(newFamily.familyId);
-    await user.save();
+    // Add the familyId to the parent and children
+    parent.familyId.push(newFamily.familyId);
+    await parent.save();
 
-    // Update children with the new familyId (if any)
-    const children = await User.find({ parentId: user.userId, role: 'child' });
-    for (let child of children) {
-      child.familyId.push(newFamily.familyId);
-      await child.save();
-    }
+    // Now update the children and guardians with the familyId
+    // const children = await User.find({ parentId: parent.userId });
+    // for (let child of children) {
+    //   child.familyId.push(newFamily.familyId);
+    //   await child.save();
+    // }
+
+    // const guardians = await User.find({ guardianId: parent.userId });
+    // for (let guardian of guardians) {
+    //   guardian.familyId.push(newFamily.familyId);
+    //   await guardian.save();
+    // }
+
+    
 
     // Respond with the created family data
     res.status(200).json({
@@ -1404,11 +1396,13 @@ app.post('/create-families', verifyToken, async (req, res) => {
       message: 'Family created successfully',
       family: newFamily,
     });
+
   } catch (err) {
     console.error('Error creating family:', err);
     res.status(500).json({ status: 0, message: 'Internal server error' });
   }
 });
+
 
 
 // logic is create family, then create guardian, inside guardian - family [family Id1, familyId2], inside child user- family [familyId] and guardian[guardian2,guardian2]
@@ -3092,9 +3086,9 @@ app.delete('/delete-account', async (req, res) => {
 app.get('/get-family', verifyToken, async (req, res) => {
   const { guardianId } = req.user.userId;  // Assuming the token contains the guardianId
 
-  if (!guardianId) {
-    return res.status(400).json({ status: 0, message: 'Guardian ID is required.' });
-  }
+  // if (!guardianId) {
+  //   return res.status(400).json({ status: 0, message: 'Guardian ID is required.' });
+  // }
 
   try {
     // Find the guardian (user) by guardianId
