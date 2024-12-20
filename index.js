@@ -1310,7 +1310,7 @@ app.post('/create-family', verifyToken, async (req, res) => {
 
     // Now, create the new family as no one is currently in a family
     const newFamily = new Family({
-      familyId,
+      familyId:user.familyId[0],
       familyName,
       region,
       currency,
