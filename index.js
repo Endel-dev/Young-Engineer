@@ -1354,6 +1354,106 @@ app.post("/login", async (req, res) => {
   }
 });
 
+app.post("/logins", async (req, res) => {
+  const { email, name, password } = req.body;
+
+  // Check if password is provided
+  if (!password) {
+    return res
+      .status(400)
+      .json({ status: 0, message: "Please provide password" });
+  }
+
+  try {
+    let user;
+
+    // Check if the user is a 'child' first
+    if (name) {
+      // If it's a child user, search for the user by name
+      user = await User.findOne({ name });
+
+      // Ensure the user exists and is a child
+      if (user && user.role === "child") {
+        // Compare the provided password with the stored password
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+          return res
+            .status(401)
+            .json({ status: 0, message: "Invalid name or password" });
+        }
+
+        // Generate JWT token for child user (no OTP)
+        const token = jwt.sign(
+          { userId: user.userId, role: user.role },
+          process.env.JWT_SECRET,
+          { expiresIn: "15d" }
+        );
+
+        return res.status(200).json({
+          status: 1,
+          message: "Login successful",
+          token: token,
+          userId: user.userId,
+          role: user.role,
+          name: user.name,
+          familyId: user.familyId || null,
+          familyName: user.familyId
+            ? await Family.findOne({ familyId: user.familyId }).familyName
+            : null,
+        });
+      }
+    }
+
+    // If the user is not a 'child', check for parent login (by email or name)
+    if (!user || user.role !== "child") {
+      // If parent is trying to log in, we check by email or name
+      if (email) {
+        user = await User.findOne({ email });
+      } else if (name) {
+        user = await User.findOne({ name });
+      }
+
+      // Ensure user exists for parent
+      if (!user) {
+        return res.status(401).json({ status: 0, message: "User not found" });
+      }
+
+      // Compare the provided password with the stored password
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res
+          .status(401)
+          .json({ status: 0, message: "Invalid name/email or password" });
+      }
+
+      // Generate JWT token for parent user (no OTP)
+      const token = jwt.sign(
+        { userId: user.userId, role: user.role },
+        process.env.JWT_SECRET,
+        { expiresIn: "15d" }
+      );
+
+      return res.status(200).json({
+        status: 1,
+        message: "Login successful",
+        token: token,
+        userId: user.userId,
+        role: user.role,
+        name: user.name,
+        familyId: user.familyId || null,
+        familyName: user.familyId
+          ? await Family.findOne({ familyId: user.familyId }).familyName
+          : null,
+      });
+    }
+  } catch (err) {
+    console.error("Error logging in user:", err);
+    res
+      .status(500)
+      .json({ status: 0, message: "Server error: " + err.message });
+  }
+});
+
 app.post("/create-family", verifyToken, async (req, res) => {
   const { familyId, familyName, region, currency, budgetlimit } = req.body;
   const userId = req.user.userId;
