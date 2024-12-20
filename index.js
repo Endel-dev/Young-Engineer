@@ -1300,7 +1300,7 @@ app.post('/create-family', verifyToken, async (req, res) => {
     // Also, check if any children associated with the parent already have a family
     const children = await User.find({ parentId: user.userId, role: 'child' });
     for (let child of children) {
-      if (child.familyId && child.familyId.length > 0) {
+      if (child.familyId && child.familyId.length > 1) {
         return res.status(400).json({
           status: 0,
           message: `One of your children (User ID: ${child.userId}) already has a family!`,
