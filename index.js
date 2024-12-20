@@ -868,13 +868,13 @@ const verifyParentRole = (req, res, next) => {
     console.log(req.user.role);
     //const normalizedRole = role ? role.toLowerCase() : '';
     //Only allow if the role is parent
-    // if (req.user.role !== "parent" && req.user.role !== "guardian") {
-    //   //&& req.user.role !== 'parent'
-    //   return res.status(403).json({
-    //     message:
-    //       "Access denied. Only parents and guardians  are allowed to do perform this action .",
-    //   });
-    // }
+    if (req.user.role !== "parent" && req.user.role !== "guardian") {
+      //   //&& req.user.role !== 'parent'
+      return res.status(403).json({
+        message:
+          "Access denied. Only parents and guardians  are allowed to do perform this action .",
+      });
+    }
 
     next(); // Proceed to the next middleware or route handler
   } catch (err) {
