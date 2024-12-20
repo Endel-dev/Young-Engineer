@@ -3164,6 +3164,7 @@ app.get('/get-user-families/:userId', async (req, res) => {
 
     // Remove duplicates by converting to a Set
     familyIds = [...new Set(familyIds)];
+    
 
     // Return the familyIds
     res.status(200).json({
