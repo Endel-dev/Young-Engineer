@@ -791,6 +791,10 @@ app.post('/verify-email1', async (req, res) => {
       return res.status(200).json({ status:0, message:'Email already verified'});
     }
 
+    const userUuid = uuidv4(); // This generates a unique UUID for the user
+    const familyId = userUuid.slice(-4); // Extract the last 4 characters for the family ID
+
+
     const newUser = new User({
       email: verificationToken.email,
       name: verificationToken.name,
@@ -798,6 +802,7 @@ app.post('/verify-email1', async (req, res) => {
       gender: verificationToken.gender,
       dob: verificationToken.dob,
       password: verificationToken.password,
+      familyId: familyId,
     });
 
     await newUser.save();
