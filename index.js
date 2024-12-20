@@ -3015,6 +3015,52 @@ app.delete('/delete-account', async (req, res) => {
   }
 });
 
+app.get('/user-families', verifyToken, async (req, res) => {
+  try {
+    // Get the logged-in user's ID
+    const userId = req.user.userId;
+
+    // Find the user record by userId to get their associated familyIds
+    const user = await User.findOne({ userId }).populate('familyId'); // assuming familyId is populated
+
+    if (!user) {
+      return res.status(404).json({ status: 0, message: 'User not found' });
+    }
+
+    // Create an array to hold the family information and role
+    const familiesInfo = [];
+
+    // Iterate over all the families the user is part of
+    for (const familyId of user.familyId) {
+      // Find the family based on familyId
+      const family = await Family.findById(familyId);
+
+      if (family) {
+        // Determine the role of the user in this family (assuming it's stored in the user's family document)
+        const role = family.members.find(member => member.userId.toString() === userId.toString())?.role || 'No role';
+
+        familiesInfo.push({
+          familyId: family.familyId,
+          familyName: family.familyName,
+          role: role
+        });
+      }
+    }
+
+    // Return the array of family info
+    return res.status(200).json({
+      status: 1,
+      message: 'Families fetched successfully',
+      families: familiesInfo
+    });
+
+  } catch (err) {
+    console.error('Error fetching families:', err);
+    return res.status(500).json({ status: 0, message: 'Server error', err });
+  }
+});
+
+
 
 
 
