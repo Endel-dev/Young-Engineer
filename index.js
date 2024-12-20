@@ -3024,7 +3024,7 @@ app.delete('/delete-account', async (req, res) => {
 
 // API to get both primary and secondary families based on guardianId
 app.get('/get-family', verifyToken, async (req, res) => {
-  const { guardianId } = req.user;  // Assuming the token contains the guardianId
+  const { guardianId } = req.user.userId;  // Assuming the token contains the guardianId
 
   if (!guardianId) {
     return res.status(400).json({ status: 0, message: 'Guardian ID is required.' });
