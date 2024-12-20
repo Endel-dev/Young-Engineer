@@ -53,6 +53,10 @@ app.get('/sample', (req, res) => {
 app.get('/verify-email1', (req, res) => {
   res.sendFile(path.join(__dirname, 'sample.html'));
 });
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'login.html'));
+});
+
 
 // app.get('/verify-email', (req, res) => {
 //   res.sendFile(path.join(__dirname, 'verify-email.html'));
@@ -808,7 +812,7 @@ app.post('/verify-email1', async (req, res) => {
     await newUser.save();
     await VerificationToken.deleteOne({ email, token });
 
-    res.status(200).json({ status: 1, message: 'Email successfully verified' });
+    res.status(200).json({ status: 1, message: 'Email successfully verified',  redirectUrl: 'http://93.127.172.167:5001/login'});
 
   } catch (err) {
     console.error('Error verifying email:', err);
