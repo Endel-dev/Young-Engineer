@@ -3101,6 +3101,7 @@ app.get('/get-family', verifyToken, async (req, res) => {
 
     // Find the primary family by familyId (from the guardian)
     const primaryFamily = await Family.findOne({ familyId: guardian.familyId[0] });
+    console.log(primaryFamily);
 
     if (!primaryFamily) {
       return res.status(404).json({ status: 0, message: 'Primary family not found.' });
