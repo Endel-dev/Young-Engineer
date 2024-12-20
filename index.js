@@ -1368,7 +1368,7 @@ app.post('/create-families', verifyToken, async (req, res) => {
 
   try {
     // If the parent already has a family (familyId[0]), prevent them from creating another
-    if (user.familyId && user.familyId.length > 0) {
+    if (user.familyId && user.familyId.length > 1) {
       return res.status(400).json({
         status: 0,
         message: 'You already have a family!',
