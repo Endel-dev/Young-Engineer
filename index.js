@@ -1388,7 +1388,7 @@ app.post('/create-guardian',verifyParentRole,async (req, res) => {
       role:normalizedRole,
       dob,
       familyId: [familyId],
-      guardianId:[parentFamily]
+      guardianId:parentFamily
       //parentId: userIdFromToken,
     });
 
