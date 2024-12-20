@@ -1350,7 +1350,7 @@ app.post('/create-guardian',verifyParentRole,async (req, res) => {
   
   console.log(parentId);
   console.log(userRole);
-  console.log(parentFamily);
+  //console.log(parentFamily);
 
   if (userRole !=="parent"){
     return res.status(400).json({status:0, message:'Only a parent user can create guardians'});
