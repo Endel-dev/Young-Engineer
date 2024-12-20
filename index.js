@@ -812,7 +812,7 @@ app.post('/verify-email1', async (req, res) => {
     await newUser.save();
     await VerificationToken.deleteOne({ email, token });
 
-    res.status(200).json({ status: 1, message: 'Email successfully verified',  redirectUrl: 'http://93.127.172.167:5001/login'});
+    res.status(200).json({ status: 1, message: 'Email successfully verified'});
 
   } catch (err) {
     console.error('Error verifying email:', err);
