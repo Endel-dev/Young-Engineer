@@ -1660,7 +1660,7 @@ app.post("/assign-guardians", verifyParentRole, async (req, res) => {
   }
 });
 
-app.post("/create-child", verifyToken, async (req, res) => {
+app.post("/create-child", verifyParentOrGuardianRole, async (req, res) => {
   const parentId = req.user.userId; // Get the parentId from the decoded token
   console.log("Parent ID:", parentId);
 
