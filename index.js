@@ -1263,6 +1263,8 @@ app.post('/create-family', verifyToken, async (req, res) => {
   const userId = req.user.userId;
   //const normalizedRole = role ? role.toLowerCase() : '';
   console.log(userId);
+  const user = await User.findOne({ userId: userId });
+  console.log(user.familyId);
 
   // Validate required fields
   if (!familyName) {
