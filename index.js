@@ -1343,7 +1343,8 @@ app.post('/create-guardian',verifyParentRole,async (req, res) => {
   const { userId, name, gender, email, password, role, dob } = req.body;
   const normalizedRole = role ? role.toLowerCase() : '';
   const normalizedgender = gender ? gender.toLowerCase() : '';
-  
+  const parentId = req.user.userId;
+  console.log(parentId);
   // Only allow 'child' or 'guardian' roles
   if ( normalizedRole !== 'guardian') {
     return res.status(400).json({ status:0,message: 'Role must be "guardian"' });
