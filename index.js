@@ -130,23 +130,19 @@ app.post("/register-user", async (req, res) => {
   // Ensure only 'parent' role user can register
   //if (role !== 'parent' &&'Parent' && role!='guardian'&&'Guardian') {
   if (normalizedRole !== "parent" && normalizedRole !== "guardian") {
-    return res
-      .status(400)
-      .json({
-        status: 0,
-        message: "Only parent and guardian role is allowed to register",
-      });
+    return res.status(400).json({
+      status: 0,
+      message: "Only parent and guardian role is allowed to register",
+    });
   }
 
   // Validate required fields
   if (!name || !email || !password || !dob || !gender) {
-    return res
-      .status(400)
-      .json({
-        status: 0,
-        message:
-          "Please provide all required fields:name,email,password,dob,gender",
-      });
+    return res.status(400).json({
+      status: 0,
+      message:
+        "Please provide all required fields:name,email,password,dob,gender",
+    });
   }
 
   if (!role) {
@@ -187,14 +183,12 @@ app.post("/register-user", async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "15d" } // Token will expire in 15 days
     );
-    res
-      .status(200)
-      .json({
-        status: 1,
-        message: "Parent registered successfully",
-        user: newUser,
-        token: token,
-      });
+    res.status(200).json({
+      status: 1,
+      message: "Parent registered successfully",
+      user: newUser,
+      token: token,
+    });
   } catch (err) {
     console.error("Error registering user:", err);
     res.status(500).json({ status: 0, message: "Server error", err });
@@ -314,12 +308,10 @@ app.post("/registers", async (req, res) => {
   const normalizedGender = gender ? gender.toLowerCase() : "";
 
   if (normalizedRole !== "parent" && normalizedRole !== "guardian") {
-    return res
-      .status(400)
-      .json({
-        status: 0,
-        message: "Only parent and guardian roles are allowed to register",
-      });
+    return res.status(400).json({
+      status: 0,
+      message: "Only parent and guardian roles are allowed to register",
+    });
   }
 
   if (!name || !email || !password || !dob || !gender) {
@@ -405,12 +397,10 @@ app.post("/registered", async (req, res) => {
   const normalizedGender = gender ? gender.toLowerCase() : "";
 
   if (normalizedRole !== "parent" && normalizedRole !== "guardian") {
-    return res
-      .status(400)
-      .json({
-        status: 0,
-        message: "Only parent and guardian roles are allowed to register",
-      });
+    return res.status(400).json({
+      status: 0,
+      message: "Only parent and guardian roles are allowed to register",
+    });
   }
 
   if (!name || !email || !password || !dob || !gender) {
@@ -436,13 +426,11 @@ app.post("/registered", async (req, res) => {
     });
 
     if (existingVerificationToken) {
-      return res
-        .status(400)
-        .json({
-          status: 0,
-          message:
-            "Mail already sent for email verification and token not expired",
-        });
+      return res.status(400).json({
+        status: 0,
+        message:
+          "Mail already sent for email verification and token not expired",
+      });
     }
 
     // if (existingUser) {
@@ -516,12 +504,10 @@ app.post("/register", async (req, res) => {
 
   // Validate role
   if (normalizedRole !== "parent" && normalizedRole !== "guardian") {
-    return res
-      .status(400)
-      .json({
-        status: 0,
-        message: "Only parent and guardian roles are allowed to register",
-      });
+    return res.status(400).json({
+      status: 0,
+      message: "Only parent and guardian roles are allowed to register",
+    });
   }
 
   // Validate required fields
@@ -548,13 +534,11 @@ app.post("/register", async (req, res) => {
 
     if (existingVerificationToken) {
       // If verification token exists and is not expired, don't send mail
-      return res
-        .status(400)
-        .json({
-          status: 0,
-          message:
-            "Mail already sent for email verification and token is still valid",
-        });
+      return res.status(400).json({
+        status: 0,
+        message:
+          "Mail already sent for email verification and token is still valid",
+      });
     }
 
     // If no valid verification token exists, proceed with sending the verification email
@@ -883,10 +867,16 @@ const verifyParentRole = (req, res, next) => {
     req.user = decoded;
     console.log(req.user.role);
     //const normalizedRole = role ? role.toLowerCase() : '';
-    // Only allow if the role is parent
-    //if (req.user.role !== "parent"||req.user.role !=="guardian"){ //&& req.user.role !== 'parent'
-    //return res.status(403).json({ message: 'Access denied. Only parents  are allowed to do perform this action .' });
-    //}
+    //Only allow if the role is parent
+    if (req.user.role !== "parent" || req.user.role !== "guardian") {
+      //&& req.user.role !== 'parent'
+      return res
+        .status(403)
+        .json({
+          message:
+            "Access denied. Only parents and guardians  are allowed to do perform this action .",
+        });
+    }
 
     next(); // Proceed to the next middleware or route handler
   } catch (err) {
@@ -1428,12 +1418,10 @@ app.post("/create-families", async (req, res) => {
   // }
 
   if (!parent.familyId || parent.familyId.length === 0) {
-    return res
-      .status(400)
-      .json({
-        status: 0,
-        message: "Parent must have a familyId to create a family",
-      });
+    return res.status(400).json({
+      status: 0,
+      message: "Parent must have a familyId to create a family",
+    });
   }
 
   try {
@@ -1771,11 +1759,9 @@ app.put("/update", verifyToken, async (req, res) => {
 
     // Check if the request body is empty (no fields provided)
     if (!name && !email && !password) {
-      return res
-        .status(400)
-        .json({
-          message: "name , email or password or fields not provided for update",
-        });
+      return res.status(400).json({
+        message: "name , email or password or fields not provided for update",
+      });
     }
 
     // Check if any other fields are present in the payload (not allowed to be updated)
@@ -1785,11 +1771,9 @@ app.put("/update", verifyToken, async (req, res) => {
     );
 
     if (invalidFields.length > 0) {
-      return res
-        .status(400)
-        .json({
-          message: "Only Email, name, password are allowed to be updated",
-        });
+      return res.status(400).json({
+        message: "Only Email, name, password are allowed to be updated",
+      });
     }
 
     // Validate that fields are not empty
@@ -1848,12 +1832,9 @@ const verifyParentOrGuardianRole = (req, res, next) => {
 
     // Check if the user's role is 'parent' or 'guardian'
     if (req.user.role !== "parent" && req.user.role !== "guardian") {
-      return res
-        .status(403)
-        .json({
-          message:
-            "Access denied. Only parents and guardians can create tasks.",
-        });
+      return res.status(403).json({
+        message: "Access denied. Only parents and guardians can create tasks.",
+      });
     }
 
     next(); // Proceed to the next middleware or route handler
@@ -1908,12 +1889,10 @@ app.post("/create-task", verifyParentOrGuardianRole, async (req, res) => {
   const expectedDate = new Date(expectedCompletionDate);
 
   if (expectedDate < currentDate) {
-    return res
-      .status(400)
-      .json({
-        status: 0,
-        message: "Expected completion date must be in the future",
-      });
+    return res.status(400).json({
+      status: 0,
+      message: "Expected completion date must be in the future",
+    });
   }
 
   try {
@@ -1984,11 +1963,9 @@ const verifyTaskCreatorOrAssigned = (req, res, next) => {
       ) {
         next(); // User is authorized, proceed to the next middleware or handler
       } else {
-        return res
-          .status(403)
-          .json({
-            message: "Access denied. You are not authorized to view this task.",
-          });
+        return res.status(403).json({
+          message: "Access denied. You are not authorized to view this task.",
+        });
       }
     })
     .catch((err) => {
@@ -2165,12 +2142,9 @@ const verifyTaskCreator = (req, res, next) => {
       if (task.createdBy.toString() === req.user.userId) {
         next(); // User is the creator, proceed to the next middleware or handler
       } else {
-        return res
-          .status(403)
-          .json({
-            message:
-              "Access denied. You are not authorized to update this task.",
-          });
+        return res.status(403).json({
+          message: "Access denied. You are not authorized to update this task.",
+        });
       }
     })
     .catch((err) => {
@@ -2372,13 +2346,11 @@ app.get("/children", verifyToken, async (req, res) => {
     });
   } catch (err) {
     console.error("Error fetching children:", err);
-    res
-      .status(500)
-      .json({
-        status: 0,
-        message: "Server error while fetching children",
-        err,
-      });
+    res.status(500).json({
+      status: 0,
+      message: "Server error while fetching children",
+      err,
+    });
   }
 });
 
@@ -2460,12 +2432,10 @@ app.get("/view-child/:childId", verifyParentRole, async (req, res) => {
     }
 
     if (child.parentId && child.parentId.toString() !== parentId.toString()) {
-      return res
-        .status(403)
-        .json({
-          status: 0,
-          message: "You are not authorized to view this child",
-        });
+      return res.status(403).json({
+        status: 0,
+        message: "You are not authorized to view this child",
+      });
     }
 
     // Step 4: If everything is correct, return child details
@@ -2657,12 +2627,10 @@ app.post("/create-rewards", verifyToken, async (req, res) => {
 
   const user = await User.findOne({ userId });
   if (user.role !== "parent") {
-    return res
-      .status(400)
-      .json({
-        status: 0,
-        message: "Only parents are allowed to create rewards.",
-      });
+    return res.status(400).json({
+      status: 0,
+      message: "Only parents are allowed to create rewards.",
+    });
   }
   const {
     rewardName,
@@ -2684,13 +2652,11 @@ app.post("/create-rewards", verifyToken, async (req, res) => {
       !expiryDate ||
       !category
     ) {
-      return res
-        .status(400)
-        .json({
-          status: 0,
-          message:
-            "Missing required fields: rewardId,rewardName,rewardType,requiredPoints,startDate,expiryDate,category",
-        });
+      return res.status(400).json({
+        status: 0,
+        message:
+          "Missing required fields: rewardId,rewardName,rewardType,requiredPoints,startDate,expiryDate,category",
+      });
     }
 
     if (new Date(startDate) < currentDate) {
@@ -2706,13 +2672,11 @@ app.post("/create-rewards", verifyToken, async (req, res) => {
     }
 
     if (new Date(expiryDate) < new Date(startDate)) {
-      return res
-        .status(400)
-        .json({
-          status: 0,
-          message:
-            "Provide valid Expiry Date, Expiry Date should be a Date occuring after Start Date.",
-        });
+      return res.status(400).json({
+        status: 0,
+        message:
+          "Provide valid Expiry Date, Expiry Date should be a Date occuring after Start Date.",
+      });
     }
     const rewardId = uuidv4().split("-")[0];
 
@@ -2732,13 +2696,11 @@ app.post("/create-rewards", verifyToken, async (req, res) => {
 
     await newReward.save();
 
-    res
-      .status(201)
-      .json({
-        status: 1,
-        message: "Reward created successfully!",
-        reward: newReward,
-      });
+    res.status(201).json({
+      status: 1,
+      message: "Reward created successfully!",
+      reward: newReward,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to create reward" });
@@ -2771,26 +2733,22 @@ app.post("/rewards/claim/:rewardId", verifyToken, async (req, res) => {
 
     // Check if the reward's startDate is in the future
     if (reward.startDate > currentDate) {
-      return res
-        .status(400)
-        .json({
-          status: 0,
-          message:
-            "This reward cannot be claimed yet. The reward starts on " +
-            reward.startDate.toDateString(),
-        });
+      return res.status(400).json({
+        status: 0,
+        message:
+          "This reward cannot be claimed yet. The reward starts on " +
+          reward.startDate.toDateString(),
+      });
     }
 
     // Check if the user's total points are greater than or equal to the required points for the reward
     if (user.Totalpoints < reward.requiredPoints) {
-      return res
-        .status(400)
-        .json({
-          status: 0,
-          message: `You need ${
-            reward.requiredPoints - user.Totalpoints
-          } more points to claim this reward.`,
-        });
+      return res.status(400).json({
+        status: 0,
+        message: `You need ${
+          reward.requiredPoints - user.Totalpoints
+        } more points to claim this reward.`,
+      });
     }
 
     reward.claimedBy.push(user.userId);
@@ -2818,13 +2776,11 @@ app.post("/rewards/claim/:rewardId", verifyToken, async (req, res) => {
     await reward.save();
 
     // Respond with success
-    res
-      .status(200)
-      .json({
-        status: 1,
-        message: "Reward claimed successfully!",
-        reward: reward,
-      });
+    res.status(200).json({
+      status: 1,
+      message: "Reward claimed successfully!",
+      reward: reward,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ status: 0, message: "Failed to claim the reward" });
@@ -2872,12 +2828,10 @@ app.put("/rewards/:rewardId", verifyToken, async (req, res) => {
     }
 
     if (reward.createdBy !== userId) {
-      return res
-        .status(403)
-        .json({
-          status: 0,
-          message: "You are not authorised to edit this reward.",
-        });
+      return res.status(403).json({
+        status: 0,
+        message: "You are not authorised to edit this reward.",
+      });
     }
 
     // If provided, validate and update the startDate and expiryDate
@@ -2888,12 +2842,10 @@ app.put("/rewards/:rewardId", verifyToken, async (req, res) => {
           .json({ status: 0, message: "Provide accurate Expiry Date." });
       }
       if (new Date(expiryDate) < new Date(startDate || reward.startDate)) {
-        return res
-          .status(400)
-          .json({
-            status: 0,
-            message: "Expiry Date should be after Start Date.",
-          });
+        return res.status(400).json({
+          status: 0,
+          message: "Expiry Date should be after Start Date.",
+        });
       }
     }
 
@@ -2952,12 +2904,10 @@ app.put("/rewards/approve/:rewardId", verifyToken, async (req, res) => {
     }
 
     if (reward.createdBy !== userId) {
-      return res
-        .status(403)
-        .json({
-          status: 0,
-          message: "You are not authorised to approve this reward.",
-        });
+      return res.status(403).json({
+        status: 0,
+        message: "You are not authorised to approve this reward.",
+      });
     }
 
     if (reward.claimStatus !== "claimed") {
@@ -3021,21 +2971,17 @@ app.put("/rewards/redemption/:rewardId", verifyToken, async (req, res) => {
     }
 
     if (reward.createdBy !== userId) {
-      return res
-        .status(403)
-        .json({
-          status: 0,
-          message: "You are not authorised to approve this reward.",
-        });
+      return res.status(403).json({
+        status: 0,
+        message: "You are not authorised to approve this reward.",
+      });
     }
 
     if (reward.isApproved !== true || reward.claimStatus !== "claimed") {
-      return res
-        .status(400)
-        .json({
-          status: 0,
-          message: "This reward is not approved or claimed yet",
-        });
+      return res.status(400).json({
+        status: 0,
+        message: "This reward is not approved or claimed yet",
+      });
     }
 
     //if(reward.claimStatus !=="claimed"){
@@ -3069,13 +3015,11 @@ app.put("/rewards/redemption/:rewardId", verifyToken, async (req, res) => {
         reward.claimStatus = "unclaimed";
         await reward.save();
 
-        return res
-          .status(400)
-          .json({
-            status: 0,
-            message:
-              "You have a redemption with payment status-pending for this user ",
-          });
+        return res.status(400).json({
+          status: 0,
+          message:
+            "You have a redemption with payment status-pending for this user ",
+        });
       }
 
       if (
@@ -3270,12 +3214,10 @@ app.delete("/delete-account", async (req, res) => {
   const { userId } = req.body; // The user ID of the parent account
 
   if (!userId) {
-    return res
-      .status(400)
-      .json({
-        status: 0,
-        message: "User ID is required to delete the account.",
-      });
+    return res.status(400).json({
+      status: 0,
+      message: "User ID is required to delete the account.",
+    });
   }
 
   try {
@@ -3290,13 +3232,11 @@ app.delete("/delete-account", async (req, res) => {
 
     // Check if the user is a parent
     if (parentUser.role !== "parent") {
-      return res
-        .status(400)
-        .json({
-          status: 0,
-          message:
-            "Only parent accounts can delete themselves and child accounts.",
-        });
+      return res.status(400).json({
+        status: 0,
+        message:
+          "Only parent accounts can delete themselves and child accounts.",
+      });
     }
 
     // Find and delete all child accounts associated with this parent (via parentId)
@@ -3315,12 +3255,10 @@ app.delete("/delete-account", async (req, res) => {
     });
   } catch (err) {
     console.error("Error deleting user account:", err);
-    res
-      .status(500)
-      .json({
-        status: 0,
-        message: "Server error occurred while deleting the account.",
-      });
+    res.status(500).json({
+      status: 0,
+      message: "Server error occurred while deleting the account.",
+    });
   }
 });
 
@@ -3375,12 +3313,10 @@ app.get("/get-family", verifyToken, async (req, res) => {
     });
   } catch (err) {
     console.error("Error fetching family data:", err);
-    res
-      .status(500)
-      .json({
-        status: 0,
-        message: "Server error occurred while fetching family data.",
-      });
+    res.status(500).json({
+      status: 0,
+      message: "Server error occurred while fetching family data.",
+    });
   }
 });
 
