@@ -1346,7 +1346,7 @@ app.post('/create-guardian',verifyParentRole,async (req, res) => {
   const parentId = req.user.userId;
   const userRole =req.user.role;
   const user = await User.findOne({ parentId });
-  console.log(user.familyId);
+  console.log(user);
   
   console.log(parentId);
   console.log(userRole);
