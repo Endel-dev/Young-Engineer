@@ -3092,7 +3092,7 @@ app.get('/get-family', verifyToken, async (req, res) => {
 
   try {
     // Find the guardian (user) by guardianId
-    const guardian = await User.findOne({ guardianId });
+    const guardian = await User.findOne({ guardianId:userId });
 
     if (!guardian) {
       return res.status(404).json({ status: 0, message: 'Guardian not found.' });
