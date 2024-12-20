@@ -1348,6 +1348,8 @@ app.post('/create-guardian',verifyParentRole,async (req, res) => {
   //const user = await User.findOne({ userId:parentId });
   const parent = await User.findOne({ userId: parentId });
   console.log(parent);
+  const parentFamily=[parent.familyId];
+  console.log(parentFamily);
   
   console.log(parentId);
   console.log(userRole);
@@ -1386,7 +1388,7 @@ app.post('/create-guardian',verifyParentRole,async (req, res) => {
       role:normalizedRole,
       dob,
       familyId: [familyId],
-      //guardianId:[parentId]
+      guardianId:[parentFamily]
       //parentId: userIdFromToken,
     });
 
