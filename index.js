@@ -1279,12 +1279,12 @@ app.post('/create-family', verifyToken, async (req, res) => {
   }
 
   // Ensure only parents can create a family
-  if (req.user.role!== "parent") {
-    return res.status(401).json({
-      status: 0,
-      message: 'Only parents can create a family',
-    });
-  }
+  // if (req.user.role!== "parent") {
+  //   return res.status(401).json({
+  //     status: 0,
+  //     message: 'Only parents can create a family',
+  //   });
+  // }
 
   try {
     // First, check if the parent already has a family
