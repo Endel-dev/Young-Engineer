@@ -22,7 +22,7 @@ async function verifyEmail() {
       if (response.ok) {
         alert(data.message);
         //window.location.href = data.redirectUrl;
-         window.location.replace ='http://93.127.172.167:5001/login'; // Redirect to login page
+         window.location.href='http://93.127.172.167:5001/login'; // Redirect to login page
       } else {
         alert(data.message);
       }
