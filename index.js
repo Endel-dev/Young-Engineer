@@ -1346,7 +1346,8 @@ app.post('/create-guardian',verifyParentRole,async (req, res) => {
   const parentId = req.user.userId;
   const userRole =req.user.role;
   const parentFamily=req.user.familyId;
-  
+  const user=req.user;
+  console.log(user);
   console.log(parentId);
   console.log(userRole);
   console.log(parentFamily);
