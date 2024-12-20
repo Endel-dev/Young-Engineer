@@ -884,6 +884,36 @@ const verifyParentRole = (req, res, next) => {
   }
 };
 
+const verifyParentOrGuardianRole = (req, res, next) => {
+  const token = req.header("Authorization")?.split(" ")[1]; // Get token from header
+
+  if (!token) {
+    return res
+      .status(401)
+      .json({ message: "Access denied. No token provided." });
+  }
+
+  try {
+    // Verify token and extract user role
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+
+    // Check if the role is either 'parent' or 'guardian'
+    if (req.user.role !== "parent" && req.user.role !== "guardian") {
+      return res.status(403).json({
+        message:
+          "Access denied. Only parents and guardians are allowed to perform this action.",
+      });
+    }
+
+    next(); // Proceed to the next middleware or route handler
+  } catch (err) {
+    return res
+      .status(400)
+      .json({ message: "Invalid token", error: err.message });
+  }
+};
+
 const verifyToken = (req, res, next) => {
   const token = req.header("Authorization")?.split(" ")[1]; // Extract token from Authorization header
 
