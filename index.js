@@ -3517,10 +3517,6 @@ app.get("/get-user-families/:userId", async (req, res) => {
   try {
     // Find the user by userId
     const user = await User.findOne({ userId: userId });
-    const FamilyName=user.name
-    console.log(FamilyName);
-    const answer="{$FamilyName}'s Family"
-    console.log(answer);
 
     if (!user) {
       return res.status(404).json({ status: 0, message: "User not found" });
@@ -3541,6 +3537,7 @@ app.get("/get-user-families/:userId", async (req, res) => {
         (family) => family.familyId
       );
       familyIds = [...familyIds, ...guardianFamilyIds];
+      const role = "guardian";
     }
 
     // Add the families where the user is a child (parentId) to the list
@@ -3550,8 +3547,20 @@ app.get("/get-user-families/:userId", async (req, res) => {
 
     // Remove duplicates by converting to a Set
     familyIds = [...new Set(familyIds)];
-    const parentFamilyName = user.name;
-    const formattedFamilyName = `${parentFamilyName}'s Family`;  // Format as "FamilyName's Family"
+    //const parentFamilyName = user.name;
+    //const formattedFamilyName = `${parentFamilyName}'s Family`;  // Format as "FamilyName's Family"
+
+    let formattedFamilyName = '';
+    if (user.role === 'parent') {
+      const parentFamilyName = user.name;
+      formattedFamilyName = `${parentFamilyName}'s Family`;  // For the parent, it's the parent's name
+    } else if (user.role === 'guardian' || user.role === 'child') {
+      // For a guardian or child, fetch the family info of the parent
+      const parentUser = await User.findOne({ userId: user.parentId });
+      if (parentUser) {
+        formattedFamilyName = `${parentUser.name}'s Family`;  // Parent's family name
+      }
+    }
 
 
     // Return the familyIds
@@ -3560,6 +3569,7 @@ app.get("/get-user-families/:userId", async (req, res) => {
       message: "Family IDs associated with user fetched successfully",
       familyIds,
       familyName: formattedFamilyName, 
+      role:user.role
     });
   } catch (err) {
     console.error("Error fetching user families:", err);
