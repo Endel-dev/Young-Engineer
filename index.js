@@ -1611,23 +1611,23 @@ app.post("/create-families", verifyToken, async (req, res) => {
     }
 
     // Check if the parent already has a family
-    if (user.familyId && user.familyId.length > 0) {
-      return res.status(400).json({
-        status: 0,
-        message: "You already have a family!", // Prevent parent from creating multiple families
-      });
-    }
+    // if (user.familyId && user.familyId.length > 0) {
+    //   return res.status(400).json({
+    //     status: 0,
+    //     message: "You already have a family!", // Prevent parent from creating multiple families
+    //   });
+    // }
 
     // Also, check if any children associated with the parent already have a family
-    const children = await User.find({ parentId: userId, role: "child" });
-    for (let child of children) {
-      if (child.familyId && child.familyId.length > 0) {
-        return res.status(400).json({
-          status: 0,
-          message: `One of your children (User ID: ${child.userId}) already has a family!`,
-        });
-      }
-    }
+    // const children = await User.find({ parentId: userId, role: "child" });
+    // for (let child of children) {
+    //   if (child.familyId && child.familyId.length > 0) {
+    //     return res.status(400).json({
+    //       status: 0,
+    //       message: `One of your children (User ID: ${child.userId}) already has a family!`,
+    //     });
+    //   }
+    // }
 
     // Now, create the new family as no one is currently in a family
     const newFamily = new Family({
