@@ -1666,9 +1666,15 @@ app.post("/create-families", verifyToken, async (req, res) => {
       
     }
 
-    const guardians = await User.find({ guardianId: parentFamilyId });
-    for (let guardian of guardians) {
-      // Add the guardian's userId to the family document
+    const guardians = await User.find({ role: "guardian" });
+    
+    // Filter guardians based on familyId matching the parent's familyId
+    const validGuardians = guardians.filter(guardian => 
+      guardian.familyId.includes(parentFamilyId)
+    );
+
+    // Add the valid guardians' userId to the family’s guardianId array
+    for (let guardian of validGuardians) {
       newFamily.guardianId.push(guardian.userId); // Add guardian's userId to the family
     }
 
