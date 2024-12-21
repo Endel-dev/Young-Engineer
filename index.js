@@ -3628,6 +3628,8 @@ app.get("/get-guardian-families/:userId", async (req, res) => {
     }
 
     let familyIds = [];
+    let familyNames = [];
+
 
     // If the user is a parent, include their primary familyId (stored in `familyId`)
     if (user.familyId && user.familyId.length > 0) {
@@ -3642,11 +3644,35 @@ app.get("/get-guardian-families/:userId", async (req, res) => {
     // Remove duplicates by converting to a Set and back to an array
     familyIds = [...new Set(familyIds)];
 
+    // Fetch family names by looking up the familyId in each case
+    for (let familyId of familyIds) {
+      let familyName = '';
+
+      // For the user's primary family (familyId stored in User model)
+      if (user.familyId.includes(familyId)) {
+        const parentName = user.name;
+        familyName = `${parentName}'s Family`;  // Parent's family
+      } else {
+        // For guardian's family ID, get the parent name
+        const family = await Family.findOne({ familyId: familyId });
+        if (family && family.parentId) {
+          const parentUser = await User.findOne({ userId: family.parentId });
+          if (parentUser) {
+            familyName = `${parentUser.name}'s Family`;
+          }
+        }
+      }
+
+      // Store the familyId and familyName
+      familyNames.push({ familyId, familyName });
+    }
+
     // Return the list of familyIds
     res.status(200).json({
       status: 1,
       message: "Families where the user is a parent or guardian fetched successfully",
       familyIds: familyIds,
+      families: familyNames, 
     });
 
   } catch (err) {
