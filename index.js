@@ -3658,7 +3658,7 @@ app.get("/get-guardian-families/:userId", async (req, res) => {
         console.log(role);
       } else {
         if (user.guardianIds && user.guardianIds.includes(familyId)) {
-          const parentUser = await User.findOne({ familyId: familyId });
+          const parentUser = await User.findOne({ guardianIds: familyId });
           console.log(parentUser);
 
           if (parentUser) {
