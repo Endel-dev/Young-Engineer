@@ -3578,6 +3578,44 @@ app.get("/get-user-families/:userId", async (req, res) => {
   }
 });
 
+// app.get("/get-guardian-families/:userId", async (req, res) => {
+//   const { userId } = req.params; // User ID from the URL parameter
+
+//   try {
+//     // Find the user by userId
+//     const user = await User.findOne({ userId: userId });
+
+//     if (!user) {
+//       return res.status(404).json({ status: 0, message: "User not found" });
+//     }
+
+//     // Fetch the families where the user is a parent (via parentId field)
+//     let parentFamilies = await Family.find({ parentId: user.userId });
+//     let parentFamilyIds = parentFamilies.map(family => family.familyId);
+
+//     // Fetch the families where the user is a guardian (via guardianIds array)
+//     let guardianFamilies = await Family.find({ guardianIds: user.userId });
+//     let guardianFamilyIds = guardianFamilies.map(family => family.familyId);
+
+//     // Combine both sets of family IDs, with parent families listed first
+//     let allFamilyIds = [...parentFamilyIds, ...guardianFamilyIds];
+
+//     // Remove duplicates by converting to a Set
+//     allFamilyIds = [...new Set(allFamilyIds)];
+
+//     // Return the list of familyIds where the user is either a parent or guardian
+//     res.status(200).json({
+//       status: 1,
+//       message: "Families where the user is a parent or guardian fetched successfully",
+//       familyIds: allFamilyIds
+//     });
+
+//   } catch (err) {
+//     console.error("Error fetching guardian families:", err);
+//     res.status(500).json({ status: 0, message: "Server error" });
+//   }
+// });
+
 app.get("/get-guardian-families/:userId", async (req, res) => {
   const { userId } = req.params; // User ID from the URL parameter
 
@@ -3589,25 +3627,26 @@ app.get("/get-guardian-families/:userId", async (req, res) => {
       return res.status(404).json({ status: 0, message: "User not found" });
     }
 
-    // Fetch the families where the user is a parent (via parentId field)
-    let parentFamilies = await Family.find({ parentId: user.userId });
-    let parentFamilyIds = parentFamilies.map(family => family.familyId);
+    let familyIds = [];
 
-    // Fetch the families where the user is a guardian (via guardianIds array)
-    let guardianFamilies = await Family.find({ guardianIds: user.userId });
-    let guardianFamilyIds = guardianFamilies.map(family => family.familyId);
+    // If the user is a parent, include their primary familyId (stored in `familyId`)
+    if (user.familyId && user.familyId.length > 0) {
+      familyIds = [...familyIds, ...user.familyId];
+    }
 
-    // Combine both sets of family IDs, with parent families listed first
-    let allFamilyIds = [...parentFamilyIds, ...guardianFamilyIds];
+    // If the user is a guardian, include the family IDs stored in `guardianIds`
+    if (user.guardianIds && user.guardianIds.length > 0) {
+      familyIds = [...familyIds, ...user.guardianIds];
+    }
 
-    // Remove duplicates by converting to a Set
-    allFamilyIds = [...new Set(allFamilyIds)];
+    // Remove duplicates by converting to a Set and back to an array
+    familyIds = [...new Set(familyIds)];
 
-    // Return the list of familyIds where the user is either a parent or guardian
+    // Return the list of familyIds
     res.status(200).json({
       status: 1,
       message: "Families where the user is a parent or guardian fetched successfully",
-      familyIds: allFamilyIds
+      familyIds: familyIds,
     });
 
   } catch (err) {
@@ -3615,6 +3654,7 @@ app.get("/get-guardian-families/:userId", async (req, res) => {
     res.status(500).json({ status: 0, message: "Server error" });
   }
 });
+
 
 
 
