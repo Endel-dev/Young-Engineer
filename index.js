@@ -3653,17 +3653,25 @@ app.get("/get-guardian-families/:userId", async (req, res) => {
         const parentName = user.name;
         familyName = `${parentName}'s Family`;  // Parent's family
       } else {
-        // // For guardian's family ID, get the parent name
-        // const family = await Family.findOne({ familyId: familyId });
-        // if (family && family.parentId) {
-        //   const parentUser = await User.findOne({ userId: family.parentId });
-        //   if (parentUser) {
-        //     familyName = `${parentUser.name}'s Family`;
-        //   }
-        // }
-        const parentUser= user.name;
-        familyName = `${parentUser}'s Family`;
+        if (user.guardianIds && user.guardianIds.includes(familyId)) {
+          const parentUser = await User.findOne({ familyId: familyId });
+
+          if (parentUser) {
+            familyName = `${parentUser.name}'s Family`;  // Parent's family name for the guardian's family
+          }
+        }
       }
+        
+        // For guardian's family ID, get the parent name
+      //   const family = await Family.findOne({ familyId: familyId });
+      //   if (family && family.parentId) {
+      //     const parentUser = await User.findOne({ userId: family.parentId });
+      //     if (parentUser) {
+      //       familyName = `${parentUser.name}'s Family`;
+      //     }
+      //   }
+
+      // }
 
       // Store the familyId and familyName
       familyNames.push({ familyId, familyName });
