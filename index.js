@@ -1658,14 +1658,17 @@ app.post("/create-families", verifyToken, async (req, res) => {
     await newFamily.save();
      // Assign the new familyId to each child, set the guardianId and add the child to the family's children array
      for (let child of children) {
-      child.familyId = [newFamily._id]; // Set the familyId for the child
-      child.guardianId = [parentFamilyId]; // Set the parent's familyId as guardianId
-      await child.save();
 
       // Add the child's userId to the family's children array
       newFamily.children.push(child.userId);
 
       
+    }
+
+    const guardians = await User.find({ guardianId: userId });
+    for (let guardian of guardians) {
+      // Add the guardian's userId to the family document
+      newFamily.guardianId.push(guardian.userId); // Add guardian's userId to the family
     }
 
     
