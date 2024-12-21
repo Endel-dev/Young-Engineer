@@ -3550,12 +3550,16 @@ app.get("/get-user-families/:userId", async (req, res) => {
 
     // Remove duplicates by converting to a Set
     familyIds = [...new Set(familyIds)];
+    const parentFamilyName = user.name;
+    const formattedFamilyName = `${parentFamilyName}'s Family`;  // Format as "FamilyName's Family"
+
 
     // Return the familyIds
     res.status(200).json({
       status: 1,
       message: "Family IDs associated with user fetched successfully",
       familyIds,
+      familyName: formattedFamilyName, 
     });
   } catch (err) {
     console.error("Error fetching user families:", err);
