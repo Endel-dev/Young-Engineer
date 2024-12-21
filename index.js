@@ -1638,7 +1638,7 @@ app.post("/create-families", verifyToken, async (req, res) => {
       parentId: userId,
     });
   
-
+    user.familyId.push(newFamily.familyId);
     // Save the new family to the database
     await newFamily.save();
 
