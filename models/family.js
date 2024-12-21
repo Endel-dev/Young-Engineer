@@ -4,7 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 
 // Define the user schema
 const familySchema = new mongoose.Schema({
-  familyId: { type: String},
+  familyId: [{ type: String}],
   familyName: { type: String, required: true },
   region: { type: String },
   currency: { type: String, default: 'INR' },
