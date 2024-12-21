@@ -3616,87 +3616,87 @@ app.get("/get-user-families/:userId", async (req, res) => {
 //   }
 // });
 
-app.get("/get-guardian-families/:userId", async (req, res) => {
-  const { userId } = req.params; // User ID from the URL parameter
+// app.get("/get-guardian-families1/:userId", async (req, res) => {
+//   const { userId } = req.params; // User ID from the URL parameter
 
-  try {
-    // Find the user by userId
-    const user = await User.findOne({ userId: userId });
+//   try {
+//     // Find the user by userId
+//     const user = await User.findOne({ userId: userId });
 
-    if (!user) {
-      return res.status(404).json({ status: 0, message: "User not found" });
-    }
+//     if (!user) {
+//       return res.status(404).json({ status: 0, message: "User not found" });
+//     }
 
-    let familyIds = [];
-    let familyNames = [];
+//     let familyIds = [];
+//     let familyNames = [];
   
 
 
-    // If the user is a parent, include their primary familyId (stored in `familyId`)
-    if (user.familyId && user.familyId.length > 0) {
-      familyIds = [...familyIds, ...user.familyId];
-    }
+//     // If the user is a parent, include their primary familyId (stored in `familyId`)
+//     if (user.familyId && user.familyId.length > 0) {
+//       familyIds = [...familyIds, ...user.familyId];
+//     }
 
-    // If the user is a guardian, include the family IDs stored in `guardianIds`
-    if (user.guardianId && user.guardianId.length > 0) {
-      familyIds = [...familyIds, ...user.guardianId];
-    }
+//     // If the user is a guardian, include the family IDs stored in `guardianIds`
+//     if (user.guardianId && user.guardianId.length > 0) {
+//       familyIds = [...familyIds, ...user.guardianId];
+//     }
 
-    // Remove duplicates by converting to a Set and back to an array
-    familyIds = [...new Set(familyIds)];
+//     // Remove duplicates by converting to a Set and back to an array
+//     familyIds = [...new Set(familyIds)];
 
-    // Fetch family names by looking up the familyId in each case
-    for (let familyId of familyIds) {
-      let familyName = '';
-      let role = '';
+//     // Fetch family names by looking up the familyId in each case
+//     for (let familyId of familyIds) {
+//       let familyName = '';
+//       let role = '';
 
-      // For the user's primary family (familyId stored in User model)
-      if (user.familyId.includes(familyId)) {
-        const parentName = user.name;
-        familyName = `${parentName}'s Family`;  // Parent's family
-        role = 'parent';
-        console.log(role);
-      } else {
-        if (user.guardianId && user.guardianId.includes(familyId)) {
-          const parentUser = await User.findOne({ familyId: familyId });
-          console.log(parentUser);
+//       // For the user's primary family (familyId stored in User model)
+//       if (user.familyId.includes(familyId)) {
+//         const parentName = user.name;
+//         familyName = `${parentName}'s Family`;  // Parent's family
+//         role = 'parent';
+//         console.log(role);
+//       } else {
+//         if (user.guardianId && user.guardianId.includes(familyId)) {
+//           const parentUser = await User.findOne({ familyId: familyId });
+//           console.log(parentUser);
 
-          if (parentUser) {
-            familyName = `${parentUser.name}'s Family`;  // Parent's family name for the guardian's family
-            role ='guardian';
-          }
-        }
-      }
+//           if (parentUser) {
+//             familyName = `${parentUser.name}'s Family`;  // Parent's family name for the guardian's family
+//             role ='guardian';
+//           }
+//         }
+//       }
         
-        // For guardian's family ID, get the parent name
-      //   const family = await Family.findOne({ familyId: familyId });
-      //   if (family && family.parentId) {
-      //     const parentUser = await User.findOne({ userId: family.parentId });
-      //     if (parentUser) {
-      //       familyName = `${parentUser.name}'s Family`;
-      //     }
-      //   }
+//         // For guardian's family ID, get the parent name
+//       //   const family = await Family.findOne({ familyId: familyId });
+//       //   if (family && family.parentId) {
+//       //     const parentUser = await User.findOne({ userId: family.parentId });
+//       //     if (parentUser) {
+//       //       familyName = `${parentUser.name}'s Family`;
+//       //     }
+//       //   }
 
-      // }
+//       // }
 
-      // Store the familyId and familyName
-      familyNames.push({ familyId, familyName,role });
-    }
+//       // Store the familyId and familyName
+//       familyNames.push({ familyId, familyName,role });
+//     }
 
-    // Return the list of familyIds
-    res.status(200).json({
-      status: 1,
-      message: "Families where the user is a parent or guardian fetched successfully",
-      families: familyNames,
-    });
+//     // Return the list of familyIds
+//     res.status(200).json({
+//       status: 1,
+//       message: "Families where the user is a parent or guardian fetched successfully",
+//       families: familyNames,
+//     });
 
-  } catch (err) {
-    console.error("Error fetching guardian families:", err);
-    res.status(500).json({ status: 0, message: "Server error" });
-  }
-});
+//   } catch (err) {
+//     console.error("Error fetching guardian families:", err);
+//     res.status(500).json({ status: 0, message: "Server error" });
+//   }
+// });
 
-app.get("/get-guardian-families1/:userId", async (req, res) => {
+app.get("/get-guardian-families/:userId", async (req, res) => {
   const { userId } = req.params; // User ID from the URL parameter
 
   try {
@@ -3772,7 +3772,8 @@ app.get("/get-guardian-families1/:userId", async (req, res) => {
 
 
 
-// Start the server
+//Start the server
+
 app.listen(port, () => {
   console.log(`Server running at http://93.127.172.167:${port}`);
 });
