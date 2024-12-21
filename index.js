@@ -3716,8 +3716,8 @@ app.get("/get-guardian-families1/:userId", async (req, res) => {
     }
 
     // If the user is a guardian, include the family IDs stored in `guardianIds`
-    if (user.guardianIds && user.guardianIds.length > 0) {  // Corrected field here
-      familyIds = [...familyIds, ...user.guardianIds];  // Use `guardianIds` instead of `guardianId`
+    if (user.guardianIds && user.guardianIds.length > 0) {
+      familyIds = [...familyIds, ...user.guardianIds];  // Corrected field for guardians
     }
 
     // Remove duplicates by converting to a Set and back to an array
@@ -3767,6 +3767,7 @@ app.get("/get-guardian-families1/:userId", async (req, res) => {
     res.status(500).json({ status: 0, message: "Server error" });
   }
 });
+
 
 
 
