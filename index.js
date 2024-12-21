@@ -1648,18 +1648,27 @@ app.post("/create-families", verifyToken, async (req, res) => {
       currency,
       budgetlimit: budgetlimit || 0,
       parentId: userId,
+      children: []
     });
 
     // Save the new family to the database
     await newFamily.save();
+     // Assign the new familyId to each child, set the guardianId and add the child to the family's children array
+     for (let child of children) {
+      child.familyId = [newFamily._id]; // Set the familyId for the child
+      child.guardianId = [parentFamilyId]; // Set the parent's familyId as guardianId
+      await child.save();
 
+      // Add the child's userId to the family's children array
+      newFamily.children.push(child.userId);
+    }
 
     // Assign the new familyId to each child of the parent
     //for (let child of children) {
       //child.familyId.push(newFamily.familyId[0]); // Assign the familyId to each child
       //await child.save();
     //}
-
+    await newFamily.save();
     // Respond with the created family data
     res.status(200).json({
       status: 1,
