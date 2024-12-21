@@ -1596,80 +1596,74 @@ app.post("/create-family", verifyToken, async (req, res) => {
 
 app.post("/create-families", verifyToken, async (req, res) => {
   const { familyName, region, currency, budgetlimit } = req.body;
-  const userId = req.user.userId; // Logged in user's ID
+  const userId = req.user.userId;
+
+  console.log(userId);
 
   try {
     // Find the parent user
     const user = await User.findOne({ userId: userId });
-
-    // Validate that the parent exists
     if (!user) {
       return res.status(404).json({
         status: 0,
-        message: "Parent user not found",
+        message: "User not found",
       });
     }
 
-    // Check if the parent already has a family
+    // Log the parent's current familyId
+    console.log(user.familyId);
+
+    // Validate required fields
+    if (!familyName) {
+      return res.status(400).json({
+        status: 0,
+        message: "Family Name is required",
+      });
+    }
+
+    // Ensure the parent user doesn't already have a family
     // if (user.familyId && user.familyId.length > 0) {
     //   return res.status(400).json({
     //     status: 0,
-    //     message: "You already have a family!", // Prevent parent from creating multiple families
+    //     message: "You already have a family!",
     //   });
     // }
 
-    // Ensure the parent has a valid familyId to use
-    const parentFamilyId = user.familyId[0]; // Get parent's existing familyId
-    if (!parentFamilyId) {
-      return res.status(400).json({
-        status: 0,
-        message: "Parent does not have a valid familyId",
-      });
+    // Find children associated with the parent (using parentId field)
+    const children = await User.find({ parentId: userId, role: "child" });
+    for (let child of children) {
+      if (child.familyId && child.familyId.length > 1) {
+        return res.status(400).json({
+          status: 0,
+          message: `One of your children (User ID: ${child.userId}) already has a family!`,
+        });
+      }
     }
 
-    // Fetch the children of the parent
-    const children = await User.find({ parentId: userId, role: "child" });
-    const childIds = children.userId;
-
-    // Check if the children already belong to any family
-    // for (let child of children) {
-    //   if (child.familyId && child.familyId.length > 0) {
-    //     return res.status(400).json({
-    //       status: 0,
-    //       message: `One of your children (User ID: ${child.userId}) already has a family!`,
-    //     });
-    //   }
-    // }
-
-    // Now create the new family based on the parent familyId and other provided details
+    // Now, create the new family
     const newFamily = new Family({
+      familyId: [user.familyId[0]], // If parent has a familyId, use it; otherwise, create a new one.
       familyName,
       region,
       currency,
       budgetlimit: budgetlimit || 0,
-      parentId: userId, // Associate the parent ID to the new family
+      parentId: userId,
     });
-    newFamily.familyId.push(newFamily.familyId);
-    newFamily.children.push(newFamily.children);
 
     // Save the new family to the database
     await newFamily.save();
 
-    // Assign the new familyId to the parent
-    //user.familyId = [newFamily._id]; // Set the familyId for the parent
-    //await user.save();
 
-    // Assign the new familyId to each child and set the guardianId
-    for (let child of children) {
-      child.familyId = [newFamily._id]; // Set the familyId for the child
-      child.guardianId = [parentFamilyId]; // Set the parent's familyId as guardianId
-      await child.save();
-    }
+    // Assign the new familyId to each child of the parent
+    //for (let child of children) {
+      //child.familyId.push(newFamily.familyId[0]); // Assign the familyId to each child
+      //await child.save();
+    //}
 
     // Respond with the created family data
     res.status(200).json({
       status: 1,
-      message: "Family created successfully and linked to children",
+      message: "Family created successfully",
       family: newFamily,
     });
   } catch (err) {
@@ -1677,6 +1671,7 @@ app.post("/create-families", verifyToken, async (req, res) => {
     res.status(500).json({ status: 0, message: "Internal server error" });
   }
 });
+
 
 
 
