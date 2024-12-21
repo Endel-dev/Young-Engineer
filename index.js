@@ -1633,7 +1633,7 @@ app.post('/create-families', verifyToken, async (req, res) => {
     }
 
     // Link guardians (parent's familyId should be in guardianIds array)
-    const guardians = await User.find({ guardianId: parentUser.userId }); // Find all guardians related to the parent
+    const guardians = await User.find({ guardianId: parentUser.familId }); // Find all guardians related to the parent
     for (let guardian of guardians) {
       // Add the new familyId to the guardianIds array in the Family model
       newFamily.guardianIds.push(guardian.userId);
