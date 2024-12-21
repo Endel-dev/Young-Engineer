@@ -3653,27 +3653,15 @@ app.get("/get-guardian-families/:userId", async (req, res) => {
         const parentName = user.name;
         familyName = `${parentName}'s Family`;  // Parent's family
       } else {
-        // For guardian's family ID, we will assume the guardian is associated with the parent's familyId
-        // Find the user's parent based on the familyId in `guardianIds`
-        const guardianFamilyId = user.guardianIds.find(id => id === familyId);
-        
-        if (guardianFamilyId) {
-          // Find the parent user based on the familyId
-          const parentUser = await User.findOne({ familyId: familyId });
+        // For guardian's family ID, get the parent name
+        const family = await Family.findOne({ familyId: familyId });
+        if (family && family.parentId) {
+          const parentUser = await User.findOne({ userId: family.parentId });
           if (parentUser) {
-            familyName = `${parentUser.name}'s Family`; // Parent's name for the guardian family
+            familyName = `${parentUser.name}'s Family`;
           }
         }
       }
-      //   // For guardian's family ID, get the parent name
-      //   const family = await Family.findOne({ familyId: familyId });
-      //   if (family && family.parentId) {
-      //     const parentUser = await User.findOne({ userId: family.parentId });
-      //     if (parentUser) {
-      //       familyName = `${parentUser.name}'s Family`;
-      //     }
-      //   }
-      // }
 
       // Store the familyId and familyName
       familyNames.push({ familyId, familyName });
