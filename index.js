@@ -3696,7 +3696,7 @@ app.get("/get-user-families/:userId", async (req, res) => {
 //   }
 // });
 
-app.get("/get-guardian-families/:userId", async (req, res) => {
+app.get("/get-families/:userId", async (req, res) => {
   const { userId } = req.params; // User ID from the URL parameter
 
   try {
