@@ -1670,7 +1670,7 @@ app.post("/create-families", verifyToken, async (req, res) => {
     console.log(guardians);
     for (let guardian of guardians) {
       // Add the guardian's userId to the family document
-      newFamily.guardianId.push(guardian.userId); // Add guardian's userId to the family
+      newFamily.guardianIds.push(guardian.userId); // Add guardian's userId to the family
     }
 
     
