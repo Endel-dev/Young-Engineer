@@ -1703,7 +1703,7 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
 
     const userUuid = uuidv4(); // This generates a unique UUID for the user
     const familyId = userUuid.slice(-4); // Extract the last 4 characters for the family ID
-
+    
     // Create the new user
     const newUser = new User({
       userId,
@@ -1715,14 +1715,15 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
       dob,
       familyId: [familyId],
       guardianId: parent.familyId,
-      //parentId: userIdFromToken,
+      parentId: parentId,
     });
 
     // Save the new user to the database
     await newUser.save();
+    const userResponse = await User.findById(newUser._id).select('-parentId');
     res
       .status(200)
-      .json({ status: 1, message: "User created successfully", user: newUser });
+      .json({ status: 1, message: "User created successfully", user: userResponse });
   } catch (err) {
     console.error("Error creating user:", err);
     res.status(500).json({ status: 0, message: "Server error", err });
