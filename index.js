@@ -1596,7 +1596,7 @@ app.post("/create-family", verifyToken, async (req, res) => {
 // });
 
 app.post('/create-families', verifyToken, async (req, res) => {
-  const { familyName, region, currency, budgetlimit } = req.body;
+  const { familyName } = req.body; // Only familyName is provided in the request body
   const parentId = req.user.userId; // Get logged-in parent's userId
 
   try {
@@ -1614,33 +1614,34 @@ app.post('/create-families', verifyToken, async (req, res) => {
     // Use the parent's first familyId to create a new family
     const parentFamilyId = parentUser.familyId[0];
 
-    // Create a new family with the parent’s familyId
+    // Create a new family with the parent's familyId and only the familyName
     const newFamily = new Family({
       familyId: parentFamilyId,  // Use the parent's familyId
       familyName,
-      region,
-      currency,
-      budgetlimit: budgetlimit || 0,
       parentId: parentUser.userId,
     });
 
     // Save the new family to the database
     await newFamily.save();
 
-    // Link guardians (parent’s familyId) and children (from parent’s familyId)
-    const guardians = await User.find({ guardianId: parentUser.userId });  // Guardians for the parent
-    const children = await User.find({ parentId: parentUser.userId });  // Children of the parent
-
-    // Add the newly created familyId to guardians and children
-    for (let guardian of guardians) {
-      guardian.familyId.push(newFamily.familyId); // Assign the new family to guardians
-      await guardian.save();
-    }
-
+    // Link children (parent's familyId should be in children array)
+    const children = await User.find({ parentId: parentUser.userId }); // Find all children of this parent
     for (let child of children) {
-      child.familyId.push(newFamily.familyId); // Assign the new family to children
-      await child.save();
+      // Add the new familyId to the children array in the Family model
+      newFamily.children.push(child.userId);
+      await child.save(); // Update the child with the new familyId
     }
+
+    // Link guardians (parent's familyId should be in guardianIds array)
+    const guardians = await User.find({ guardianId: parentUser.userId }); // Find all guardians related to the parent
+    for (let guardian of guardians) {
+      // Add the new familyId to the guardianIds array in the Family model
+      newFamily.guardianIds.push(guardian.userId);
+      await guardian.save(); // Update the guardian with the new familyId
+    }
+
+    // Save the updated family with the new children and guardians
+    await newFamily.save();
 
     // Respond with success and the newly created family details
     res.status(200).json({
@@ -1654,6 +1655,7 @@ app.post('/create-families', verifyToken, async (req, res) => {
     res.status(500).json({ status: 0, message: 'Server error' });
   }
 });
+
 
 
 // logic is create family, then create guardian, inside guardian - family [family Id1, familyId2], inside child user- family [familyId] and guardian[guardian2,guardian2]
