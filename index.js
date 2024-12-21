@@ -3629,7 +3629,7 @@ app.get("/get-guardian-families/:userId", async (req, res) => {
 
     let familyIds = [];
     let familyNames = [];
-    let role = '';
+  
 
 
     // If the user is a parent, include their primary familyId (stored in `familyId`)
@@ -3686,8 +3686,7 @@ app.get("/get-guardian-families/:userId", async (req, res) => {
     res.status(200).json({
       status: 1,
       message: "Families where the user is a parent or guardian fetched successfully",
-      families: familyNames,
-      role:role 
+      families: familyNames,role
     });
 
   } catch (err) {
