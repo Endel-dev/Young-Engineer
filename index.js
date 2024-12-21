@@ -1651,7 +1651,8 @@ app.post("/create-families", verifyToken, async (req, res) => {
       currency,
       budgetlimit: budgetlimit || 0,
       parentId: userId,
-      children: []
+      children: [],
+      guardianId: [] 
     });
 
     // Save the new family to the database
