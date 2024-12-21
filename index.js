@@ -1612,6 +1612,7 @@ app.post("/create-families", verifyToken, async (req, res) => {
 
     // Log the parent's current familyId
     console.log(user.familyId);
+    const parentFamilyId = user.familyId[0];
 
     // Validate required fields
     if (!familyName) {
