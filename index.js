@@ -1522,6 +1522,12 @@ app.post("/create-family", verifyToken, async (req, res) => {
       await child.save();
     }
 
+    const guardians = await User.find({ guardianId: userId });
+    for (let guardian of guardians) {
+      guardian.userId.push(newFamily.guardianIds)  // Add the new familyId to guardian's guardianId[]
+      await guardian.save();
+    }
+
     // Respond with the created family data
     res.status(200).json({
       status: 1,
