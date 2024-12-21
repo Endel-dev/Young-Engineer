@@ -3671,7 +3671,6 @@ app.get("/get-guardian-families/:userId", async (req, res) => {
     res.status(200).json({
       status: 1,
       message: "Families where the user is a parent or guardian fetched successfully",
-      familyIds: familyIds,
       families: familyNames, 
     });
 
