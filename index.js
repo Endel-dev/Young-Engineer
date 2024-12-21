@@ -3629,6 +3629,7 @@ app.get("/get-guardian-families/:userId", async (req, res) => {
 
     let familyIds = [];
     let familyNames = [];
+    role = '';
   
 
 
