@@ -1671,7 +1671,7 @@ app.post("/create-families", verifyToken, async (req, res) => {
     
     // Filter guardians based on familyId matching the parent's familyId
     const validGuardians = guardians.filter(guardian => 
-      guardian.familyId.includes(parentFamilyId)
+      guardian.guardianId.includes(parentFamilyId)
     );
     console.log(validGuardians);
 
