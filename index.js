@@ -3629,6 +3629,7 @@ app.get("/get-guardian-families/:userId", async (req, res) => {
 
     let familyIds = [];
     let familyNames = [];
+    let role = '';
 
 
     // If the user is a parent, include their primary familyId (stored in `familyId`)
