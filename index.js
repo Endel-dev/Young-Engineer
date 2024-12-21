@@ -3647,11 +3647,13 @@ app.get("/get-guardian-families/:userId", async (req, res) => {
     // Fetch family names by looking up the familyId in each case
     for (let familyId of familyIds) {
       let familyName = '';
+      let role = '';
 
       // For the user's primary family (familyId stored in User model)
       if (user.familyId.includes(familyId)) {
         const parentName = user.name;
         familyName = `${parentName}'s Family`;  // Parent's family
+        role = 'parent';
       } else {
         if (user.guardianIds && user.guardianIds.includes(familyId)) {
           const parentUser = await User.findOne({ familyId: familyId });
@@ -3659,6 +3661,7 @@ app.get("/get-guardian-families/:userId", async (req, res) => {
 
           if (parentUser) {
             familyName = `${parentUser.name}'s Family`;  // Parent's family name for the guardian's family
+            role ='guardian';
           }
         }
       }
