@@ -3517,6 +3517,8 @@ app.get("/get-user-families/:userId", async (req, res) => {
   try {
     // Find the user by userId
     const user = await User.findOne({ userId: userId });
+    const FamilyName=user.name
+    console.log(FamilyName);
 
     if (!user) {
       return res.status(404).json({ status: 0, message: "User not found" });
