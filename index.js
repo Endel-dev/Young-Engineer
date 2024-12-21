@@ -1536,64 +1536,125 @@ app.post("/create-family", verifyToken, async (req, res) => {
 });
 
 // API to create family by parent
-app.post("/create-families", async (req, res) => {
+// app.post("/create-families", async (req, res) => {
+//   const { familyName, region, currency, budgetlimit } = req.body;
+//   const parentId = req.user.userId; // Parent's userId from the JWT token
+//   const parent = await User.findOne({ userId: parentId });
+
+//   // if (parent.role !== 'parent') {
+//   //   return res.status(400).json({ status: 0, message: 'Only a parent can create a family' });
+//   // }
+
+//   if (!parent.familyId || parent.familyId.length === 0) {
+//     return res.status(400).json({
+//       status: 0,
+//       message: "Parent must have a familyId to create a family",
+//     });
+//   }
+
+//   try {
+//     // Create the family document with the parent's familyId
+//     const newFamily = new Family({
+//       familyId: parent.familyId[0], // Use the parent's familyId
+//       familyName,
+//       region,
+//       currency: currency || "INR",
+//       budgetlimit: budgetlimit || 0,
+//       parentId: parentId, // Link the parentId to the family
+//     });
+
+//     // Save the family to the database
+//     await newFamily.save();
+
+//     // Add the familyId to the parent and children
+//     // parent.familyId.push(newFamily.familyId);
+//     // await parent.save();
+
+//     // Now update the children and guardians with the familyId
+//     // const children = await User.find({ parentId: parent.userId });
+//     // for (let child of children) {
+//     //   child.familyId.push(newFamily.familyId);
+//     //   await child.save();
+//     // }
+
+//     // const guardians = await User.find({ guardianId: parent.userId });
+//     // for (let guardian of guardians) {
+//     //   guardian.familyId.push(newFamily.familyId);
+//     //   await guardian.save();
+//     // }
+
+//     // Respond with the created family data
+//     res.status(200).json({
+//       status: 1,
+//       message: "Family created successfully",
+//       family: newFamily,
+//     });
+//   } catch (err) {
+//     console.error("Error creating family:", err);
+//     res.status(500).json({ status: 0, message: "Internal server error" });
+//   }
+// });
+
+app.post('/create-families', verifyToken, async (req, res) => {
   const { familyName, region, currency, budgetlimit } = req.body;
-  const parentId = req.user.userId; // Parent's userId from the JWT token
-  const parent = await User.findOne({ userId: parentId });
-
-  // if (parent.role !== 'parent') {
-  //   return res.status(400).json({ status: 0, message: 'Only a parent can create a family' });
-  // }
-
-  if (!parent.familyId || parent.familyId.length === 0) {
-    return res.status(400).json({
-      status: 0,
-      message: "Parent must have a familyId to create a family",
-    });
-  }
+  const parentId = req.user.userId; // Get logged-in parent's userId
 
   try {
-    // Create the family document with the parent's familyId
+    // Fetch the parent user and check if they have a familyId
+    const parentUser = await User.findOne({ userId: parentId });
+    
+    if (!parentUser) {
+      return res.status(404).json({ status: 0, message: 'Parent user not found' });
+    }
+
+    if (!parentUser.familyId || parentUser.familyId.length === 0) {
+      return res.status(400).json({ status: 0, message: 'Parent user does not have a familyId' });
+    }
+
+    // Use the parent's first familyId to create a new family
+    const parentFamilyId = parentUser.familyId[0];
+
+    // Create a new family with the parent’s familyId
     const newFamily = new Family({
-      familyId: parent.familyId[0], // Use the parent's familyId
+      familyId: parentFamilyId,  // Use the parent's familyId
       familyName,
       region,
-      currency: currency || "INR",
+      currency,
       budgetlimit: budgetlimit || 0,
-      parentId: parentId, // Link the parentId to the family
+      parentId: parentUser.userId,
     });
 
-    // Save the family to the database
+    // Save the new family to the database
     await newFamily.save();
 
-    // Add the familyId to the parent and children
-    // parent.familyId.push(newFamily.familyId);
-    // await parent.save();
+    // Link guardians (parent’s familyId) and children (from parent’s familyId)
+    const guardians = await User.find({ guardianId: parentUser.userId });  // Guardians for the parent
+    const children = await User.find({ parentId: parentUser.userId });  // Children of the parent
 
-    // Now update the children and guardians with the familyId
-    // const children = await User.find({ parentId: parent.userId });
-    // for (let child of children) {
-    //   child.familyId.push(newFamily.familyId);
-    //   await child.save();
-    // }
+    // Add the newly created familyId to guardians and children
+    for (let guardian of guardians) {
+      guardian.familyId.push(newFamily.familyId); // Assign the new family to guardians
+      await guardian.save();
+    }
 
-    // const guardians = await User.find({ guardianId: parent.userId });
-    // for (let guardian of guardians) {
-    //   guardian.familyId.push(newFamily.familyId);
-    //   await guardian.save();
-    // }
+    for (let child of children) {
+      child.familyId.push(newFamily.familyId); // Assign the new family to children
+      await child.save();
+    }
 
-    // Respond with the created family data
+    // Respond with success and the newly created family details
     res.status(200).json({
       status: 1,
-      message: "Family created successfully",
+      message: 'Family created successfully',
       family: newFamily,
     });
+
   } catch (err) {
-    console.error("Error creating family:", err);
-    res.status(500).json({ status: 0, message: "Internal server error" });
+    console.error('Error creating family:', err);
+    res.status(500).json({ status: 0, message: 'Server error' });
   }
 });
+
 
 // logic is create family, then create guardian, inside guardian - family [family Id1, familyId2], inside child user- family [familyId] and guardian[guardian2,guardian2]
 app.post("/create-guardian", verifyParentRole, async (req, res) => {
