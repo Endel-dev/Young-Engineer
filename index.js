@@ -3635,8 +3635,8 @@ app.get("/get-guardian-families/:userId", async (req, res) => {
     }
 
     // If the user is a guardian, include the family IDs stored in `guardianIds`
-    if (user.guardianIds && user.guardianIds.length > 0) {
-      familyIds = [...familyIds, ...user.guardianIds];
+    if (user.guardianId && user.guardianId.length > 0) {
+      familyIds = [...familyIds, ...user.guardianId];
     }
 
     // Remove duplicates by converting to a Set and back to an array
