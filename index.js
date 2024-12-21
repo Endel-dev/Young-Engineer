@@ -3729,7 +3729,7 @@ app.get("/get-guardian-families1/:userId", async (req, res) => {
       let role = '';
 
       // For the user's primary family (familyId stored in User model)
-      if (user.familyId && user.familyId.includes(familyId)) {
+      if (user.familyId && user.role ==="parent" && user.familyId.includes(familyId)) {
         familyName = `${user.name}'s Family`;  // Parent's family
         role = 'parent';  // Set role to parent
       } else if (user.guardianIds && user.guardianIds.includes(familyId)) {
