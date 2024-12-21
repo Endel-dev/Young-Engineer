@@ -3511,7 +3511,7 @@ app.get("/get-family", verifyToken, async (req, res) => {
   }
 });
 
-app.get("/get-user-families1/:userId", async (req, res) => {
+app.get("/get-user-families/:userId", async (req, res) => {
   const { userId } = req.params; // User ID from the URL parameter
 
   try {
@@ -3577,64 +3577,7 @@ app.get("/get-user-families1/:userId", async (req, res) => {
   }
 });
 
-app.get("/get-user-families/:userId", async (req, res) => {
-  const { userId } = req.params; // User ID from the URL parameter
 
-  try {
-    // Find the user by userId
-    const user = await User.findOne({ userId: userId });
-
-    if (!user) {
-      return res.status(404).json({ status: 0, message: "User not found" });
-    }
-
-    // Fetch the families associated with the user
-    let familyIds = [];
-    let formattedFamilyName = '';
-
-    // 1. Add user's primary familyId (where user is parent)
-    if (user.familyId && user.familyId.length > 0) {
-      familyIds = [...familyIds, ...user.familyId];
-    }
-
-    // 2. Add the families where the user is a guardian (from guardianIds)
-    if (user.guardianId && user.guardianId.length > 0) {
-      const guardianFamilies = await Family.find({ familyId: { $in: user.guardianId } });
-      const guardianFamilyIds = guardianFamilies.map(family => family.familyId);
-      familyIds = [...familyIds, ...guardianFamilyIds];
-    }
-
-    // 3. Add the families where the user is a child (parentId)
-    const childFamilies = await Family.find({ parentId: user.userId });
-    const childFamilyIds = childFamilies.map((family) => family.familyId);
-    familyIds = [...familyIds, ...childFamilyIds];
-
-    // Remove duplicates by converting to a Set
-    familyIds = [...new Set(familyIds)];
-
-    // Determine the family name for the user
-    if (user.role === 'parent') {
-      formattedFamilyName = `${user.name}'s Family`;  // Parent's family name
-    } else if (user.role === 'guardian' || user.role === 'child') {
-      // For a guardian or child, fetch the family info from the parent family
-      const parentFamily = await Family.findOne({ familyId: { $in: user.familyId } });
-      if (parentFamily) {
-        formattedFamilyName = `${parentFamily.familyName}'s Family`;  // Parent's family name
-      }
-    }
-
-    // Return the familyIds and the formatted familyName
-    res.status(200).json({
-      status: 1,
-      message: "Family IDs and family name associated with user fetched successfully",
-      familyIds,
-      familyName: formattedFamilyName, 
-    });
-  } catch (err) {
-    console.error("Error fetching user families:", err);
-    res.status(500).json({ status: 0, message: "Server error" });
-  }
-});
 
 
 // Start the server
