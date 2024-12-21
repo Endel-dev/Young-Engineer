@@ -1666,7 +1666,7 @@ app.post("/create-families", verifyToken, async (req, res) => {
       
     }
 
-    const guardians = await User.find({ guardianId: userId });
+    const guardians = await User.find({ guardianId: userId ,  role: "guardian"});
     console.log(guardians);
     for (let guardian of guardians) {
       // Add the guardian's userId to the family document
