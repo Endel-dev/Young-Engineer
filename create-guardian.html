@@ -154,11 +154,11 @@
 
         // Populate the email field from the URL
         window.onload = function() {
-            const email = getQueryParam('email');
-            if (email) {
-                document.getElementById('email').value = email;
+            const parentId = getQueryParam('parentId');
+            if (parentId) {
+                document.getElementById('parentId').value = parentId;
             } else {
-                alert('Email parameter is missing in the URL.');
+                alert('Parent Id parameter is missing in the URL.');
             }
         };
     </script>
