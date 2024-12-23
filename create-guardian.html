@@ -118,6 +118,7 @@
                 gender,
                 dob,
                 role: "guardian", // Assuming role is always "guardian" as per the API
+                parentId:"req.query.parentId"
             };
 
             try {
@@ -159,6 +160,22 @@
                 document.getElementById('email').value = email;
             } else {
                 alert('Email parameter is missing in the URL.');
+            }
+        };
+    </script>
+    <script>
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        // Populate the email field from the URL
+        window.onload = function() {
+            const parentId = getQueryParam('parentId');
+            if (parentId) {
+                document.getElementById('parentId').value = parentId;
+            } else {
+                alert('ParentId parameter is missing in the URL.');
             }
         };
     </script>
