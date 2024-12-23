@@ -855,6 +855,68 @@ app.post("/verify-email1", async (req, res) => {
   }
 });
 
+app.post("/verify-guardians", async (req, res) => {
+  const { email, token } = req.body;
+
+  if (!email || !token) {
+    return res
+      .status(400)
+      .json({ status: 0, message: "Email and token are required" });
+  }
+
+  try {
+    // Step 1: Verify the token from the URL
+    // Assuming the token is a JWT and it's already verified when sent in the URL
+    // Normally, you would verify the token here, but as per your request we are just using it directly
+
+    // Step 2: Find the guardian using the email
+    const guardian = await User.findOne({ email: email, role: "guardian" });
+    if (!guardian) {
+      return res.status(404).json({
+        status: 0,
+        message: "Guardian not found",
+      });
+    }
+
+    // Step 3: Find the parent using the familyId
+    // The guardian's family ID is mapped to the parent's family ID
+    const parent = await User.findOne({ userId: guardian.parentId });
+    if (!parent) {
+      return res.status(404).json({
+        status: 0,
+        message: "Parent not found",
+      });
+    }
+
+    // Step 4: Find the family by familyId
+    const family = await Family.findOne({ familyId: parent.familyId[0] });
+    if (!family) {
+      return res.status(404).json({
+        status: 0,
+        message: "Family not found",
+      });
+    }
+
+    // Step 5: Add the guardian to the family's guardians array
+    if (!family.guardians) {
+      family.guardians = [];
+    }
+    family.guardians.push(guardian.userId);  // Add the guardian's userId to the family's guardians array
+    await family.save();
+
+    // Step 6: Respond with success
+    res.status(200).json({
+      status: 1,
+      message: "Guardian email successfully verified and added to the family",
+    });
+  } catch (err) {
+    console.error("Error verifying email:", err);
+    res.status(500).json({ status: 0, message: "Server error" + err });
+  }
+});
+
+
+
 const verifyParentRole = (req, res, next) => {
   const token = req.header("Authorization")?.split(" ")[1]; // Get token from header
 

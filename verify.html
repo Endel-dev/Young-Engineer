@@ -59,62 +59,52 @@
     <h1>Invitation</h1>
     <p>Please Verify Your Mail To Enjoy Guardian Rights.</p>
     <p>If you didn't initiate this verification, please contact support immediately.</p>
-    <a href ="http://93.127.172.167:5001/login"class="btn" onclick="verifyEmail()">Verify</a>
+    <a href="#" class="btn" onclick="verifyEmail()">Verify</a>
   </div>
-  <script>
-
-
-
-
-
-
-// Function to extract query parameters from the URL
-function getQueryParam(param) {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get(param);
-}
-
-// The main function that triggers on button click
-function verifyEmail() {
-  // Extract email and token from the URL
-  const email = getQueryParam('email');
-  const token = getQueryParam('token');
-
-  if (!email || !token) {
-    alert('Missing email or token in the URL.');
-    return;
-  }
-
-  // Create the AJAX request to verify the email
-  const xhr = new XMLHttpRequest();
-  const url = 'http://93.127.172.167:5001/verify-email1';
-
-  xhr.open('POST', url, true);
-  xhr.setRequestHeader('Content-Type', 'application/json');
-
-  // Prepare the request payload
-  const data = JSON.stringify({ email, token });
-
-  xhr.onreadystatechange = function () {
-    if (xhr.readyState === XMLHttpRequest.DONE) {
-      if (xhr.status === 200) {
-        alert('Email verification successful!');
-      } else {
-        alert('Email verification failed. Please try again.');
-      }
-    }
-  };
-
-  // Send the request
-  xhr.send(data);
-}
-
-
-  </script>
-
-  </script>
   
+  <script>
+    // Function to extract query parameters from the URL
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    // The main function that triggers on button click
+    function verifyEmail() {
+      // Extract email and token from the URL
+      const email = getQueryParam('email');
+      const token = getQueryParam('token');
+
+      if (!email || !token) {
+        alert('Missing email or token in the URL.');
+        return;
+      }
+
+      // Create the AJAX request to verify the email
+      const xhr = new XMLHttpRequest();
+      const url = 'http://93.127.172.167:5001/verify-guardians';
+
+      xhr.open('POST', url, true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+
+      // Prepare the request payload
+      const data = JSON.stringify({ email, token });
+
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+            alert('Email verification successful!');
+          } else {
+            alert('Email verification failed. Please try again.');
+          }
+        }
+      };
+
+      // Send the request
+      xhr.send(data);
+    }
+  </script>
+
 </body>
 
 </html>
-
