@@ -65,6 +65,10 @@ app.get("/guardian-verify", (req, res) => {
 app.get("/register-form", (req, res) => {
   res.sendFile(path.join(__dirname, "create-guardian.html"));
 });
+app.get("/send-invite", (req, res) => {
+  res.sendFile(path.join(__dirname, "send-invite.html"));
+});
+
 
 // app.get('/verify-email', (req, res) => {
 //   res.sendFile(path.join(__dirname, 'verify-email.html'));
