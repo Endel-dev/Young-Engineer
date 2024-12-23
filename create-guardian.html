@@ -154,11 +154,28 @@
 
         // Populate the email field from the URL
         window.onload = function() {
+            const email = getQueryParam('email');
+            if (email) {
+                document.getElementById('email').value = email;
+            } else {
+                alert('Email parameter is missing in the URL.');
+            }
+        };
+    </script>
+    <script>
+        // Function to extract query parameters from the URL
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        // Populate the email field from the URL
+        window.onload = function() {
             const parentId = getQueryParam('parentId');
             if (parentId) {
                 document.getElementById('parentId').value = parentId;
             } else {
-                alert('Parent Id parameter is missing in the URL.');
+                alert('ParentId parameter is missing in the URL.');
             }
         };
     </script>
