@@ -1869,6 +1869,25 @@ app.post("/invite-guardian", async (req, res) => {
   
 
   try {
+    // Find the family by familyId
+    const family = await Family.findById(familyId);
+    
+    // Check if the family exists
+    if (!family) {
+      return res.status(404).json({
+        status: 0,
+        message: "Family not found",
+      });
+    }
+
+    // Check if the guardian email is already in the guardianIds array
+    const existingGuardian = family.guardianIds.find(guardianId => guardianId === guardianEmail);
+    if (existingGuardian) {
+      return res.status(400).json({
+        status: 0,
+        message: "You are already a guardian of this family",
+      });
+    }
     // Check if the guardian email already exists in the User model
     const existingUser = await User.findOne({ email: guardianEmail });
     
