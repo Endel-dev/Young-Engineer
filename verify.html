@@ -59,7 +59,7 @@
         <h1>Invitation</h1>
         <p>Please Accept Invitation To Enjoy Guardian Rights.</p>
         <p>If you didn't initiate this verification, please contact support immediately.</p>
-        <a href="" class="btn" onclick="verifyEmail()">Accept</a>
+        <a href="http://93.127.172.167:5001/guardian-verify" class="btn" onclick="verifyEmail()">Accept</a>
     </div>
 
     <script>
@@ -94,7 +94,6 @@
                 if (xhr.readyState === XMLHttpRequest.DONE) {
                     if (xhr.status === 200) {
                         alert('Email verification successful!');
-                        window.location.href = '/guardian-verify'; 
                     } else {
                         alert('Email verification failed. Please try again.');
                     }
