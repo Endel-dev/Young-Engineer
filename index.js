@@ -2118,31 +2118,28 @@ app.post("/invites-guardian", async (req, res) => {
       });
     }
 
-    // Check if the guardian already exists in the family's guardianIds array
-    if (family.guardianIds && family.guardianIds.includes(guardianEmail)) {
-      return res.status(400).json({
-        status: 0,
-        message: "You are already a guardian of this family.",
-      });
-    }
-
     const parentFamilyId = parent.familyId[0]; // Assuming a parent has only one familyId
 
-    // Check if the guardian email already exists in the User model
+    // Check if the guardian already exists in the User model
     const existingGuardian = await User.findOne({ email: guardianEmail });
 
-    // Create a JWT token for the guardian's email
-    const token = jwt.sign({ email: guardianEmail, parentId }, process.env.JWT_SECRET, {
-      expiresIn: "24h",
-    });
-
-    // If the guardian exists
+    // If the guardian exists, check if they are already a guardian in the family's record
     if (existingGuardian) {
-      // Check if guardian is already linked to the parent familyId
-      if (!existingGuardian.guardianId.includes(parentFamilyId)) {
-        existingGuardian.guardianId.push(parentFamilyId);
-        await existingGuardian.save();
+      if (family.guardianIds && family.guardianIds.includes(existingGuardian.userId)) {
+        return res.status(400).json({
+          status: 0,
+          message: "You are already a guardian of this family.",
+        });
       }
+
+      // If the guardian is not already in the family's guardianIds, add the guardian's ID to the family
+      family.guardianIds.push(existingGuardian.userId);
+      await family.save();
+
+      // Create a JWT token for the guardian's email
+      const token = jwt.sign({ email: guardianEmail, parentId }, process.env.JWT_SECRET, {
+        expiresIn: "24h",
+      });
 
       // Send the verification email
       const verificationLink = `http://93.127.172.167:5001/verify?token=${token}&email=${guardianEmail}`;
@@ -2180,6 +2177,9 @@ app.post("/invites-guardian", async (req, res) => {
       });
     } else {
       // If the guardian does not exist, send a registration link
+      const token = jwt.sign({ email: guardianEmail, parentId }, process.env.JWT_SECRET, {
+        expiresIn: "24h",
+      });
       const registrationLink = `http://93.127.172.167:5001/register-form?token=${token}&email=${guardianEmail}`;
 
       const transporter = nodemailer.createTransport({
@@ -2220,6 +2220,7 @@ app.post("/invites-guardian", async (req, res) => {
     res.status(500).json({ status: 0, message: "Server error", err });
   }
 });
+
 
 
 
