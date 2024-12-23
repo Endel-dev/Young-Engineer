@@ -898,7 +898,7 @@ app.post("/verify-guardians", async (req, res) => {
     }
 
     // Step 5: Check if the guardian is already part of the family
-    if (family.guardians && family.guardians.includes(guardian.userId)) {
+    if (family.guardianIds && family.guardianIds.includes(guardian.userId)) {
       return res.status(400).json({
         status: 0,
         message: "You are already a guardian of this family",
