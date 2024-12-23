@@ -2123,7 +2123,7 @@ app.post("/invite-guardian", async (req, res) => {
       if (isGuardianInFamily) {
         return res.status(400).json({
           status: 0,
-          message: "You are already a guardian of this family",
+          message: `${guardianName} is already a guardian of this family.`//"You are already a guardian of this family",
         });
       }
 
