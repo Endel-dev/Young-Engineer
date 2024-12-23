@@ -1958,6 +1958,136 @@ app.post("/invite-guardian", async (req, res) => {
 
 
 // API to invite a guardian and map familyId
+// app.post("/invites-guardian", async (req, res) => {
+//   const { guardianEmail, guardianName, parentId } = req.body;
+
+//   // Validate required fields
+//   if (!guardianEmail || !guardianName || !parentId) {
+//     return res.status(400).json({
+//       status: 0,
+//       message: "Please provide guardian name, email, and parentId",
+//     });
+//   }
+
+//   try {
+//     // Find the parent using parentId
+//     const parent = await User.findOne({ userId: parentId });
+//     if (!parent) {
+//       return res.status(404).json({
+//         status: 0,
+//         message: "Parent user not found",
+//       });
+//     }
+//     const family = await Family.findOne({ familyId: parent.familyId[0] });
+//     if (!family) {
+//       return res.status(404).json({
+//         status: 0,
+//         message: "Family not found for the parent",
+//       });
+//     }
+//     // Check if the guardian already exists in the family's guardians field
+//     if (family.guardianIds && family.guardianIds.includes(guardianEmail)) {
+//       return res.status(400).json({
+//         status: 0,
+//         message: "You are already a guardian of this family.",
+//       });
+//     }
+
+//     const parentFamilyId = parent.familyId[0]; // Assuming a parent has only one familyId
+
+//     // Check if the guardian email already exists in the User model
+//     const existingGuardian = await User.findOne({ email: guardianEmail });
+
+//     // Create a JWT token for the guardian's email
+//     const token = jwt.sign({ email: guardianEmail, parentId }, process.env.JWT_SECRET, {
+//       expiresIn: "24h",
+//     });
+
+//     // If the guardian exists, add the parent familyId to the guardian's guardianId array
+//     if (existingGuardian) {
+//       // Check if guardian is already linked to the parent familyId
+//       if (!existingGuardian.guardianId.includes(parentFamilyId)) {
+//         existingGuardian.guardianId.push(parentFamilyId);
+//         await existingGuardian.save();
+//       }
+
+//       // Send a verification email
+//       const verificationLink = `http://93.127.172.167:5001/verify?token=${token}&email=${guardianEmail}`;
+//       const transporter = nodemailer.createTransport({
+//         host: "mail.weighingworld.com",
+//         port: 465,
+//         secure: true,
+//         auth: {
+//           user: "no-reply@weighingworld.com",
+//           pass: "$]IIWt4blS^_",
+//         },
+//       });
+
+//       const mailOptions = {
+//         from: "no-reply@weighingworld.com",
+//         to: guardianEmail,
+//         subject: "Guardian Invitation - Email Verification",
+//         text: `Hello ${guardianName},\n\nPlease verify your email by clicking on the following link: ${verificationLink}`,
+//       };
+
+//       // Send the verification email
+//       transporter.sendMail(mailOptions, (error, info) => {
+//         if (error) {
+//           return res.status(500).json({
+//             status: 0,
+//             message: "Error sending verification email",
+//           });
+//         }
+
+//         // Respond with success message if email is sent
+//         res.status(200).json({
+//           status: 1,
+//           message: "Verification email sent successfully. Please check your email to verify your account.",
+//         });
+//       });
+//     } else {
+//       // If the guardian does not exist, send a registration link
+//       const registrationLink = `http://93.127.172.167:5001/register-form?token=${token}&email=${guardianEmail}`;
+
+//       const transporter = nodemailer.createTransport({
+//         host: "mail.weighingworld.com",
+//         port: 465,
+//         secure: true,
+//         auth: {
+//           user: "no-reply@weighingworld.com",
+//           pass: "$]IIWt4blS^_",
+//         },
+//       });
+
+//       const mailOptions = {
+//         from: "no-reply@weighingworld.com",
+//         to: guardianEmail,
+//         subject: "Guardian Invitation - Registration",
+//         text: `Hello ${guardianName},\n\nIt seems like you are not registered. Please complete your registration by clicking on the following link: ${registrationLink}`,
+//       };
+
+//       // Send the registration email
+//       transporter.sendMail(mailOptions, (error, info) => {
+//         if (error) {
+//           return res.status(500).json({
+//             status: 0,
+//             message: "Error sending registration email",
+//           });
+//         }
+
+//         // Respond with success message if email is sent
+//         res.status(200).json({
+//           status: 1,
+//           message: "Registration email sent successfully. Please complete your registration.",
+//         });
+//       });
+//     }
+//   } catch (err) {
+//     console.error("Error sending email:", err);
+//     res.status(500).json({ status: 0, message: "Server error", err });
+//   }
+// });
+
 app.post("/invites-guardian", async (req, res) => {
   const { guardianEmail, guardianName, parentId } = req.body;
 
@@ -1978,6 +2108,8 @@ app.post("/invites-guardian", async (req, res) => {
         message: "Parent user not found",
       });
     }
+
+    // Find the family associated with the parent
     const family = await Family.findOne({ familyId: parent.familyId[0] });
     if (!family) {
       return res.status(404).json({
@@ -1985,7 +2117,8 @@ app.post("/invites-guardian", async (req, res) => {
         message: "Family not found for the parent",
       });
     }
-    // Check if the guardian already exists in the family's guardians field
+
+    // Check if the guardian already exists in the family's guardianIds array
     if (family.guardianIds && family.guardianIds.includes(guardianEmail)) {
       return res.status(400).json({
         status: 0,
@@ -2003,7 +2136,7 @@ app.post("/invites-guardian", async (req, res) => {
       expiresIn: "24h",
     });
 
-    // If the guardian exists, add the parent familyId to the guardian's guardianId array
+    // If the guardian exists
     if (existingGuardian) {
       // Check if guardian is already linked to the parent familyId
       if (!existingGuardian.guardianId.includes(parentFamilyId)) {
@@ -2011,7 +2144,7 @@ app.post("/invites-guardian", async (req, res) => {
         await existingGuardian.save();
       }
 
-      // Send a verification email
+      // Send the verification email
       const verificationLink = `http://93.127.172.167:5001/verify?token=${token}&email=${guardianEmail}`;
       const transporter = nodemailer.createTransport({
         host: "mail.weighingworld.com",
@@ -2087,7 +2220,6 @@ app.post("/invites-guardian", async (req, res) => {
     res.status(500).json({ status: 0, message: "Server error", err });
   }
 });
-
 
 
 
