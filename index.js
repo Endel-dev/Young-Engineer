@@ -2000,6 +2000,133 @@ app.post("/invite-guardian", async (req, res) => {
   }
 });
 
+app.post("/invites-guardian", async (req, res) => {
+  const { guardianEmail, guardianName, parentId } = req.body;
+
+  // Validate required fields
+  if (!guardianEmail || !guardianName) {
+    return res.status(400).json({
+      status: 0,
+      message: "Please provide guardian name and email",
+    });
+  }
+
+  try {
+    // Find the family by parentId
+    const family = await Family.findOne({
+      parentId: parentId,
+      "familyId": { $exists: true, $not: { $size: 0 } },
+    });
+
+    // Check if the family exists
+    if (!family) {
+      return res.status(404).json({
+        status: 0,
+        message: "Family not found",
+      });
+    }
+
+    // Check if the guardian email is already associated with this family
+    const existingUser = await User.findOne({ email: guardianEmail });
+
+    if (existingUser) {
+      const existingGuardianId = existingUser.userId;
+      const isGuardianInFamily = family.guardianIds.includes(existingGuardianId);
+
+      if (isGuardianInFamily) {
+        return res.status(400).json({
+          status: 0,
+          message: "You are already a guardian of this family",
+        });
+      }
+
+      // If the user exists, create a JWT token with the guardian's email
+      const token = jwt.sign({ email: guardianEmail }, process.env.JWT_SECRET, {
+        expiresIn: "24h",
+      });
+
+      // Send the verification email to the guardian
+      const verificationLink = `http://93.127.172.167:5001/verify?token=${token}&email=${guardianEmail}`;
+
+      const transporter = nodemailer.createTransport({
+        host: "mail.weighingworld.com",
+        port: 465,
+        secure: true,
+        auth: {
+          user: "no-reply@weighingworld.com",
+          pass: "$]IIWt4blS^_",
+        },
+      });
+
+      const mailOptions = {
+        from: "no-reply@weighingworld.com",
+        to: guardianEmail,
+        subject: "Guardian Invitation - Email Verification",
+        text: `Hello ${guardianName},\n\nPlease verify your email by clicking on the following link: ${verificationLink}`,
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          return res.status(500).json({
+            status: 0,
+            message: "Error sending verification email",
+          });
+        }
+
+        // Respond with success message if email is sent
+        res.status(200).json({
+          status: 1,
+          message: "Verification email sent successfully. Please check your email to verify your account.",
+        });
+      });
+    } else {
+      // If the user does not exist, create a JWT token for registration
+      const token = jwt.sign({ email: guardianEmail }, process.env.JWT_SECRET, {
+        expiresIn: "24h",
+      });
+
+      const registrationLink = `http://93.127.172.167:5001/register-form?token=${token}&email=${guardianEmail}`;
+
+      // Send the registration email with the registration link
+      const transporter = nodemailer.createTransport({
+        host: "mail.weighingworld.com",
+        port: 465,
+        secure: true,
+        auth: {
+          user: "no-reply@weighingworld.com",
+          pass: "$]IIWt4blS^_",
+        },
+      });
+
+      const mailOptions = {
+        from: "no-reply@weighingworld.com",
+        to: guardianEmail,
+        subject: "Guardian Invitation - Registration",
+        text: `Hello ${guardianName},\n\nIt seems like you are not registered. Please complete your registration by clicking on the following link: ${registrationLink}`,
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          return res.status(500).json({
+            status: 0,
+            message: "Error sending registration email",
+          });
+        }
+
+        // Respond with success message if email is sent
+        res.status(200).json({
+          status: 1,
+          message: "Registration email sent successfully. Please complete your registration.",
+        });
+      });
+    }
+  } catch (err) {
+    console.error("Error sending email:", err);
+    res.status(500).json({ status: 0, message: "Server error", err });
+  }
+});
+
+
 
 // API to invite a guardian and map familyId
 // app.post("/invites1-guardian", async (req, res) => {
@@ -2144,138 +2271,139 @@ app.post("/invite-guardian", async (req, res) => {
 //   }
 // });
 
-app.post("/invites-guardian", async (req, res) => {
-  const { guardianEmail, guardianName, parentId } = req.body;
+// app.post("/invites-guardian", async (req, res) => {
+//   const { guardianEmail, guardianName, parentId } = req.body;
 
-  // Validate required fields
-  if (!guardianEmail || !guardianName || !parentId) {
-    return res.status(400).json({
-      status: 0,
-      message: "Please provide guardian name, email, and parentId",
-    });
-  }
+//   // Validate required fields
+//   if (!guardianEmail || !guardianName || !parentId) {
+//     return res.status(400).json({
+//       status: 0,
+//       message: "Please provide guardian name, email, and parentId",
+//     });
+//   }
 
-  try {
-    // Find the parent using parentId
-    const parent = await User.findOne({ userId: parentId });
-    if (!parent) {
-      return res.status(404).json({
-        status: 0,
-        message: "Parent user not found",
-      });
-    }
+//   try {
+//     // Find the parent using parentId
+//     const parent = await User.findOne({ userId: parentId });
+//     if (!parent) {
+//       return res.status(404).json({
+//         status: 0,
+//         message: "Parent user not found",
+//       });
+//     }
 
-    // Find the family associated with the parent
-    const family = await Family.findOne({ familyId: parent.familyId[0] });
-    if (!family) {
-      return res.status(404).json({
-        status: 0,
-        message: "Family not found for the parent",
-      });
-    }
+//     // Find the family associated with the parent
+//     const family = await Family.findOne({ familyId: parent.familyId[0] });
+//     if (!family) {
+//       return res.status(404).json({
+//         status: 0,
+//         message: "Family not found for the parent",
+//       });
+//     }
 
-    const parentFamilyId = parent.familyId[0]; // Assuming a parent has only one familyId
+//     const parentFamilyId = parent.familyId[0]; // Assuming a parent has only one familyId
 
-    // Check if the guardian already exists in the User model
-    const existingGuardian = await User.findOne({ email: guardianEmail });
+//     // Check if the guardian already exists in the User model
+//     const existingGuardian = await User.findOne({ email: guardianEmail });
 
-    // If the guardian exists, check if they are already a guardian in the family's record
-    if (existingGuardian) {
-      if (family.guardianIds && family.guardianIds.includes(existingGuardian.userId)) {
-        return res.status(400).json({
-          status: 0,
-          message: "You are already a guardian of this family.",
-        });
-      }
+//     // If the guardian exists, check if they are already a guardian in the family's record
+//     if (existingGuardian) {
+//       if (family.guardianIds && family.guardianIds.includes(existingGuardian.userId)) {
+//         return res.status(400).json({
+//           status: 0,
+//           message: "You are already a guardian of this family.",
+//         });
+//       }
 
-      // If the guardian is not already in the family's guardianIds, add the guardian's ID to the family
-      family.guardianIds.push(existingGuardian.userId);
-      await family.save();
+//       // If the guardian is not already in the family's guardianIds, add the guardian's ID to the family
+//       family.guardianIds.push(existingGuardian.userId);
+//       await family.save();
 
-      // Create a JWT token for the guardian's email
-      const token = jwt.sign({ email: guardianEmail, parentId }, process.env.JWT_SECRET, {
-        expiresIn: "24h",
-      });
+//       // Create a JWT token for the guardian's email
+//       const token = jwt.sign({ email: guardianEmail, parentId }, process.env.JWT_SECRET, {
+//         expiresIn: "24h",
+//       });
 
-      // Send the verification email
-      const verificationLink = `http://93.127.172.167:5001/verify?token=${token}&email=${guardianEmail}`;
-      const transporter = nodemailer.createTransport({
-        host: "mail.weighingworld.com",
-        port: 465,
-        secure: true,
-        auth: {
-          user: "no-reply@weighingworld.com",
-          pass: "$]IIWt4blS^_",
-        },
-      });
+//       // Send the verification email
+//       const verificationLink = `http://93.127.172.167:5001/verify?token=${token}&email=${guardianEmail}`;
+//       const transporter = nodemailer.createTransport({
+//         host: "mail.weighingworld.com",
+//         port: 465,
+//         secure: true,
+//         auth: {
+//           user: "no-reply@weighingworld.com",
+//           pass: "$]IIWt4blS^_",
+//         },
+//       });
 
-      const mailOptions = {
-        from: "no-reply@weighingworld.com",
-        to: guardianEmail,
-        subject: "Guardian Invitation - Email Verification",
-        text: `Hello ${guardianName},\n\nPlease verify your email by clicking on the following link: ${verificationLink}`,
-      };
+//       const mailOptions = {
+//         from: "no-reply@weighingworld.com",
+//         to: guardianEmail,
+//         subject: "Guardian Invitation - Email Verification",
+//         text: `Hello ${guardianName},\n\nPlease verify your email by clicking on the following link: ${verificationLink}`,
+//       };
 
-      // Send the verification email
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          return res.status(500).json({
-            status: 0,
-            message: "Error sending verification email",
-          });
-        }
+//       // Send the verification email
+//       transporter.sendMail(mailOptions, (error, info) => {
+//         if (error) {
+//           return res.status(500).json({
+//             status: 0,
+//             message: "Error sending verification email",
+//           });
+//         }
 
-        // Respond with success message if email is sent
-        res.status(200).json({
-          status: 1,
-          message: "Verification email sent successfully. Please check your email to verify your account.",
-        });
-      });
-    } else {
-      // If the guardian does not exist, send a registration link
-      const token = jwt.sign({ email: guardianEmail, parentId }, process.env.JWT_SECRET, {
-        expiresIn: "24h",
-      });
-      const registrationLink = `http://93.127.172.167:5001/register-form?token=${token}&email=${guardianEmail}`;
+//         // Respond with success message if email is sent
+//         res.status(200).json({
+//           status: 1,
+//           message: "Verification email sent successfully. Please check your email to verify your account.",
+//         });
+//       });
+//     } else {
+//       // If the guardian does not exist, send a registration link
+//       const token = jwt.sign({ email: guardianEmail, parentId }, process.env.JWT_SECRET, {
+//         expiresIn: "24h",
+//       });
+//       const registrationLink = `http://93.127.172.167:5001/register-form?token=${token}&email=${guardianEmail}`;
 
-      const transporter = nodemailer.createTransport({
-        host: "mail.weighingworld.com",
-        port: 465,
-        secure: true,
-        auth: {
-          user: "no-reply@weighingworld.com",
-          pass: "$]IIWt4blS^_",
-        },
-      });
+//       const transporter = nodemailer.createTransport({
+//         host: "mail.weighingworld.com",
+//         port: 465,
+//         secure: true,
+//         auth: {
+//           user: "no-reply@weighingworld.com",
+//           pass: "$]IIWt4blS^_",
+//         },
+//       });
 
-      const mailOptions = {
-        from: "no-reply@weighingworld.com",
-        to: guardianEmail,
-        subject: "Guardian Invitation - Registration",
-        text: `Hello ${guardianName},\n\nIt seems like you are not registered. Please complete your registration by clicking on the following link: ${registrationLink}`,
-      };
+//       const mailOptions = {
+//         from: "no-reply@weighingworld.com",
+//         to: guardianEmail,
+//         subject: "Guardian Invitation - Registration",
+//         text: `Hello ${guardianName},\n\nIt seems like you are not registered. Please complete your registration by clicking on the following link: ${registrationLink}`,
+//       };
 
-      // Send the registration email
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          return res.status(500).json({
-            status: 0,
-            message: "Error sending registration email",
-          });
-        }
+//       // Send the registration email
+//       transporter.sendMail(mailOptions, (error, info) => {
+//         if (error) {
+//           return res.status(500).json({
+//             status: 0,
+//             message: "Error sending registration email",
+//           });
+//         }
 
-        // Respond with success message if email is sent
-        res.status(200).json({
-          status: 1,
-          message: "Registration email sent successfully. Please complete your registration.",
-        });
-      });
-    }
-  } catch (err) {
-    console.error("Error sending email:", err);
-    res.status(500).json({ status: 0, message: "Server error", err });
-  }
-});
+//         // Respond with success message if email is sent
+//         res.status(200).json({
+//           status: 1,
+//           message: "Registration email sent successfully. Please complete your registration.",
+//         });
+//       });
+//     }
+//   } catch (err) {
+//     console.error("Error sending email:", err);
+//     res.status(500).json({ status: 0, message: "Server error", err });
+//   }
+// });
+
 
 
 
