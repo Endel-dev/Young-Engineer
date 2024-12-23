@@ -1866,6 +1866,8 @@ app.post("/invite-guardian", async (req, res) => {
     });
   }
 
+  
+
   try {
     // Check if the guardian email already exists in the User model
     const existingUser = await User.findOne({ email: guardianEmail });
@@ -1877,6 +1879,7 @@ app.post("/invite-guardian", async (req, res) => {
 
     // If the user exists
     if (existingUser) {
+      
       // Generate a verification link for the existing user
       const verificationLink = `http://93.127.172.167:5001/verify?token=${token}&email=${guardianEmail}`;
       
