@@ -1856,7 +1856,7 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
 
 
 app.post("/invite-guardian", async (req, res) => {
-  const { guardianEmail, guardianName } = req.body;
+  const { guardianEmail, guardianName, parentId } = req.body;
 
   // Validate required fields
   if (!guardianEmail || !guardianName) {
