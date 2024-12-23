@@ -898,10 +898,10 @@ app.post("/verify-guardians", async (req, res) => {
     }
 
     // Step 5: Add the guardian to the family's guardians array
-    if (!family.guardians) {
-      family.guardians = [];
+    if (!family.guardianIds) {
+      family.guardianIds = [];
     }
-    family.guardians.push(guardian.userId);  // Add the guardian's userId to the family's guardians array
+    family.guardianIds.push(guardian.userId);  // Add the guardian's userId to the family's guardians array
     await family.save();
 
     // Step 6: Respond with success
