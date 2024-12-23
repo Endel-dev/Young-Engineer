@@ -58,6 +58,9 @@ app.get("/login", (req, res) => {
 app.get("/verify", (req, res) => {
   res.sendFile(path.join(__dirname, "verify.html"));
 });
+app.get("/guardian-verify", (req, res) => {
+  res.sendFile(path.join(__dirname, "guardian-verify.html"));
+});
 
 // app.get('/verify-email', (req, res) => {
 //   res.sendFile(path.join(__dirname, 'verify-email.html'));
