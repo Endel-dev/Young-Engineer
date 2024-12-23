@@ -1870,7 +1870,11 @@ app.post("/invite-guardian", async (req, res) => {
 
   try {
     // Find the family by familyId
-    const family = await Family.findById(familyId);
+    const family = await Family.findOne({
+      parentId: parentId,
+      // familyId should exist in the array familyId
+      "familyId": { $exists: true, $not: { $size: 0 } },
+    });
     
     // Check if the family exists
     if (!family) {
