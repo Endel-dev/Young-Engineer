@@ -1978,6 +1978,20 @@ app.post("/invites-guardian", async (req, res) => {
         message: "Parent user not found",
       });
     }
+    const family = await Family.findOne({ familyId: parent.familyId[0] });
+    if (!family) {
+      return res.status(404).json({
+        status: 0,
+        message: "Family not found for the parent",
+      });
+    }
+    // Check if the guardian already exists in the family's guardians field
+    if (family.guardianIds && family.guardianIds.includes(guardianEmail)) {
+      return res.status(400).json({
+        status: 0,
+        message: "You are already a guardian of this family.",
+      });
+    }
 
     const parentFamilyId = parent.familyId[0]; // Assuming a parent has only one familyId
 
