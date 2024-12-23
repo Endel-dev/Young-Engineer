@@ -857,6 +857,7 @@ app.post("/verify-email1", async (req, res) => {
 
 app.post("/verify-guardians", async (req, res) => {
   const { email, token } = req.body;
+  console.log(req.body);
 
   if (!email || !token) {
     return res
