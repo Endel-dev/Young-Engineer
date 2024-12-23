@@ -1867,6 +1867,7 @@ app.post("/create-guardian-form", async (req, res) => {
   const { name, email, password, gender, dob } = req.body;
   const { parentId } = req.query;
   console.log(req.body);
+  console.log(req.query);
 
   // Validate required fields
   if (!name || !email || !password || !dob ) {
