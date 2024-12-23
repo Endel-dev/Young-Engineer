@@ -1863,23 +1863,92 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
 
 
 // Create a route to handle the creation of the guardian user
+// app.post("/create-guardian-form", async (req, res) => {
+//   const { name, email, password, gender, dob, parentId } = req.body;
+//   console.log(req.body);
+
+//   // Validate required fields
+//   if (!name || !email || !password || !dob ) {
+//     return res.status(400).json({
+//       status: 0,
+//       message: "Please provide all required fields",
+//     });
+//   }
+
+//   // Normalize the gender field (optional)
+//   const normalizedGender = gender ? gender.toLowerCase() : '';
+
+//   try {
+//     // Check if the email already exists in the system
+//     const existingUser = await User.findOne({ email });
+//     if (existingUser) {
+//       return res.status(400).json({
+//         status: 0,
+//         message: "Email already exists",
+//       });
+//     }
+
+//     // Hash the password before storing it
+//     //const hashedPassword = await bcrypt.hash(password, 10); // Use 10 rounds for bcrypt hashing
+
+//     // Create a new user with the guardian role
+//     const newUser = new User({
+//       name,
+//       email,
+//       password,
+//       role: 'guardian', // Set the role to 'guardian'
+//       gender: normalizedGender,
+//       dob,
+//       parentId, // Parent ID from request body
+//     });
+
+//     // Save the new user to the database
+//     await newUser.save();
+
+//     // Return success response
+//     res.status(200).json({
+//       status: 1,
+//       message: "Guardian account created successfully!",
+//       user: {
+//         name: newUser.name,
+//         email: newUser.email,
+//         role: newUser.role,
+//         dob: newUser.dob,
+//         gender: newUser.gender,
+//       },
+//     });
+//   } catch (err) {
+//     console.error("Error creating guardian:", err);
+//     res.status(500).json({
+//       status: 0,
+//       message: "Server error",
+//       error: err.message,
+//     });
+//   }
+// });
+
 app.post("/create-guardian-form", async (req, res) => {
-  const { name, email, password, gender, dob, parentId } = req.body;
-  console.log(req.body);
+  const { name, email, password, gender, dob, parentId, token } = req.body;
 
   // Validate required fields
-  if (!name || !email || !password || !dob ) {
+  if (!name || !email || !password || !dob || !gender || !parentId || !token) {
     return res.status(400).json({
       status: 0,
-      message: "Please provide all required fields",
+      message: "Please provide all required fields (name, email, password, gender, dob, parentId, token)",
     });
   }
 
-  // Normalize the gender field (optional)
-  const normalizedGender = gender ? gender.toLowerCase() : '';
-
   try {
-    // Check if the email already exists in the system
+    // Verify the token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (decoded.email !== email || decoded.parentId !== parentId) {
+      return res.status(400).json({
+        status: 0,
+        message: "Invalid token or mismatched email/parentId",
+      });
+    }
+
+    // Check if the email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({
@@ -1888,27 +1957,27 @@ app.post("/create-guardian-form", async (req, res) => {
       });
     }
 
-    // Hash the password before storing it
-    //const hashedPassword = await bcrypt.hash(password, 10); // Use 10 rounds for bcrypt hashing
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create a new user with the guardian role
+    // Create the new guardian user
     const newUser = new User({
       name,
       email,
-      password,
-      role: 'guardian', // Set the role to 'guardian'
-      gender: normalizedGender,
+      password: hashedPassword,
+      role: "guardian",
+      gender,
       dob,
-      parentId, // Parent ID from request body
+      parentId, // Associate the guardian with the parentId
     });
 
-    // Save the new user to the database
+    // Save the user to the database
     await newUser.save();
 
     // Return success response
     res.status(200).json({
       status: 1,
-      message: "Guardian account created successfully!",
+      message: "Guardian account created successfully",
       user: {
         name: newUser.name,
         email: newUser.email,
@@ -1918,14 +1987,11 @@ app.post("/create-guardian-form", async (req, res) => {
       },
     });
   } catch (err) {
-    console.error("Error creating guardian:", err);
-    res.status(500).json({
-      status: 0,
-      message: "Server error",
-      error: err.message,
-    });
+    console.error("Error during registration:", err);
+    res.status(500).json({ status: 0, message: "Server error", err });
   }
 });
+
 
 
 
