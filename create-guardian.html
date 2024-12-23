@@ -215,7 +215,8 @@
                     .then((result) => {
                         if (result.status === 1) {
                             alert('Guardian created successfully!');
-                            document.getElementById('guardian-form').reset(); // Reset the form on success
+                            //document.getElementById('guardian-form').reset(); // Reset the form on success
+                            window.location.href = '/send-invite'; 
                         } else {
                             throw new Error(result.message || 'Something went wrong');
                         }
