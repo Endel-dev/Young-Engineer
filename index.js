@@ -1862,79 +1862,71 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
 });
 
 
+// Create a route to handle the creation of the guardian user
 app.post("/create-guardian-form", async (req, res) => {
-  const { parentId, name, gender, email, password, role, dob } = req.body;
-  const normalizedRole = role ? role.toLowerCase() : "";
-  const normalizedGender = gender ? gender.toLowerCase() : "";
+  const { name, email, password, gender, dob, parentId } = req.body;
 
   // Validate required fields
-  if (!parentId || !name || !email || !password || !dob || !role) {
+  if (!name || !email || !password || !dob || !parentId) {
     return res.status(400).json({
       status: 0,
       message: "Please provide all required fields",
     });
   }
 
-  // Only allow 'guardian' role
-  if (normalizedRole !== "guardian") {
-    return res.status(400).json({
-      status: 0,
-      message: 'Role must be "guardian"',
-    });
-  }
+  // Normalize the gender field (optional)
+  const normalizedGender = gender ? gender.toLowerCase() : '';
 
   try {
-    // Find the parent user by parentId
-    const parent = await User.findOne({ userId: parentId });
-
-    if (!parent) {
-      return res.status(404).json({
-        status: 0,
-        message: "Parent not found",
-      });
-    }
-
-    // Check if email or name already exists in the database
-    const existingUser = await User.findOne({ $or: [{ email }, { name }] });
+    // Check if the email already exists in the system
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(200).json({
+      return res.status(400).json({
         status: 0,
-        message: "Email or Name already exists",
+        message: "Email already exists",
       });
     }
 
-    const userUuid = uuidv4(); // Generate a unique UUID for the user
-    const familyId = userUuid.slice(-4); // Use the last 4 characters of UUID as the family ID
+    // Hash the password before storing it
+    //const hashedPassword = await bcrypt.hash(password, 10); // Use 10 rounds for bcrypt hashing
 
-    // Create the new user
+    // Create a new user with the guardian role
     const newUser = new User({
-      userId: userUuid,
       name,
-      gender: normalizedGender,
       email,
       password,
-      role: normalizedRole,
+      role: 'guardian', // Set the role to 'guardian'
+      gender: normalizedGender,
       dob,
-      familyId: [familyId],
-      guardianId: parent.familyId, // Linking to the parent's family ID
-      parentId: parentId,
+      parentId, // Parent ID from request body
     });
 
     // Save the new user to the database
     await newUser.save();
 
-    // Return a success message with the newly created user's information
-    const userResponse = await User.findById(newUser._id).select('-parentId');
+    // Return success response
     res.status(200).json({
       status: 1,
-      message: "Guardian created successfully",
-      user: userResponse,
+      message: "Guardian account created successfully!",
+      user: {
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+        dob: newUser.dob,
+        gender: newUser.gender,
+      },
     });
   } catch (err) {
-    console.error("Error creating user:", err);
-    res.status(500).json({ status: 0, message: "Server error", err });
+    console.error("Error creating guardian:", err);
+    res.status(500).json({
+      status: 0,
+      message: "Server error",
+      error: err.message,
+    });
   }
 });
+
+
 
 
 
