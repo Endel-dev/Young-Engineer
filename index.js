@@ -2154,7 +2154,7 @@ app.post("/invites-guardian", async (req, res) => {
         expiresIn: "24h",
       });
 
-      const registrationLink = `http://93.127.172.167:5001/register-form?token=${token}&email=${guardianEmail}`;
+      const registrationLink = `http://93.127.172.167:5001/register-form?token=${token}&email=${guardianEmail}&parentId=${parentId}`;
 
       // Send the registration email with the registration link
       const transporter = nodemailer.createTransport({
