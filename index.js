@@ -1888,15 +1888,25 @@ app.post("/invite-guardian", async (req, res) => {
     }
 
     // Check if the guardian email is already in the guardianIds array
-    const existingGuardian = family.guardianIds.find(guardianId => guardianId === guardianEmail);
-    if (existingGuardian) {
+    // const existingGuardian = family.guardianIds.find(guardianId => guardianId === guardianEmail);
+    // if (existingGuardian) {
+    //   return res.status(400).json({
+    //     status: 0,
+    //     message: "You are already a guardian of this family",
+    //   });
+    //}
+    // Check if the guardian email already exists in the User model
+    const existingUser = await User.findOne({ email: guardianEmail });
+    const existingGuardianId = existingUser.userId;
+    const isGuardianInFamily = family.guardianIds.includes(existingGuardianId);
+
+    if (isGuardianInFamily) {
       return res.status(400).json({
         status: 0,
         message: "You are already a guardian of this family",
       });
     }
-    // Check if the guardian email already exists in the User model
-    const existingUser = await User.findOne({ email: guardianEmail });
+
     
     // Create a JWT token with the guardian's email and role
     const token = jwt.sign({ email: guardianEmail }, process.env.JWT_SECRET, {
