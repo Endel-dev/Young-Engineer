@@ -1545,6 +1545,16 @@ app.post("/login", async (req, res) => {
         familyName: user.familyId
           ? await Family.findOne({ familyId: user.familyId }).familyName
           : null,
+        email:user.email,
+        dob:user.dob,
+        phoneNumber:user.phoneNumber,
+        gender:user.gender,
+        address1:user.address1,
+        address2:user.address2,
+        address3:user.address3,
+        city:user.city,
+        state:user.state,
+        pinCode:user.pinCode
       });
     }
   } catch (err) {
