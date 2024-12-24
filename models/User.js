@@ -71,12 +71,12 @@ const userSchema = new mongoose.Schema({
   kidsNames: [{ type: String }],
 
   // Fields specific to 'child' role
-  firstName: { type: String, required: function() { return this.role === 'child'; } },
-  lastName: { type: String, required: function() { return this.role === 'child'; } },
-  school: { type: String, required: function() { return this.role === 'child'; } },
-  hobby1: { type: String, required: function() { return this.role === 'child'; } },
-  hobby2: { type: String, required: function() { return this.role === 'child'; } },
-  hobby3: { type: String, required: function() { return this.role === 'child'; } },
+  firstName: { type: String },
+  lastName: { type: String },
+  school: { type: String },
+  hobby1: { type: String},
+  hobby2: { type: String },
+  hobby3: { type: String},
 
 
 });
