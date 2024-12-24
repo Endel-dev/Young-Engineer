@@ -1546,12 +1546,12 @@ app.post("/login", async (req, res) => {
 
       // Fetch children's names if the user is a parent
       // Fetch children's names if the user is a parent
-      let kidsNames = [];
-      if (user.role === "parent") {
-        // Find all children where the parentId matches the logged-in parent's userId
-        const children = await User.find({ parentId: user.userId });
-        kidsNames = children.map(child => child.name);
-      }
+      // let kidsNames = [];
+      // if (user.role === "parent") {
+      //   // Find all children where the parentId matches the logged-in parent's userId
+      //   const children = await User.find({ parentId: user.userId });
+      //   kidsNames = children.map(child => child.name);
+      // }
 
 
       // Generate JWT token for parent user (no OTP)
