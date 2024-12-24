@@ -1545,13 +1545,11 @@ app.post("/login", async (req, res) => {
       }
 
       // Fetch children's names if the user is a parent
+      // Fetch children's names if the user is a parent
       let kidsNames = [];
-      if (user.numberOfKids && user.numberOfKids.length > 0) {
-        // If `numberOfKids` or similar field is present, fetch the names of children
-        // Assuming there's a field that stores the children as an array of userIds (or equivalent)
-        const children = await User.find({ 
-          _id: { $in: user.numberOfKids } 
-        });
+      if (user.role === "parent") {
+        // Find all children where the parentId matches the logged-in parent's userId
+        const children = await User.find({ parentId: user.userId });
         kidsNames = children.map(child => child.name);
       }
 
