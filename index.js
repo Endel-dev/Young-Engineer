@@ -1584,7 +1584,7 @@ app.post("/login", async (req, res) => {
         pinCode: user.pinCode,
         numberOfKids: user.numberOfKids,
         password: user.password,
-        kidsNames: kidsNames,
+        kidsNames: user.kidsNames,
       });
     }
   } catch (err) {
