@@ -2695,6 +2695,8 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
     if (!parent) {
       return res.status(400).json({ status: 0, message: "Parent not found" });
     }
+    const parentNameParts = parent.name.split(" ");
+
 
     //const childFirstName = name || parent.firstName;
     // Check if the name exists in the parent's kidsNames
