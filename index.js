@@ -2698,12 +2698,14 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
 
     //const childFirstName = name || parent.firstName;
     // Check if the name exists in the parent's kidsNames
-    const childFirstName = parent.kidsNames.includes(name) ? name : null;
+    //const childFirstName = parent.kidsNames.includes(name) ? name : null;
+    const childLastName = parentNameParts.length > 1 ? parentNameParts.slice(1).join(" ") : null;
 
-    if (!childFirstName) {
-      // If the name isn't found in parent's kidsNames, return an error or set default
-      return res.status(400).json({ status: 0, message: "The child's name is not listed in the parent's kidsNames" });
-    }
+
+    // if (!childFirstName) {
+    //   // If the name isn't found in parent's kidsNames, return an error or set default
+    //   return res.status(400).json({ status: 0, message: "The child's name is not listed in the parent's kidsNames" });
+    // }
 
     // Create the new user (child)
     const newUser = new User({
@@ -2716,8 +2718,8 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
       parentId,
       Totalpoints,
       familyId: parent.familyId,
-      firstName: childFirstName,
-      lastName,
+      firstName,
+      lastName : childLastName, 
       school,
       hobby1,
       hobby2,
