@@ -2696,6 +2696,8 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
       return res.status(400).json({ status: 0, message: "Parent not found" });
     }
 
+    const childFirstName = firstName || parent.firstName;
+
     // Create the new user (child)
     const newUser = new User({
       name,
@@ -2707,7 +2709,7 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
       parentId,
       Totalpoints,
       familyId: parent.familyId,
-      firstName,
+      firstName: childFirstName,
       lastName,
       school,
       hobby1,
