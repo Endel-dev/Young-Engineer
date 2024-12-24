@@ -511,7 +511,7 @@ app.post("/registered", async (req, res) => {
 });
 
 app.post("/register", async (req, res) => {
-  const { name, gender, email, password, role, dob, city,phoneNumber,address1,address2,address3,state,pinCode,numberOfKids,kidsNames } = req.body;
+  const { name, gender, email, password, role, dob, city, phoneNumber, address1, address2, address3, state, pinCode, numberOfKids, kidsNames } = req.body;
 
   const normalizedRole = role ? role.toLowerCase() : "";
   const normalizedGender = gender ? gender.toLowerCase() : "";
@@ -863,15 +863,15 @@ app.post("/verify-email1", async (req, res) => {
       dob: verificationToken.dob,
       password: verificationToken.password,
       familyId: familyId,
-      city:verificationToken.city,
-      phoneNumber:verificationToken.phoneNumber,
-      address1:verificationToken.address1,
-      address2:verificationToken.address2,
-      address3:verificationToken.address3,
-      state:verificationToken.state,
-      pinCode:verificationToken.pinCode,
-      numberOfKids:verificationToken.numberOfKids,
-      kidsNames:verificationToken.kidsNames
+      city: verificationToken.city,
+      phoneNumber: verificationToken.phoneNumber,
+      address1: verificationToken.address1,
+      address2: verificationToken.address2,
+      address3: verificationToken.address3,
+      state: verificationToken.state,
+      pinCode: verificationToken.pinCode,
+      numberOfKids: verificationToken.numberOfKids,
+      kidsNames: verificationToken.kidsNames
     });
 
     await newUser.save();
@@ -1505,14 +1505,14 @@ app.post("/login", async (req, res) => {
           hobby1: user.hobby1,
           hobby2: user.hobby2,
           hobby3: user.hobby3,
-          address1:user.address1,
-          address2:user.address2,
-          address3:user.address3,
-          city:user.city,
-          state:user.state,
-          pinCode:user.pinCode,
-          phoneNumber: user.phoneNumber, 
-          role: user.role,
+          //address1: user.address1,
+          //address2: user.address2,
+          //address3: user.address3,
+          //city: user.city,
+          //state: user.state,
+          //pinCode: user.pinCode,
+          //phoneNumber: user.phoneNumber,
+          //role: user.role,
           name: user.name,
           familyId: user.familyId || null,
           familyName: user.familyId
@@ -1572,18 +1572,19 @@ app.post("/login", async (req, res) => {
         familyName: user.familyId
           ? await Family.findOne({ familyId: user.familyId }).familyName
           : null,
-        email:user.email,
-        dob:user.dob,
-        phoneNumber:user.phoneNumber,
-        gender:user.gender,
-        address1:user.address1,
-        address2:user.address2,
-        address3:user.address3,
-        city:user.city,
-        state:user.state,
-        pinCode:user.pinCode,
-        numberOfKids:user.numberOfKids,
-        kidsNames:kidsNames,
+        email: user.email,
+        dob: user.dob,
+        phoneNumber: user.phoneNumber,
+        gender: user.gender,
+        address1: user.address1,
+        address2: user.address2,
+        address3: user.address3,
+        city: user.city,
+        state: user.state,
+        pinCode: user.pinCode,
+        numberOfKids: user.numberOfKids,
+        password: user.password,
+        kidsNames: kidsNames,
       });
     }
   } catch (err) {
@@ -1662,7 +1663,7 @@ app.post("/create-families", verifyToken, async (req, res) => {
       await child.save();
     }
 
-    
+
 
     // Respond with the created family data
     res.status(200).json({
@@ -1792,25 +1793,25 @@ app.post("/create-family", verifyToken, async (req, res) => {
       budgetlimit: budgetlimit || 0,
       parentId: userId,
       children: [],
-      guardianId: [] 
+      guardianId: []
     });
 
     // Save the new family to the database
     await newFamily.save();
-     // Assign the new familyId to each child, set the guardianId and add the child to the family's children array
-     for (let child of children) {
+    // Assign the new familyId to each child, set the guardianId and add the child to the family's children array
+    for (let child of children) {
 
       // Add the child's userId to the family's children array
       newFamily.children.push(child.userId);
 
-      
+
     }
 
     const guardians = await User.find({ role: "guardian" });
     console.log(guardians);
-    
+
     // Filter guardians based on familyId matching the parent's familyId
-    const validGuardians = guardians.filter(guardian => 
+    const validGuardians = guardians.filter(guardian =>
       guardian.familyId.includes(parentFamilyId)
     );
     console.log(validGuardians);
@@ -1820,12 +1821,12 @@ app.post("/create-family", verifyToken, async (req, res) => {
       newFamily.guardianId.push(guardian.userId); // Add guardian's userId to the family
     }
 
-    
+
 
     // Assign the new familyId to each child of the parent
     //for (let child of children) {
-      //child.familyId.push(newFamily.familyId[0]); // Assign the familyId to each child
-      //await child.save();
+    //child.familyId.push(newFamily.familyId[0]); // Assign the familyId to each child
+    //await child.save();
     //}
     await newFamily.save();
     // Respond with the created family data
@@ -1892,7 +1893,7 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
 
     const userUuid = uuidv4(); // This generates a unique UUID for the user
     const familyId = userUuid.slice(-4); // Extract the last 4 characters for the family ID
-    
+
     // Create the new user
     const newUser = new User({
       userId,
@@ -1922,11 +1923,11 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
 
 // Create a route to handle the creation of the guardian user
 app.post("/create-guardian-form", async (req, res) => {
-  const { name, email, password, gender, dob,parentId } = req.body; 
+  const { name, email, password, gender, dob, parentId } = req.body;
   console.log(req.body);
 
   // Validate required fields
-  if (!name || !email || !password || !dob ||!parentId ) {
+  if (!name || !email || !password || !dob || !parentId) {
     return res.status(400).json({
       status: 0,
       message: "Please provide all required fields",
@@ -2000,7 +2001,7 @@ app.post("/create-guardian-form", async (req, res) => {
 //     });
 //   }
 
-  
+
 
 //   try {
 //     // Find the family by familyId
@@ -2009,7 +2010,7 @@ app.post("/create-guardian-form", async (req, res) => {
 //       // familyId should exist in the array familyId
 //       "familyId": { $exists: true, $not: { $size: 0 } },
 //     });
-    
+
 //     // Check if the family exists
 //     if (!family) {
 //       return res.status(404).json({
@@ -2038,7 +2039,7 @@ app.post("/create-guardian-form", async (req, res) => {
 //       });
 //     }
 
-    
+
 //     // Create a JWT token with the guardian's email and role
 //     const token = jwt.sign({ email: guardianEmail }, process.env.JWT_SECRET, {
 //       expiresIn: "24h",
@@ -2046,10 +2047,10 @@ app.post("/create-guardian-form", async (req, res) => {
 
 //     // If the user exists
 //     if (existingUser) {
-      
+
 //       // Generate a verification link for the existing user
 //       const verificationLink = `http://93.127.172.167:5001/verify?token=${token}&email=${guardianEmail}`;
-      
+
 //       // Send verification email
 //       const transporter = nodemailer.createTransport({
 //         host: "mail.weighingworld.com",
@@ -2663,7 +2664,7 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
   const parentId = req.user.userId; // Get the parentId from the decoded token
   console.log("Parent ID:", parentId);
 
-  const { name, gender, email, password, role, dob, Totalpoints } = req.body;
+  const { name, gender, email, password, role, dob, Totalpoints, firstName,lastName,school,hobby1,hobby2,hobby3} = req.body;
   const normalizedRole = role ? role.toLowerCase() : "";
   const normalizedGender = gender ? gender.toLowerCase() : "";
 
@@ -2706,6 +2707,12 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
       parentId,
       Totalpoints,
       familyId: parent.familyId,
+      firstName,
+      lastName,
+      school,
+      hobby1,
+      hobby2,
+      hobby3
     });
 
     // Save the new user to the database
@@ -3286,9 +3293,8 @@ app.get("/view-tasks", verifyToken, async (req, res) => {
     // Return the tasks in the response
     res.status(200).json({
       status: 1,
-      message: `${
-        user.role.charAt(0).toUpperCase() + user.role.slice(1)
-      }'s tasks retrieved successfully.`,
+      message: `${user.role.charAt(0).toUpperCase() + user.role.slice(1)
+        }'s tasks retrieved successfully.`,
       tasks: tasks,
     });
   } catch (err) {
@@ -3742,9 +3748,8 @@ app.post("/rewards/claim/:rewardId", verifyToken, async (req, res) => {
     if (user.Totalpoints < reward.requiredPoints) {
       return res.status(400).json({
         status: 0,
-        message: `You need ${
-          reward.requiredPoints - user.Totalpoints
-        } more points to claim this reward.`,
+        message: `You need ${reward.requiredPoints - user.Totalpoints
+          } more points to claim this reward.`,
       });
     }
 
@@ -4374,8 +4379,8 @@ app.get("/get-user-families/:userId", async (req, res) => {
       status: 1,
       message: "Family IDs associated with user fetched successfully",
       familyIds,
-      familyName: formattedFamilyName, 
-      role:user.role
+      familyName: formattedFamilyName,
+      role: user.role
     });
   } catch (err) {
     console.error("Error fetching user families:", err);
@@ -4434,7 +4439,7 @@ app.get("/get-user-families/:userId", async (req, res) => {
 
 //     let familyIds = [];
 //     let familyNames = [];
-  
+
 
 
 //     // If the user is a parent, include their primary familyId (stored in `familyId`)
@@ -4472,7 +4477,7 @@ app.get("/get-user-families/:userId", async (req, res) => {
 //           }
 //         }
 //       }
-        
+
 //         // For guardian's family ID, get the parent name
 //       //   const family = await Family.findOne({ familyId: familyId });
 //       //   if (family && family.parentId) {
@@ -4534,7 +4539,7 @@ app.get("/get-families/:userId", async (req, res) => {
       let role = '';
 
       // For the user's primary family (familyId stored in User model)
-      if (user.familyId && user.role ==="parent" && user.familyId.includes(familyId)) {
+      if (user.familyId && user.role === "parent" && user.familyId.includes(familyId)) {
         familyName = `${user.name}'s Family`;  // Parent's family
         role = 'parent';  // Set role to parent
       } else if (user.guardianIds && user.guardianIds.includes(familyId)) {
