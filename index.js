@@ -1499,7 +1499,7 @@ app.post("/login", async (req, res) => {
           message: "Login successful",
           token: token,
           userId: user.userId,
-          firstName: user.firstName,
+          name: user.name,
           lastName: user.lastName,
           school: user.school,
           hobby1: user.hobby1,
@@ -2664,7 +2664,7 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
   const parentId = req.user.userId; // Get the parentId from the decoded token
   console.log("Parent ID:", parentId);
 
-  const { name, gender, email, password, role, dob, Totalpoints, firstName,lastName,school,hobby1,hobby2,hobby3} = req.body;
+  const { name, gender, email, password, role, dob, Totalpoints,lastName,school,hobby1,hobby2,hobby3} = req.body;
   const normalizedRole = role ? role.toLowerCase() : "";
   const normalizedGender = gender ? gender.toLowerCase() : "";
 
@@ -2720,7 +2720,6 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
       parentId,
       Totalpoints,
       familyId: parent.familyId,
-      firstName,
       lastName : childLastName, 
       school,
       hobby1,
