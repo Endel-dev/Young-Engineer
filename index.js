@@ -1475,7 +1475,7 @@ app.post("/login", async (req, res) => {
     if (name) {
       // If it's a child user, search for the user by name
       user = await User.findOne({ name });
-      console.log(user.city);
+      console.log(user.hobby1);
 
       // Ensure the user exists and is a child
       if (user && user.role === "child") {
