@@ -511,7 +511,7 @@ app.post("/registered", async (req, res) => {
 });
 
 app.post("/register", async (req, res) => {
-  const { name, gender, email, password, role, dob } = req.body;
+  const { name, gender, email, password, role, dob, city } = req.body;
 
   const normalizedRole = role ? role.toLowerCase() : "";
   const normalizedGender = gender ? gender.toLowerCase() : "";
@@ -570,6 +570,7 @@ app.post("/register", async (req, res) => {
       gender: normalizedGender,
       dob,
       password,
+      city,
       expiresAt: Date.now() + 24 * 60 * 60 * 1000, // expires in 24 hours
     });
 
@@ -854,6 +855,7 @@ app.post("/verify-email1", async (req, res) => {
       dob: verificationToken.dob,
       password: verificationToken.password,
       familyId: familyId,
+      city:verificationToken.city
     });
 
     await newUser.save();
