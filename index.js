@@ -1511,8 +1511,7 @@ app.post("/login", async (req, res) => {
           city:user.city,
           state:user.state,
           pinCode:user.pinCode,
-          phoneNumber: user.phoneNumber,
-          kidsNames: children.map(child => child.name), 
+          phoneNumber: user.phoneNumber, 
           role: user.role,
           name: user.name,
           familyId: user.familyId || null,
@@ -1545,6 +1544,18 @@ app.post("/login", async (req, res) => {
           .json({ status: 0, message: "Invalid name/email or password" });
       }
 
+      // Fetch children's names if the user is a parent
+      let kidsNames = [];
+      if (user.numberOfKids && user.numberOfKids.length > 0) {
+        // If `numberOfKids` or similar field is present, fetch the names of children
+        // Assuming there's a field that stores the children as an array of userIds (or equivalent)
+        const children = await User.find({ 
+          _id: { $in: user.numberOfKids } 
+        });
+        kidsNames = children.map(child => child.name);
+      }
+
+
       // Generate JWT token for parent user (no OTP)
       const token = jwt.sign(
         { userId: user.userId, role: user.role },
@@ -1572,7 +1583,9 @@ app.post("/login", async (req, res) => {
         address3:user.address3,
         city:user.city,
         state:user.state,
-        pinCode:user.pinCode
+        pinCode:user.pinCode,
+        numberOfKids:user.numberOfKids,
+        kidsNames:kidsNames,
       });
     }
   } catch (err) {
