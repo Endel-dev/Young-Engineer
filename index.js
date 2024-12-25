@@ -2296,7 +2296,7 @@ app.post("/invite-second-parent", async (req, res) => {
 
     if (existingUser) {
       const existingParentId = existingUser.userId;
-      const isSecondParentInFamily = family.parentIds.includes(existingParentId);
+      const isSecondParentInFamily = family.parentId.includes(existingParentId);
 
       if (isSecondParentInFamily) {
         return res.status(400).json({
