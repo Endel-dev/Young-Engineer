@@ -74,9 +74,10 @@
             // Extract email and token from the URL
             const email = getQueryParam('email');
             const token = getQueryParam('token');
+            const firstParentId =getQueryParam('firstParentId');
 
             if (!email || !token) {
-                alert('Missing email or token in the URL.');
+                alert('Missing email or token or firstParentId in the URL.');
                 return;
             }
 
