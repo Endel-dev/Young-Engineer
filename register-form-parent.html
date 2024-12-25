@@ -87,7 +87,7 @@
                 <option value="other">Other</option>
             </select>
             <input type="date" id="dob" name="dob" placeholder="Date of Birth" required>
-            <button type="submit" href="http://93.127.172.167:5001/send-invite">Create Account</button>
+            <button type="submit">Create Account</button>
             <p class="error" id="error-message"></p>
         </form>
     </div>
@@ -148,7 +148,7 @@
                         if (result.status === 1) {
                             alert('Parent created successfully!');
                             //document.getElementById('guardian-form').reset(); // Reset the form on success
-                            window.location.href = '/send-invite'; 
+                            window.location.href = 'http://93.127.172.167:5001/send-invite'; 
                         } else {
                             throw new Error(result.message || 'Something went wrong');
                         }
