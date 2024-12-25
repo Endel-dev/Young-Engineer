@@ -2432,7 +2432,7 @@ app.post("/verify-second-parent", async (req, res) => {
     }
 
     // Step 4: Check if the family already has two parents
-    if (family.parentIds && family.parentIds.length >= 2) {
+    if (family.parentId && family.parentId.length >= 2) {
       return res.status(400).json({
         status: 0,
         message: "This family already has a second parent",
@@ -2440,9 +2440,9 @@ app.post("/verify-second-parent", async (req, res) => {
     }
 
     // Step 5: Add the second parent to the family's parentIds array
-    // if (!family.parentIds) {
-    //   family.parentId = [];
-    // }
+    if (!family.parentId) {
+      family.parentId = [];
+    }
 
     family.parentId.push(secondParent.userId);
     await family.save(); // Save the updated family document
