@@ -2477,7 +2477,7 @@ app.post("/create-parent-form", async (req, res) => {
   console.log(req.body);
 
   // Validate required fields
-  if (!name || !email || !password || !dob || !parentId) {
+  if (!name || !email || !password || !dob ) {
     return res.status(400).json({
       status: 0,
       message: "Please provide all required fields",
