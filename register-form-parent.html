@@ -103,7 +103,8 @@
         // Populate the email field from the URL and get the parentId
         window.onload = function () {
             const email = getQueryParam('email');
-            const parentId = getQueryParam('parentId');
+            //const parentId = getQueryParam('parentId');
+            //const email = getQueryParam('secondParentEmail');
             const firstParentId =getQueryParam('firstParentId');
 
             if (email) {
@@ -126,7 +127,7 @@
                 // Prepare the data to send to the API
                 const data = {
                     name: formData.get('name'),
-                    email: parentId,
+                    email: email,
                     password: formData.get('password'),
                     gender: formData.get('gender'),
                     dob: formData.get('dob'),
