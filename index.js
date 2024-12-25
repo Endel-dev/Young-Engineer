@@ -2452,8 +2452,8 @@ app.post("/verify-second-parent", async (req, res) => {
 
     // Step 7: Update each child with the new second parent in their parentIds array
     for (let child of children) {
-      if (!child.parentIds.includes(secondParent.userId)) {
-        child.parentIds.push(secondParent.userId);
+      if (!child.parentId.includes(secondParent.userId)) {
+        child.parentId.push(secondParent.userId);
         await child.save(); // Save the updated child document
       }
     }
