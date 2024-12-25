@@ -2424,6 +2424,8 @@ app.post("/verify-second-parent", async (req, res) => {
       });
     }
 
+    
+
 
     // Step 3: Find the family linked to the first parent
     const family = await Family.findOne({
@@ -2452,7 +2454,6 @@ app.post("/verify-second-parent", async (req, res) => {
     }
 
     family.parentId.push(secondParent.userId);
-    
     await family.save(); // Save the updated family document
 
     // Step 6: Find all children linked to the first parent
