@@ -2476,7 +2476,7 @@ app.post("/verify-second-parent", async (req, res) => {
 });
 
 app.post("/create-parent-form", async (req, res) => {
-  const { name, email, password, gender, dob, parentId } = req.body;
+  const { name, email, password, gender, dob, parentId, firstParentId } = req.body;
   console.log(req.body);
 
   // Validate required fields
@@ -2497,6 +2497,14 @@ app.post("/create-parent-form", async (req, res) => {
       return res.status(400).json({
         status: 0,
         message: "Email already exists",
+      });
+    }
+
+    const firstParent = await User.findOne({ userId: firstParentId });
+    if (!firstParent) {
+      return res.status(404).json({
+        status: 0,
+        message: "First parent not found",
       });
     }
 
