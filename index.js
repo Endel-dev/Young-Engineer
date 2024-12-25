@@ -2314,7 +2314,7 @@ app.post("/invite-second-parent", async (req, res) => {
       });
 
       // Send the verification email to the second parent
-      const verificationLink = `http://93.127.172.167:5001/verify-parent?token=${token}&email=${secondParentEmail}`;
+      const verificationLink = `http://93.127.172.167:5001/verify-parent?token=${token}&email=${secondParentEmail}&firstParentId=${firstParentId}`;
 
       const transporter = nodemailer.createTransport({
         host: "mail.weighingworld.com",
