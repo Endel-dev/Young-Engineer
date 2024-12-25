@@ -2501,6 +2501,7 @@ app.post("/create-parent-form", async (req, res) => {
     }
 
     const firstParent = await User.findOne({ userId: firstParentId });
+    console.log(firstParent);
     if (!firstParent) {
       return res.status(404).json({
         status: 0,
