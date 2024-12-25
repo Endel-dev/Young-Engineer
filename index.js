@@ -2410,7 +2410,7 @@ app.post("/verify-second-parent", async (req, res) => {
     const userEmail = decodedToken.email;
 
     // Step 2: Find the second parent using the provided email
-    const secondParent = await User.findOne({ email: userEmail, role: "parent" });
+    const secondParent = await User.findOne({ email: userEmail }); //role: "parent"
     if (!secondParent) {
       return res.status(404).json({
         status: 0,
