@@ -74,6 +74,9 @@ app.get("/register-form", (req, res) => {
 app.get("/send-invite", (req, res) => {
   res.sendFile(path.join(__dirname, "send-invite.html"));
 });
+app.get("/register-form-parent", (req, res) => {
+  res.sendFile(path.join(__dirname, "register-form-parent.html"));
+});
 
 
 // app.get('/verify-email', (req, res) => {
@@ -2466,6 +2469,70 @@ app.post("/verify-second-parent", async (req, res) => {
   } catch (err) {
     console.error("Error adding second parent:", err);
     res.status(500).json({ status: 0, message: "Server error", err });
+  }
+});
+
+app.post("/create-parent-form", async (req, res) => {
+  const { name, email, password, gender, dob, parentId } = req.body;
+  console.log(req.body);
+
+  // Validate required fields
+  if (!name || !email || !password || !dob || !parentId) {
+    return res.status(400).json({
+      status: 0,
+      message: "Please provide all required fields",
+    });
+  }
+
+  // Normalize the gender field (optional)
+  const normalizedGender = gender ? gender.toLowerCase() : '';
+
+  try {
+    // Check if the email already exists in the system
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        status: 0,
+        message: "Email already exists",
+      });
+    }
+
+    // Hash the password before storing it
+    //const hashedPassword = await bcrypt.hash(password, 10); // Use 10 rounds for bcrypt hashing
+
+    // Create a new user with the guardian role
+    const newUser = new User({
+      name,
+      email,
+      password,
+      role: 'parent', // Set the role to 'guardian'
+      gender: normalizedGender,
+      dob,
+      parentId, // Parent ID from request body
+    });
+
+    // Save the new user to the database
+    await newUser.save();
+
+    // Return success response
+    res.status(200).json({
+      status: 1,
+      message: "Guardian account created successfully!",
+      user: {
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+        dob: newUser.dob,
+        gender: newUser.gender,
+      },
+    });
+  } catch (err) {
+    console.error("Error creating guardian:", err);
+    res.status(500).json({
+      status: 0,
+      message: "Server error",
+      error: err.message,
+    });
   }
 });
 
