@@ -34,13 +34,13 @@ const userSchema = new mongoose.Schema({
   dateOfJoining: { type: Date, default: Date.now },
   isActive: { type: Boolean, default: true },
 
-  parentId: {
+  parentId: [{
     type: String,   // Refers to the User model itself
     required: function () {
       return this.role === 'child';  // Only required if the role is 'child'
     },
     default: null
-  },
+  }],
   guardianId: [{ type: String }],
 
   deviceId: {

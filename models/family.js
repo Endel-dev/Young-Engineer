@@ -12,9 +12,9 @@ const familySchema = new mongoose.Schema({
   budgetType: { type: String, enum: ['cash', 'points'], default: 'cash'},
   dateOfCreation: { type: Date, default: Date.now },
   isActive: { type: Boolean, default: true },
-  parentId: { 
+  parentId: [{ 
     type: String
-  },
+  }],
   guardianIds: [{ 
     type: String,  // Array of User IDs (secondary family members)
     default: []

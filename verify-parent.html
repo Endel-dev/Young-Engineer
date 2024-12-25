@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #4caf50;
+        }
+
+        p {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Invitation</h1>
+        <p>Please Accept Invitation To Enjoy Guardian Rights.</p>
+        <p>If you didn't initiate this verification, please contact support immediately.</p>
+        <a href="http://93.127.172.167:5001/second-parent-verify" class="btn" onclick="verifyEmail()">Accept</a>
+    </div>
+
+    <script>
+        // Function to extract query parameters from the URL
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        // The main function that triggers on button click
+        function verifyEmail() {
+            // Extract email and token from the URL
+            const email = getQueryParam('email');
+            const token = getQueryParam('token');
+
+            if (!email || !token) {
+                alert('Missing email or token in the URL.');
+                return;
+            }
+
+            // Create the AJAX request to verify the email
+            const xhr = new XMLHttpRequest();
+            const url = 'http://93.127.172.167:5001/verify-second-parent';
+
+            xhr.open('POST', url, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+
+            // Prepare the request payload
+            const data = JSON.stringify({ email, token });
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        alert('Email verification successful!');
+                    } else {
+                        alert('Email verification failed. Please try again.');
+                    }
+                }
+            };
+
+            // Send the request
+            xhr.send(data);
+        }
+    </script>
+
+</body>
+
+</html>

@@ -58,6 +58,9 @@ app.get("/login", (req, res) => {
 app.get("/verify", (req, res) => {
   res.sendFile(path.join(__dirname, "verify.html"));
 });
+app.get("/verify-parent", (req, res) => {
+  res.sendFile(path.join(__dirname, "verify-parent.html"));
+});
 app.get("/guardian-verify", (req, res) => {
   res.sendFile(path.join(__dirname, "guardian-verify.html"));
 });
@@ -2253,6 +2256,218 @@ app.post("/invite-guardian", async (req, res) => {
     res.status(500).json({ status: 0, message: "Server error", err });
   }
 });
+
+app.post("/invite-second-parent", async (req, res) => {
+  const { secondParentEmail, secondParentName, firstParentId } = req.body;
+
+  // Validate required fields
+  if (!secondParentEmail || !secondParentName || !firstParentId) {
+    return res.status(400).json({
+      status: 0,
+      message: "Please provide second parent name, email, and first parent ID",
+    });
+  }
+
+  try {
+    // Find the family by firstParentId
+    const family = await Family.findOne({
+      parentId: firstParentId,
+      "familyId": { $exists: true, $not: { $size: 0 } },
+    });
+
+    // Check if the family exists
+    if (!family) {
+      return res.status(404).json({
+        status: 0,
+        message: "Family not found",
+      });
+    }
+
+    // Check if the family already has two parents
+    if (family.parentIds && family.parentIds.length >= 2) {
+      return res.status(400).json({
+        status: 0,
+        message: "This family already has a second parent",
+      });
+    }
+
+    // Check if the second parent email is already associated with this family
+    const existingUser = await User.findOne({ email: secondParentEmail });
+
+    if (existingUser) {
+      const existingParentId = existingUser.userId;
+      const isSecondParentInFamily = family.parentIds.includes(existingParentId);
+
+      if (isSecondParentInFamily) {
+        return res.status(400).json({
+          status: 0,
+          message: `${secondParentName} is already a second parent of this family.`,
+        });
+      }
+
+      // If the user exists, create a JWT token with the second parent's email
+      const token = jwt.sign({ email: secondParentEmail }, process.env.JWT_SECRET, {
+        expiresIn: "24h",
+      });
+
+      // Send the verification email to the second parent
+      const verificationLink = `http://93.127.172.167:5001/verify-parent?token=${token}&email=${secondParentEmail}`;
+
+      const transporter = nodemailer.createTransport({
+        host: "mail.weighingworld.com",
+        port: 465,
+        secure: true,
+        auth: {
+          user: "no-reply@weighingworld.com",
+          pass: "$]IIWt4blS^_",
+        },
+      });
+
+      const mailOptions = {
+        from: "no-reply@weighingworld.com",
+        to: secondParentEmail,
+        subject: "Second Parent Invitation - Email Verification",
+        text: `Hello ${secondParentName},\n\nPlease verify your email by clicking on the following link: ${verificationLink}`,
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          return res.status(500).json({
+            status: 0,
+            message: "Error sending verification email",
+          });
+        }
+
+        // Respond with success message if email is sent
+        res.status(200).json({
+          status: 1,
+          message: "Verification email sent successfully. Please check your email to verify your account.",
+        });
+      });
+    } else {
+      // If the user does not exist, create a JWT token for registration
+      const token = jwt.sign({ email: secondParentEmail }, process.env.JWT_SECRET, {
+        expiresIn: "24h",
+      });
+
+      const registrationLink = `http://93.127.172.167:5001/register-form-parent?token=${token}&email=${secondParentEmail}&firstParentId=${firstParentId}`;
+
+      // Send the registration email with the registration link
+      const transporter = nodemailer.createTransport({
+        host: "mail.weighingworld.com",
+        port: 465,
+        secure: true,
+        auth: {
+          user: "no-reply@weighingworld.com",
+          pass: "$]IIWt4blS^_",
+        },
+      });
+
+      const mailOptions = {
+        from: "no-reply@weighingworld.com",
+        to: secondParentEmail,
+        subject: "Second Parent Invitation - Registration",
+        text: `Hello ${secondParentName},\n\nIt seems like you are not registered. Please complete your registration by clicking on the following link: ${registrationLink}`,
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          return res.status(500).json({
+            status: 0,
+            message: "Error sending registration email",
+          });
+        }
+
+        // Respond with success message if email is sent
+        res.status(200).json({
+          status: 1,
+          message: "Registration email sent successfully. Please complete your registration.",
+        });
+      });
+    }
+  } catch (err) {
+    console.error("Error sending email:", err);
+    res.status(500).json({ status: 0, message: "Server error", err });
+  }
+});
+
+app.post("/verify-second-parent", async (req, res) => {
+  const { email, token, firstParentId } = req.body;
+
+  if (!email || !token || !firstParentId) {
+    return res.status(400).json({
+      status: 0,
+      message: "Email, token, and first parent ID are required",
+    });
+  }
+
+  try {
+    // Step 1: Verify the token (Normally, you would use JWT verify here to decode and validate the token)
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    const userEmail = decodedToken.email;
+
+    // Step 2: Find the second parent using the provided email
+    const secondParent = await User.findOne({ email: userEmail, role: "parent" });
+    if (!secondParent) {
+      return res.status(404).json({
+        status: 0,
+        message: "Second parent not found",
+      });
+    }
+
+    // Step 3: Find the family linked to the first parent
+    const family = await Family.findOne({
+      parentId: firstParentId,
+      "familyId": { $exists: true, $not: { $size: 0 } }
+    });
+
+    if (!family) {
+      return res.status(404).json({
+        status: 0,
+        message: "Family not found",
+      });
+    }
+
+    // Step 4: Check if the family already has two parents
+    if (family.parentIds && family.parentIds.length >= 2) {
+      return res.status(400).json({
+        status: 0,
+        message: "This family already has a second parent",
+      });
+    }
+
+    // Step 5: Add the second parent to the family's parentIds array
+    if (!family.parentIds) {
+      family.parentIds = [];
+    }
+
+    family.parentIds.push(secondParent.userId);
+    await family.save(); // Save the updated family document
+
+    // Step 6: Find all children linked to the first parent
+    const children = await User.find({ parentId: firstParentId, role: 'child' });
+
+    // Step 7: Update each child with the new second parent in their parentIds array
+    for (let child of children) {
+      if (!child.parentIds.includes(secondParent.userId)) {
+        child.parentIds.push(secondParent.userId);
+        await child.save(); // Save the updated child document
+      }
+    }
+
+    // Step 8: Respond with success
+    res.status(200).json({
+      status: 1,
+      message: "Second parent has been successfully added to the family, and children have been updated.",
+    });
+  } catch (err) {
+    console.error("Error adding second parent:", err);
+    res.status(500).json({ status: 0, message: "Server error", err });
+  }
+});
+
+
+
 
 
 
