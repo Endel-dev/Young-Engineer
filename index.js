@@ -64,6 +64,9 @@ app.get("/verify-parent", (req, res) => {
 app.get("/second-parent-verify", (req, res) => {
   res.sendFile(path.join(__dirname, "second-parent-verify.html"));
 });
+app.get("/second-parent", (req, res) => {
+  res.sendFile(path.join(__dirname, "second-parent.html"));
+});
 app.get("/guardian-verify", (req, res) => {
   res.sendFile(path.join(__dirname, "guardian-verify.html"));
 });
