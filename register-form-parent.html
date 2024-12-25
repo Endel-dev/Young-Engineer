@@ -122,7 +122,7 @@
                 event.preventDefault(); // Prevent default form submission
 
                 const formData = new FormData(event.target);
-                formData.append('parentId', parentId);  // Add parentId to the form data
+                formData.append('parentId', firstParentId);  // Add parentId to the form data
 
                 // Prepare the data to send to the API
                 const data = {
