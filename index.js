@@ -2441,10 +2441,10 @@ app.post("/verify-second-parent", async (req, res) => {
 
     // Step 5: Add the second parent to the family's parentIds array
     if (!family.parentIds) {
-      family.parentIds = [];
+      family.parentId = [];
     }
 
-    family.parentIds.push(secondParent.userId);
+    family.parentId.push(secondParent.userId);
     await family.save(); // Save the updated family document
 
     // Step 6: Find all children linked to the first parent
