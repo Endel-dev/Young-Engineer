@@ -956,10 +956,10 @@ app.post("/verify-guardians", async (req, res) => {
     await family.save();
 
     // Step 7: Update the guardian's document to reflect the added familyId
-    if (!guardian.guardianIds) {
-      guardian.guardianIds = [];
+    if (!guardian.guardianId) {
+      guardian.guardianId = [];
     }
-    guardian.guardianIds.push(family.familyId);  // Add the familyId to the guardian's guardianIds array
+    guardian.guardianId.push(family.familyId);  // Add the familyId to the guardian's guardianIds array
     await guardian.save();
 
     // Step 6: Respond with success
@@ -1923,7 +1923,7 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
       role: normalizedRole,
       dob,
       familyId: [familyId],
-      guardianId: parent.familyId,
+      //guardianId: parent.familyId,
       parentId: parentId,
     });
 
