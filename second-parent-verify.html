@@ -65,18 +65,13 @@
   </div>
   <script>
     // Prevent Back Navigation by Re-Loading the Page
-    if (window.history && window.history.pushState) {
-            // Push a new state to history
-            window.history.pushState(null, null, window.location.href);
-
-            // Intercept the back navigation
-            window.onpopstate = function() {
-                // Reload the page or redirect to another page
-                alert("Back navigation is disabled. Reloading the page.");
-                window.location.reload(); // This reloads the page, preventing the back navigation
-            };
+    function preventBack() {
+            window.history.forward(); 
         }
-    
+        
+        setTimeout("preventBack()", 0);
+        
+        window.onunload = function () { null };
   </script>
 </body>
 
