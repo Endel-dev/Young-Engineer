@@ -83,16 +83,29 @@
     //   }
     // }
     (function() {
-      // Push a new state to history
+      // Prevent the user from going back
+      // Push a new state to history (current page)
       window.history.pushState(null, null, window.location.href);
-
-      // Detect the popstate event (triggered by the back button)
+      
+      // Disable back navigation by listening to the popstate event
       window.onpopstate = function() {
-        // Push a new state again if the user tries to go back
+        // Every time the user presses the back button, push the state again
         window.history.pushState(null, null, window.location.href);
       };
+
+      // Optional: Disable page reload (user refresh behavior)
+      window.addEventListener('beforeunload', function(event) {
+        event.preventDefault();  // Cancel the reload
+        event.returnValue = '';  // Some browsers require this to show the confirmation dialog
+      });
+
     })();
 
+    // Disable the back button behavior more aggressively
+    window.onload = function() {
+      // Disable the back navigation entirely by pushing a state immediately on load
+      window.history.pushState(null, null, window.location.href);
+    };
     // Function to prevent page reload
     function preventPageReload() {
       window.addEventListener('beforeunload', function(event) {
