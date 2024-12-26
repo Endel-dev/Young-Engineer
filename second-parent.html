@@ -65,13 +65,23 @@
     // This code will prevent back navigation after successful email verification
     // Preventing back navigation using history manipulation
    // Prevent Back Navigation by Re-Loading the Page
-   function preventBack() {
-            window.history.forward(); 
+    // Prevent Back Navigation - Using History API and popstate event
+    if (window.history && window.history.pushState) {
+            // Push a new state to history, so the back button can't go back to the previous page
+            window.history.pushState(null, null, window.location.href);
+
+            // Listen for the popstate event when the user attempts to navigate backward
+            window.onpopstate = function() {
+                // Redirect or reload the page to prevent back navigation
+                alert("Back navigation is disabled. You can't go back.");
+                window.history.pushState(null, null, window.location.href); // Push the state again to block the back
+            };
         }
-        
-        setTimeout("preventBack()", 0);
-        
-        window.onunload = function () { null };
+
+        // Optional: Reload to ensure the state is set correctly after page load
+        window.onload = function() {
+            window.history.pushState(null, null, window.location.href); // Make sure history is properly set up
+        };
   </script>
 </body>
 
