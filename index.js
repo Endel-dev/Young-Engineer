@@ -2453,7 +2453,7 @@ app.post("/verify-second-parent", async (req, res) => {
     family.parentId.push(secondParent.userId);
     await family.save(); // Save the updated family document
 
-     secondParent.familyId = secondParent.familyId || []; // Initialize if undefined
+     //secondParent.familyId = secondParent.familyId || []; // Initialize if undefined
      secondParent.familyId.push(family.familyId); // Add the familyId from the family document
      await secondParent.save(); // Save the second parent document
 
