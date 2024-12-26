@@ -955,6 +955,13 @@ app.post("/verify-guardians", async (req, res) => {
     family.guardianIds.push(guardian.userId);  // Add the guardian's userId to the family's guardians array
     await family.save();
 
+    // Step 7: Update the guardian's document to reflect the added familyId
+    if (!guardian.guardianIds) {
+      guardian.guardianIds = [];
+    }
+    guardian.guardianIds.push(family.familyId);  // Add the familyId to the guardian's guardianIds array
+    await guardian.save();
+
     // Step 6: Respond with success
     res.status(200).json({
       status: 1,
@@ -4821,19 +4828,94 @@ app.get("/get-user-families/:userId", async (req, res) => {
 //   }
 // });
 
+// app.get("/get-families/:userId", async (req, res) => {
+//   const { userId } = req.params; // User ID from the URL parameter
+
+//   try {
+//     // Find the user by userId
+//     const user = await User.findOne({ userId: userId });
+
+//     if (!user) {
+//       return res.status(404).json({ status: 0, message: "User not found" });
+//     }
+
+//     let familyIds = [];
+//     let familyNames = [];
+
+//     // If the user is a parent, include their primary familyId (stored in `familyId`)
+//     if (user.familyId && user.familyId.length > 0) {
+//       familyIds = [...familyIds, ...user.familyId];
+//     }
+
+//     // If the user is a guardian, include the family IDs stored in `guardianIds`
+//     if (user.guardianIds && user.guardianIds.length > 0) {
+//       familyIds = [...familyIds, ...user.guardianIds];  // Corrected field for guardians
+//     }
+
+//     // Remove duplicates by converting to a Set and back to an array
+//     familyIds = [...new Set(familyIds)];
+
+//     // Fetch family names by looking up the familyId in each case
+//     for (let familyId of familyIds) {
+//       let familyName = '';
+//       let role = '';
+
+//       // For the user's primary family (familyId stored in User model)
+//       if (user.familyId && user.role === "parent" && user.familyId.includes(familyId)) {
+//         familyName = `${user.name}'s Family`;  // Parent's family
+//         role = 'parent';  // Set role to parent
+//       } else if (user.guardianIds && user.guardianIds.includes(familyId)) {
+//         // For guardian's family (guardianIds)
+//         const parentUser = await User.findOne({ familyId: familyId });
+
+//         if (parentUser) {
+//           familyName = `${parentUser.name}'s Family`;  // Guardian's family name
+//           role = 'guardian';  // Set role to guardian
+//         }
+//       } else {
+//         // For the user's family as a child (check if the user is a child in the family)
+//         const parentUser = await User.findOne({ familyId: familyId });
+
+//         // Check if this user is a child in the familyId (not parent or guardian)
+//         if (parentUser && parentUser.familyId && parentUser.familyId.includes(familyId)) {
+//           familyName = `${parentUser.name}'s Family`;  // Family of the parent
+//           role = 'child';  // Set role to child
+//         }
+//       }
+
+//       // Store familyId, familyName, and role
+//       familyNames.push({ familyId, familyName, role });  // Include role here
+//     }
+
+//     // Return the list of familyIds with roles
+//     res.status(200).json({
+//       status: 1,
+//       message: "Families where the user is a parent, guardian, or child fetched successfully",
+//       families: familyNames,
+//     });
+
+//   } catch (err) {
+//     console.error("Error fetching guardian families:", err);
+//     res.status(500).json({ status: 0, message: "Server error" });
+//   }
+// });
+
 app.get("/get-families/:userId", async (req, res) => {
   const { userId } = req.params; // User ID from the URL parameter
 
   try {
-    // Find the user by userId
+    // Step 1: Find the user by userId
     const user = await User.findOne({ userId: userId });
 
     if (!user) {
       return res.status(404).json({ status: 0, message: "User not found" });
     }
 
+    // Step 2: Find the families that the user belongs to based on role
     let familyIds = [];
     let familyNames = [];
+
+    // Add familyIds depending on the user's role and their association with families
 
     // If the user is a parent, include their primary familyId (stored in `familyId`)
     if (user.familyId && user.familyId.length > 0) {
@@ -4842,56 +4924,62 @@ app.get("/get-families/:userId", async (req, res) => {
 
     // If the user is a guardian, include the family IDs stored in `guardianIds`
     if (user.guardianIds && user.guardianIds.length > 0) {
-      familyIds = [...familyIds, ...user.guardianIds];  // Corrected field for guardians
+      familyIds = [...familyIds, ...user.guardianIds];  // Include guardian families
     }
 
     // Remove duplicates by converting to a Set and back to an array
     familyIds = [...new Set(familyIds)];
 
-    // Fetch family names by looking up the familyId in each case
+    // Step 3: For each familyId, find and update the family document based on the user's role
     for (let familyId of familyIds) {
-      let familyName = '';
-      let role = '';
+      // Retrieve the family document
+      const family = await Family.findOne({ familyId: familyId });
 
-      // For the user's primary family (familyId stored in User model)
-      if (user.familyId && user.role === "parent" && user.familyId.includes(familyId)) {
-        familyName = `${user.name}'s Family`;  // Parent's family
-        role = 'parent';  // Set role to parent
-      } else if (user.guardianIds && user.guardianIds.includes(familyId)) {
-        // For guardian's family (guardianIds)
-        const parentUser = await User.findOne({ familyId: familyId });
+      if (!family) {
+        continue; // If no family is found, skip this iteration
+      }
 
-        if (parentUser) {
-          familyName = `${parentUser.name}'s Family`;  // Guardian's family name
-          role = 'guardian';  // Set role to guardian
+      // Based on the user's role, update the family document
+      if (user.role === 'parent') {
+        // Add to parentId array
+        if (!family.parentId) family.parentId = [];
+        if (!family.parentId.includes(userId)) {
+          family.parentId.push(userId);
         }
-      } else {
-        // For the user's family as a child (check if the user is a child in the family)
-        const parentUser = await User.findOne({ familyId: familyId });
-
-        // Check if this user is a child in the familyId (not parent or guardian)
-        if (parentUser && parentUser.familyId && parentUser.familyId.includes(familyId)) {
-          familyName = `${parentUser.name}'s Family`;  // Family of the parent
-          role = 'child';  // Set role to child
+      } else if (user.role === 'child') {
+        // Add to children array
+        if (!family.children) family.children = [];
+        if (!family.children.includes(userId)) {
+          family.children.push(userId);
+        }
+      } else if (user.role === 'guardian') {
+        // Add to guardianIds array
+        if (!family.guardianIds) family.guardianIds = [];
+        if (!family.guardianIds.includes(userId)) {
+          family.guardianIds.push(userId);
         }
       }
 
-      // Store familyId, familyName, and role
-      familyNames.push({ familyId, familyName, role });  // Include role here
+      // Save the updated family document
+      await family.save();
+
+      // Add the family name to the familyNames array
+      const familyName = `${user.name}'s Family`;
+      familyNames.push({ familyId, familyName, role: user.role });
     }
 
-    // Return the list of familyIds with roles
+    // Step 4: Return the family data
     res.status(200).json({
       status: 1,
-      message: "Families where the user is a parent, guardian, or child fetched successfully",
+      message: "Families updated with user roles successfully",
       families: familyNames,
     });
-
   } catch (err) {
-    console.error("Error fetching guardian families:", err);
-    res.status(500).json({ status: 0, message: "Server error" });
+    console.error("Error fetching or updating family data:", err);
+    res.status(500).json({ status: 0, message: "Server error", error: err.message });
   }
 });
+
 
 
 
