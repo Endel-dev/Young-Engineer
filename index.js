@@ -956,11 +956,11 @@ app.post("/verify-guardians", async (req, res) => {
     await family.save();
 
     // Step 7: Update the guardian's document to reflect the added familyId
-    if (!guardian.guardianId) {
-      guardian.guardianId = [];
-    }
-    //guardian.guardianId.push(family.familyId);  // Add the familyId to the guardian's guardianIds array
-    guardian.guardianId.push(String(family.familyId)); // Ensure it's a string.
+    // if (!guardian.guardianId) {
+    //   guardian.guardianId = [];
+    // }
+    // //guardian.guardianId.push(family.familyId);  // Add the familyId to the guardian's guardianIds array
+    // guardian.guardianId.push(String(family.familyId)); // Ensure it's a string.
 
     await guardian.save();
 
