@@ -97,6 +97,7 @@
         // Function to extract query parameters from the URL
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
+
             return urlParams.get(param);
         }
 
@@ -132,7 +133,7 @@
                     gender: formData.get('gender'),
                     dob: formData.get('dob'),
                     role: 'parent',
-                    parentId: firstParentId,  // Include parentId from URL
+                    firstParentId: firstParentId,  // Include parentId from URL
                 };
 
                 // Send the data to the API using fetch

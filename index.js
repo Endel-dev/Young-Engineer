@@ -2489,7 +2489,7 @@ app.post("/verify-second-parent", async (req, res) => {
 });
 
 app.post("/create-parent-form", async (req, res) => {
-  const { name, email, password, gender, dob, parentId } = req.body;
+  const { name, email, password, gender, dob, firstParentId } = req.body;
   console.log(req.body);
 
   // Validate required fields
@@ -2515,7 +2515,7 @@ app.post("/create-parent-form", async (req, res) => {
     console.log('First Parent ID:', firstParentId);
 
 
-    const firstParent = await User.findOne({ userId: parentId });
+    const firstParent = await User.findOne({ userId: firstParentId });
     console.log(firstParent);
     if (!firstParent) {
       return res.status(404).json({
@@ -2536,7 +2536,6 @@ app.post("/create-parent-form", async (req, res) => {
       role: 'parent', // Set the role to 'guardian'
       gender: normalizedGender,
       dob,
-      parentId,
       familyId: [familyId] // Parent ID from request body
     });
 
