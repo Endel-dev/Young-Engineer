@@ -71,30 +71,34 @@
     }
   </script> -->
   <script>
-    // Prevent backtracking and reloading
-    (function() {
-      // Disable back navigation
+    // Function to prevent backtracking
+    function preventBackNavigation() {
+      // Push the current state into history to prevent back navigation
       if (window.history && window.history.pushState) {
-        // Push a new state into the history stack
         window.history.pushState(null, null, window.location.href);
-        
-        // Listen for the 'popstate' event to block back navigation
         window.onpopstate = function() {
-          // Move the user forward in history if they try to go back
+          // If the user tries to go back, push them forward
           window.history.go(1);
         };
       }
+    }
 
-      // Prevent page reload
-      window.onload = function() {
-        // This prevents reloads caused by the user pressing F5 or using the reload button
-        setTimeout(function() {
-          // Replace current state in the history to make the page not reload
-          window.location.replace(window.location.href);
-        }, 100);
-      };
-    })();
+    // Function to prevent page reload
+    function preventPageReload() {
+      window.addEventListener('beforeunload', function(event) {
+        event.preventDefault(); // Cancel the reload behavior
+        event.returnValue = '';  // Required for some browsers
+      });
+    }
+
+    // Call the functions after the page is loaded
+    window.onload = function() {
+      preventBackNavigation();
+      preventPageReload();
+    };
   </script>
+</body>
+
 </body>
 
 </html>
