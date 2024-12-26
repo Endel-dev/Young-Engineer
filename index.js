@@ -2512,6 +2512,8 @@ app.post("/create-parent-form", async (req, res) => {
         message: "Email already exists",
       });
     }
+    console.log('First Parent ID:', firstParentId);
+
 
     const firstParent = await User.findOne({ userId: firstParentId });
     console.log(firstParent);
