@@ -73,14 +73,14 @@
             window.onpopstate = function() {
                 // Redirect or reload the page to prevent back navigation
                 alert("Back navigation is disabled. You can't go back.");
-                window.history.pushState(null, null, window.location.href); // Push the state again to block the back
+                //window.history.pushState(null, null, window.location.href); // Push the state again to block the back
             };
         }
 
         // Optional: Reload to ensure the state is set correctly after page load
-        window.onload = function() {
-            window.history.pushState(null, null, window.location.href); // Make sure history is properly set up
-        };
+        // window.onload = function() {
+        //     window.history.pushState(null, null, window.location.href); // Make sure history is properly set up
+        // };
   </script>
 </body>
 
