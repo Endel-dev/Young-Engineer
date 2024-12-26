@@ -83,11 +83,13 @@
     //   }
     // }
     (function() {
-      // Push the current state to the history
+      // Push a new state to history
       window.history.pushState(null, null, window.location.href);
-      window.onpopstate = function () {
-        // Push the user forward in history if they try to go back
-        window.history.go(1);
+
+      // Detect the popstate event (triggered by the back button)
+      window.onpopstate = function() {
+        // Push a new state again if the user tries to go back
+        window.history.pushState(null, null, window.location.href);
       };
     })();
 
