@@ -2302,7 +2302,7 @@ app.post("/invite-second-parent", async (req, res) => {
     }
 
     // Check if the family already has two parents
-    if (family.parentIds && family.parentIds.length >= 2) {
+    if (family.parentId && family.parentId.length >= 2) {
       return res.status(400).json({
         status: 0,
         message: "This family already has a second parent",
