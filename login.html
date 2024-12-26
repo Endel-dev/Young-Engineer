@@ -72,16 +72,24 @@
   </script> -->
   <script>
     // Function to prevent backtracking
-    function preventBackNavigation() {
-      // Push the current state into history to prevent back navigation
-      if (window.history && window.history.pushState) {
-        window.history.pushState(null, null, window.location.href);
-        window.onpopstate = function() {
-          // If the user tries to go back, push them forward
-          window.history.go(1);
-        };
-      }
-    }
+    // function preventBackNavigation() {
+    //   // Push the current state into history to prevent back navigation
+    //   if (window.history && window.history.pushState) {
+    //     window.history.pushState(null, null, window.location.href);
+    //     window.onpopstate = function() {
+    //       // If the user tries to go back, push them forward
+    //       window.history.go(1);
+    //     };
+    //   }
+    // }
+    (function() {
+      // Push the current state to the history
+      window.history.pushState(null, null, window.location.href);
+      window.onpopstate = function () {
+        // Push the user forward in history if they try to go back
+        window.history.go(1);
+      };
+    })();
 
     // Function to prevent page reload
     function preventPageReload() {
