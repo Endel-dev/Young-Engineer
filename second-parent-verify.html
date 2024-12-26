@@ -51,6 +51,8 @@
     .btn:hover {
       background-color: #45a049;
     }
+
+    
   </style>
 </head>
 
@@ -62,43 +64,19 @@
     <!--<a href="/login" class="btn">Go to Login</a>-->
   </div>
   <script>
-    // This code will prevent back navigation after successful email verification
-    // if (window.history && window.history.pushState) {
-    //   window.history.pushState(null, null, window.location.href);
-    //   window.onpopstate = function () {
-    //     window.history.go(1); // This will prevent the user from going back to the previous page (email verification page)
-    //   };
-    // }// Function to stay on the current page by pushing the same state into the history
-    function preventBackNavigation() {
+    // Preventing back navigation using history manipulation
+    if (window.history && window.history.pushState) {
+            // Push a new state to the history
             window.history.pushState(null, null, window.location.href);
+            
+            // Listen for popstate events
             window.onpopstate = function () {
-                // If the user presses the back button, push the state again
+                // This triggers whenever the back button is pressed
                 window.history.pushState(null, null, window.location.href);
+                alert("Back button is disabled!"); // Optionally show a message
             };
         }
-
-        // Prevent navigation from the address bar or any manual changes to the URL
-        function interceptManualNavigation() {
-            window.addEventListener("popstate", function () {
-                // Prevent any manual navigation (address bar typing, bookmark, etc.)
-                window.history.pushState(null, null, window.location.href);
-            });
-        }
-
-        // Function for the "Stay Here" button
-        // function stayOnPage() {
-        //     alert('You cannot leave this page.');
-        // }
-
-        // Call functions on page load
-        preventBackNavigation();
-        interceptManualNavigation();
-
-        // Add beforeunload to catch page reloads or closing attempts
-        window.onbeforeunload = function () {
-            return 'Are you sure you want to leave?';
-        };
-  
+    
   </script>
 </body>
 

@@ -1924,7 +1924,7 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
       password,
       role: normalizedRole,
       dob,
-      familyId: [familyId],
+      familyId:[familyId],
       guardianId: parent.familyId,
       parentId: parentId,
     });
