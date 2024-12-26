@@ -83,43 +83,18 @@
     //     };
     //   }
     // }
-    (function() {
-      // Prevent the user from going back
-      // Push a new state to history (current page)
-      window.history.pushState(null, null, window.location.href);
-      
-      // Disable back navigation by listening to the popstate event
-      window.onpopstate = function() {
-        // Every time the user presses the back button, push the state again
-        window.history.pushState(null, null, window.location.href);
-      };
+    // Prevent Back Navigation by Re-Loading the Page
+    if (window.history && window.history.pushState) {
+            // Push a new state to history
+            window.history.pushState(null, null, window.location.href);
 
-      // Optional: Disable page reload (user refresh behavior)
-      window.addEventListener('beforeunload', function(event) {
-        event.preventDefault();  // Cancel the reload
-        event.returnValue = '';  // Some browsers require this to show the confirmation dialog
-      });
-
-    })();
-
-    // Disable the back button behavior more aggressively
-    window.onload = function() {
-      // Disable the back navigation entirely by pushing a state immediately on load
-      window.history.pushState(null, null, window.location.href);
-    };
-    // Function to prevent page reload
-    function preventPageReload() {
-      window.addEventListener('beforeunload', function(event) {
-        event.preventDefault(); // Cancel the reload behavior
-        event.returnValue = '';  // Required for some browsers
-      });
-    }
-
-    // Call the functions after the page is loaded
-    window.onload = function() {
-      //preventBackNavigation();
-      preventPageReload();
-    };
+            // Intercept the back navigation
+            window.onpopstate = function() {
+                // Reload the page or redirect to another page
+                alert("Back navigation is disabled. Reloading the page.");
+                window.location.reload(); // This reloads the page, preventing the back navigation
+            };
+        }
   </script>
 </body>
 
