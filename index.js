@@ -3029,16 +3029,18 @@ app.post("/create-task",verifyToken, async (req, res) => {
     completionTime,
   } = req.body;
 
-  if (!title || !assignedTo) {
+  if (!title || !assignedTo ||
+    !expectedCompletionDate
+  ) {
     return res
       .status(400)
-      .json({ status: 0, message: "Please provide all required fields" });
+      .json({ status: 0, message: "Please title,assignedTo and expectedCompletionDate" });
   }
 
   const currentDate = new Date();
   const expectedDate = new Date(expectedCompletionDate);
 
-  if (expectedDate && expectedDate < currentDate) {
+  if ( expectedDate < currentDate) {
     return res.status(400).json({
       status: 0,
       message: "Expected completion date must be in the future",
