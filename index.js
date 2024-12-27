@@ -276,6 +276,7 @@ app.post("/register", async (req, res) => {
       .status(400)
       .json({ status: 0, message: "Please provide all required fields" });
   }
+  
 
   try {
     // Check if the email already exists in the User model
@@ -306,7 +307,6 @@ app.post("/register", async (req, res) => {
       expiresIn: "24h",
     });
     const verificationLink = `http://93.127.172.167:5001/sample?token=${token}&email=${email}`;
-    
 
     // Create a new verification token
     const verificationToken = new VerificationToken({
@@ -598,8 +598,6 @@ app.post("/verify-email1", async (req, res) => {
         .status(200)
         .json({ status: 0, message: "Email already verified" });
     }
-
-    
 
     const userUuid = uuidv4(); // This generates a unique UUID for the user
     const familyId = userUuid.slice(-4); // Extract the last 4 characters for the family ID
