@@ -144,82 +144,7 @@ mongoose
 
 // User registration route
 // POST /register (For Parent User)
-app.post("/register-user", async (req, res) => {
-  //console.log(req.body);
-  console.log("Request body:", req.body);
-  console.log("Request Headers:", req.headers);
-  const { name, gender, email, password, role, dob } = req.body;
-  const normalizedRole = role ? role.toLowerCase() : "";
-  const normalizedgender = gender ? gender.toLowerCase() : "";
-  //console.log(req.body);
 
-  // Ensure only 'parent' role user can register
-  //if (role !== 'parent' &&'Parent' && role!='guardian'&&'Guardian') {
-  if (normalizedRole !== "parent" && normalizedRole !== "guardian") {
-    return res.status(400).json({
-      status: 0,
-      message: "Only parent and guardian role is allowed to register",
-    });
-  }
-
-  // Validate required fields
-  if (!name || !email || !password || !dob || !gender) {
-    return res.status(400).json({
-      status: 0,
-      message:
-        "Please provide all required fields:name,email,password,dob,gender",
-    });
-  }
-
-  if (!role) {
-    return res
-      .status(400)
-      .json({ status: 0, message: "Please provide role of user" });
-  }
-  // if (gender === "") {
-  //   return res.status(400).json({ status: 0, message: 'Gender cannot be empty' });
-  // }
-
-  try {
-    // Check if email or userId already exists
-    const existingUser = await User.findOne({ $or: [{ email }, { name }] });
-    if (existingUser) {
-      return res
-        .status(200)
-        .json({ status: 0, message: "Email or Name already exists" });
-    }
-    //const existingName = await User.findOne
-
-    // Create the new user
-    const newUser = new User({
-      name,
-      gender: normalizedgender,
-      email,
-      password,
-      role: normalizedRole,
-      dob,
-      //isActive,
-      //deviceId
-    });
-
-    // Save the new user to the database
-    await newUser.save();
-    const token = jwt.sign(
-      { userId: newUser.userId, role: newUser.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "15d" } // Token will expire in 15 days
-    );
-    res.status(200).json({
-      status: 1,
-      message: "Parent registered successfully",
-      user: newUser,
-      token: token,
-    });
-  } catch (err) {
-    console.error("Error registering user:", err);
-    res.status(500).json({ status: 0, message: "Server error", err });
-  }
-});
 
 // app.post('/registers', async (req, res) => {
 //   const { name, gender, email, password, role, dob } = req.body;
@@ -326,201 +251,7 @@ app.post("/register-user", async (req, res) => {
 // });
 
 // POST /register
-app.post("/registers", async (req, res) => {
-  console.log("Register endpoint hit");
-  const { name, gender, email, password, role, dob } = req.body;
 
-  const normalizedRole = role ? role.toLowerCase() : "";
-  const normalizedGender = gender ? gender.toLowerCase() : "";
-
-  if (normalizedRole !== "parent" && normalizedRole !== "guardian") {
-    return res.status(400).json({
-      status: 0,
-      message: "Only parent and guardian roles are allowed to register",
-    });
-  }
-
-  if (!name || !email || !password || !dob || !gender) {
-    return res
-      .status(400)
-      .json({ status: 0, message: "Please provide all required fields" });
-  }
-
-  try {
-    const existingUser = await User.findOne({ $or: [{ email }, { name }] })
-      .where("deleted")
-      .equals(false);
-    // if (existingUser) {
-    //   return res.status(400).json({ status: 0, message: 'Email or Name already exists' });
-    // }
-    if (existingUser) {
-      return res
-        .status(400)
-        .json({ status: 0, message: "Email or Name already exists" });
-    }
-
-    // const salt = await bcrypt.genSalt(10);
-    // const hashedPassword = await bcrypt.hash(password, salt);
-
-    const token = jwt.sign({ email }, process.env.JWT_SECRET, {
-      expiresIn: "24h",
-    });
-    const verificationLink = `http://93.127.172.167:5001/sample?token=${token}&email=${email}`;
-
-    const verificationToken = new VerificationToken({
-      email,
-      token,
-      name,
-      role: normalizedRole,
-      gender: normalizedGender,
-      dob,
-      password,
-      expiresAt: Date.now() + 24 * 60 * 60 * 1000, // expires in 24 hours
-    });
-    await verificationToken.save();
-    console.log(verificationToken);
-
-    const transporter = nodemailer.createTransport({
-      host: "mail.weighingworld.com",
-      port: 465,
-      secure: true,
-      auth: {
-        user: "no-reply@weighingworld.com",
-        pass: "$]IIWt4blS^_",
-      },
-    });
-
-    const mailOptions = {
-      from: "no-reply@weighingworld.com",
-      to: email,
-      subject: "Email Verification",
-      text: `Please verify your email by clicking on the following link: ${verificationLink}`,
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        return res
-          .status(500)
-          .json({ status: 0, message: "Error sending verification email" });
-      }
-      res.status(200).json({
-        status: 1,
-        message: "Registration successful. A verification email has been sent.",
-      });
-    });
-  } catch (err) {
-    console.error("Error registering user:", err);
-    res.status(500).json({ status: 0, message: "Server error", err });
-  }
-});
-
-// Define the route
-app.post("/registered", async (req, res) => {
-  console.log("Register endpoint hit");
-  const { name, gender, email, password, role, dob } = req.body;
-
-  const normalizedRole = role ? role.toLowerCase() : "";
-  const normalizedGender = gender ? gender.toLowerCase() : "";
-
-  if (normalizedRole !== "parent" && normalizedRole !== "guardian") {
-    return res.status(400).json({
-      status: 0,
-      message: "Only parent and guardian roles are allowed to register",
-    });
-  }
-
-  if (!name || !email || !password || !dob || !gender) {
-    return res
-      .status(400)
-      .json({ status: 0, message: "Please provide all required fields" });
-  }
-
-  try {
-    //const existingUser = await User.findOne({ $or: [{ email }, { name }] }).where('deleted').equals(false);
-    const existingUser = await User.findOne({ email });
-    console.log("Existing user:", existingUser); // Log the found user
-    if (existingUser) {
-      return res
-        .status(400)
-        .json({ status: 0, message: "User already verified" });
-    }
-
-    const existingVerificationToken = await VerificationToken.findOne({
-      email,
-      name,
-      expiresAt: { $gt: Date.now() }, // Check if the token is not expired
-    });
-
-    if (existingVerificationToken) {
-      return res.status(400).json({
-        status: 0,
-        message:
-          "Mail already sent for email verification and token not expired",
-      });
-    }
-
-    // if (existingUser) {
-    //   return res.status(400).json({ status: 0, message: 'Email or Name already exists' });
-    // }
-    // if (existingUser) {
-    //   return res.status(400).json({ status: 0, message: 'Email or Name already exists' });
-    // }
-
-    // const salt = await bcrypt.genSalt(10);
-    // const hashedPassword = await bcrypt.hash(password, salt);
-
-    const token = jwt.sign({ email }, process.env.JWT_SECRET, {
-      expiresIn: "24h",
-    });
-    const verificationLink = `http://93.127.172.167:5001/sample?token=${token}&email=${email}`;
-
-    const verificationToken = new VerificationToken({
-      email,
-      token,
-      name,
-      role: normalizedRole,
-      gender: normalizedGender,
-      dob,
-      password,
-      expiresAt: Date.now() + 24 * 60 * 60 * 1000, // expires in 24 hours
-    });
-
-    await verificationToken.save();
-    console.log(verificationToken);
-
-    const transporter = nodemailer.createTransport({
-      host: "mail.weighingworld.com",
-      port: 465,
-      secure: true,
-      auth: {
-        user: "no-reply@weighingworld.com",
-        pass: "$]IIWt4blS^_",
-      },
-    });
-
-    const mailOptions = {
-      from: "no-reply@weighingworld.com",
-      to: email,
-      subject: "Email Verification",
-      text: `Please verify your email by clicking on the following link: ${verificationLink}`,
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        return res
-          .status(500)
-          .json({ status: 0, message: "Error sending verification email" });
-      }
-      res.status(200).json({
-        status: 1,
-        message: "Registration successful. A verification email has been sent.",
-      });
-    });
-  } catch (err) {
-    console.error("Error registering user:", err);
-    res.status(500).json({ status: 0, message: "Server error", err });
-  }
-});
 
 app.post("/register", async (req, res) => {
   const { name, gender, email, password, role, dob, city, phoneNumber, address1, address2, address3, state, pinCode, numberOfKids, kidsNames } = req.body;
@@ -3183,7 +2914,99 @@ const token = jwt.sign(
 //Tasks
 
 const Task = require("./models/Task");
-app.post("/create-task", verifyParentOrGuardianRole, async (req, res) => {
+// app.post("/create-task", verifyParentOrGuardianRole, async (req, res) => {
+//   const {
+//     title,
+//     description,
+//     taskId,
+//     assignedTo,
+//     associates,
+//     expectedCompletionDate,
+//     rewardType,
+//     fairType,
+//     fairAmount,
+//     taskStatus,
+//     associatedInterestsChild,
+//     // createdBy,
+//     fairDistribution,
+//     penaltyAmount,
+//     taskPriority,
+//     paymentStatus,
+//     schedule,
+//     taskType,
+//     completionDate,
+//     completionTime,
+//     parentId,
+//   } = req.body;
+
+//   if (!title || !assignedTo) {
+//     return res
+//       .status(400)
+//       .json({ status: 0, message: "Please provide all required fields" });
+//   }
+
+//   const currentDate = new Date();
+//   const expectedDate = new Date(expectedCompletionDate);
+
+//   if (expectedDate < currentDate) {
+//     return res.status(400).json({
+//       status: 0,
+//       message: "Expected completion date must be in the future",
+//     });
+//   }
+
+//   try {
+//     // Check if taskId already exists
+//     console.log("User ID from token:", req.user.userId);
+//     console.log(token);
+
+//     const existingTask = await Task.findOne({ taskId });
+//     if (existingTask) {
+//       return res
+//         .status(400)
+//         .json({ status: 0, message: "Task ID already exists" });
+//     }
+//     const userIdFromToken = req.user.userId;
+
+//     // Create the new task
+//     const newTask = new Task({
+//       title,
+//       description,
+//       taskId,
+//       assignedTo,
+//       associates,
+//       expectedCompletionDate,
+//       rewardType,
+//       fairType,
+//       fairAmount,
+//       taskStatus,
+//       associatedInterestsChild,
+//       createdBy: userIdFromToken, //req.user.userId ,
+//       fairDistribution,
+//       penaltyAmount,
+//       taskPriority,
+//       paymentStatus,
+//       schedule,
+//       taskType,
+//       completionDate,
+//       completionTime,
+//     });
+
+//     // Save the new task to the database
+//     await newTask.save();
+//     res
+//       .status(201)
+//       .json({ status: 1, message: "Task created successfully", task: newTask });
+//   } catch (err) {
+//     console.error("Error creating task:", err);
+//     res.status(500).json({ status: 0, message: "Server error", err });
+//   }
+// });
+
+
+// Middleware to verify token
+
+app.post("/create-task", async (req, res) => {
   const {
     title,
     description,
@@ -3196,7 +3019,6 @@ app.post("/create-task", verifyParentOrGuardianRole, async (req, res) => {
     fairAmount,
     taskStatus,
     associatedInterestsChild,
-    // createdBy,
     fairDistribution,
     penaltyAmount,
     taskPriority,
@@ -3205,7 +3027,6 @@ app.post("/create-task", verifyParentOrGuardianRole, async (req, res) => {
     taskType,
     completionDate,
     completionTime,
-    parentId,
   } = req.body;
 
   if (!title || !assignedTo) {
@@ -3226,15 +3047,14 @@ app.post("/create-task", verifyParentOrGuardianRole, async (req, res) => {
 
   try {
     // Check if taskId already exists
-    console.log("User ID from token:", req.user.userId);
-    console.log(token);
-
     const existingTask = await Task.findOne({ taskId });
     if (existingTask) {
       return res
         .status(400)
         .json({ status: 0, message: "Task ID already exists" });
     }
+
+    // Use userId from the token to set the creator of the task
     const userIdFromToken = req.user.userId;
 
     // Create the new task
@@ -3250,7 +3070,7 @@ app.post("/create-task", verifyParentOrGuardianRole, async (req, res) => {
       fairAmount,
       taskStatus,
       associatedInterestsChild,
-      createdBy: userIdFromToken, //req.user.userId ,
+      createdBy: userIdFromToken, // User who is creating the task
       fairDistribution,
       penaltyAmount,
       taskPriority,
@@ -3271,9 +3091,6 @@ app.post("/create-task", verifyParentOrGuardianRole, async (req, res) => {
     res.status(500).json({ status: 0, message: "Server error", err });
   }
 });
-//End of task
-
-// Middleware to verify token
 
 const verifyTaskCreatorOrAssigned = (req, res, next) => {
   const { taskId } = req.params; // Get taskId from URL parameters
