@@ -2780,6 +2780,17 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
 
     // Save the new user to the database
     await newUser.save();
+    const family = await Family.findOne({ familyId: parent.familyId });
+    if (!family) {
+      return res.status(400).json({ status: 0, message: "Family not found" });
+    }
+
+    // Add the child's userId to the family's children array
+    family.children.push(newUser.userId);  // Assuming the child is assigned a userId on creation
+
+    // Save the updated family document
+    await family.save();
+
     res
       .status(200)
       .json({ status: 1, message: "User created successfully", user: newUser });
