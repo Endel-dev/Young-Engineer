@@ -618,6 +618,13 @@ app.post("/verify-email1", async (req, res) => {
     });
 
     await newUser.save();
+    const family = new Family({
+      familyName: `${newUser.name}'s Family`,  // Family name based on the parent's name
+      parentId: [newUser.userId],  // Add the parent user ID
+      familyId: [newUser.familyId],  // Generate a unique family ID (if necessary)
+    });
+    await family.save();
+
     await VerificationToken.deleteOne({ email, token });
 
     res.status(200).json({ status: 1, message: "Email successfully verified" });
