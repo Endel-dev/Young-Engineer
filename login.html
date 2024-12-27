@@ -58,7 +58,7 @@
   <div class="container">
     <h1>Thank You for Registering!</h1>
     <p>Your account has been successfully created. You can now log in and enjoy all the features available.</p>
-    <p>If you have any questions or issues, feel free to contact our support team.</p>
+    <!--<p>If you have any questions or issues, feel free to contact our support team.</p>-->
     <!--<a href="/login" class="btn">Go to Login</a>-->
   </div>
   <!-- <script>
@@ -72,35 +72,33 @@
   </script> -->
   <script>
     console.log("JavaScript is running!");
-    // Function to prevent backtracking
-    // function preventBackNavigation() {
-    //   // Push the current state into history to prevent back navigation
-    //   if (window.history && window.history.pushState) {
-    //     window.history.pushState(null, null, window.location.href);
-    //     window.onpopstate = function() {
-    //       // If the user tries to go back, push them forward
-    //       window.history.go(1);
-    //     };
-    //   }
-    // }
-    // Prevent Back Navigation by Re-Loading the Page
-     // Prevent Back Navigation - Using History API and popstate event
-     if (window.history && window.history.pushState) {
-            // Push a new state to history, so the back button can't go back to the previous page
-            window.history.pushState(null, null, window.location.href);
+    //  if (window.history && window.history.pushState) {
+    //         // Push a new state to history, so the back button can't go back to the previous page
+    //        // Listen for the popstate event when the user attempts to navigate backward
+    //         window.onpopstate = function() {
+    //             // Redirect or reload the page to prevent back navigation
+    //           window.history.pushState(null, null, window.location.href);
 
-            // Listen for the popstate event when the user attempts to navigate backward
-            window.onpopstate = function() {
-                // Redirect or reload the page to prevent back navigation
-                alert("Back navigation is disabled. You can't go back.");
-                //window.history.pushState(null, null, window.location.href); // Push the state again to block the back
-            };
-        }
+    //            alert("Back navigation is disabled. You can't go back.");
+    //             //window.history.pushState(null, null, window.location.href); // Push the state again to block the back
+    //         };
+    //     }
+        // Prevent back navigation using History API
+        if (window.history && window.history.pushState) {
+      // Push the current state into the history to block back navigation
+      window.history.pushState(null, null, window.location.href);
 
-        // Optional: Reload to ensure the state is set correctly after page load
-        // window.onload = function() {
-        //     window.history.pushState(null, null, window.location.href); // Make sure history is properly set up
-        // };
+      // Listen for the popstate event when the user tries to navigate backward
+      window.onpopstate = function() {
+        // Optionally, you can show a custom message or alert
+        alert("Back navigation is disabled. You can't go back.");
+        // Push the state again to keep the user on the current page
+        window.history.pushState(null, null, window.location.href);
+      };
+    }
+
+
+        
   </script>
 </body>
 
