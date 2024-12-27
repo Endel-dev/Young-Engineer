@@ -3006,7 +3006,7 @@ const Task = require("./models/Task");
 
 // Middleware to verify token
 
-app.post("/create-task", async (req, res) => {
+app.post("/create-task",verifyToken, async (req, res) => {
   const {
     title,
     description,
