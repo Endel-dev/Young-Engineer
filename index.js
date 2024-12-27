@@ -49,6 +49,9 @@ app.get("/", (req, res) => {
 app.get("/sample", (req, res) => {
   res.sendFile(path.join(__dirname, "sample.html"));
 });
+app.get("/demo", (req, res) => {
+  res.sendFile(path.join(__dirname, "demo.html"));
+});
 app.get("/verify-email1", (req, res) => {
   res.sendFile(path.join(__dirname, "sample.html"));
 });
@@ -302,7 +305,7 @@ app.post("/register", async (req, res) => {
     const token = jwt.sign({ email }, process.env.JWT_SECRET, {
       expiresIn: "24h",
     });
-    const verificationLink = `http://93.127.172.167:5001/sample?token=${token}&email=${email}`;
+    const verificationLink = `http://93.127.172.167:5001/demo?token=${token}&email=${email}`;
 
     // Create a new verification token
     const verificationToken = new VerificationToken({
