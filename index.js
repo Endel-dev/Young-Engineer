@@ -3038,7 +3038,7 @@ app.post("/create-task",verifyToken, async (req, res) => {
   const currentDate = new Date();
   const expectedDate = new Date(expectedCompletionDate);
 
-  if (expectedDate < currentDate) {
+  if (expectedDate && expectedDate < currentDate) {
     return res.status(400).json({
       status: 0,
       message: "Expected completion date must be in the future",
