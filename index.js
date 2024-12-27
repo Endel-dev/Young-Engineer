@@ -306,7 +306,7 @@ app.post("/register", async (req, res) => {
       expiresIn: "24h",
     });
     const verificationLink = `http://93.127.172.167:5001/sample?token=${token}&email=${email}`;
-    
+
 
     // Create a new verification token
     const verificationToken = new VerificationToken({
@@ -593,7 +593,7 @@ app.post("/verify-email1", async (req, res) => {
       return res.status(400).json({ status: 0, message: "Token has expired" });
     }
 
-    if (VerificationToken.verified == true) {
+    if (verificationToken.verified == true) {
       return res
         .status(200)
         .json({ status: 0, message: "Email already verified" });
