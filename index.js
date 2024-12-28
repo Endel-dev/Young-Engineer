@@ -84,7 +84,6 @@ app.get("/register-form-parent", (req, res) => {
   res.sendFile(path.join(__dirname, "register-form-parent.html"));
 });
 
-
 // app.get('/verify-email', (req, res) => {
 //   res.sendFile(path.join(__dirname, 'verify-email.html'));
 // });
@@ -147,7 +146,6 @@ mongoose
 
 // User registration route
 // POST /register (For Parent User)
-
 
 // app.post('/registers', async (req, res) => {
 //   const { name, gender, email, password, role, dob } = req.body;
@@ -255,9 +253,24 @@ mongoose
 
 // POST /register
 
-
 app.post("/register", async (req, res) => {
-  const { name, gender, email, password, role, dob, city, phoneNumber, address1, address2, address3, state, pinCode, numberOfKids, kidsNames } = req.body;
+  const {
+    name,
+    gender,
+    email,
+    password,
+    role,
+    dob,
+    city,
+    phoneNumber,
+    address1,
+    address2,
+    address3,
+    state,
+    pinCode,
+    numberOfKids,
+    kidsNames,
+  } = req.body;
 
   const normalizedRole = role ? role.toLowerCase() : "";
   const normalizedGender = gender ? gender.toLowerCase() : "";
@@ -276,7 +289,6 @@ app.post("/register", async (req, res) => {
       .status(400)
       .json({ status: 0, message: "Please provide all required fields" });
   }
-  
 
   try {
     // Check if the email already exists in the User model
@@ -618,14 +630,14 @@ app.post("/verify-email1", async (req, res) => {
       state: verificationToken.state,
       pinCode: verificationToken.pinCode,
       numberOfKids: verificationToken.numberOfKids,
-      kidsNames: verificationToken.kidsNames
+      kidsNames: verificationToken.kidsNames,
     });
 
     await newUser.save();
     const family = new Family({
-      familyName: `${newUser.name}'s Family`,  // Family name based on the parent's name
-      parentId: [newUser.userId],  // Add the parent user ID
-      familyId: newUser.familyId,  // Generate a unique family ID (if necessary)
+      familyName: `${newUser.name}'s Family`, // Family name based on the parent's name
+      parentId: [newUser.userId], // Add the parent user ID
+      familyId: newUser.familyId, // Generate a unique family ID (if necessary)
     });
     await family.save();
 
@@ -689,12 +701,11 @@ app.post("/verify-guardians", async (req, res) => {
       });
     }
 
-
     // Step 5: Add the guardian to the family's guardians array
     if (!family.guardianIds) {
       family.guardianIds = [];
     }
-    family.guardianIds.push(guardian.userId);  // Add the guardian's userId to the family's guardians array
+    family.guardianIds.push(guardian.userId); // Add the guardian's userId to the family's guardians array
     await family.save();
 
     // Step 7: Update the guardian's document to reflect the added familyId
@@ -716,8 +727,6 @@ app.post("/verify-guardians", async (req, res) => {
     res.status(500).json({ status: 0, message: "Server error" + err });
   }
 });
-
-
 
 const verifyParentRole = (req, res, next) => {
   const token = req.header("Authorization")?.split(" ")[1]; // Get token from header
@@ -1316,7 +1325,6 @@ app.post("/login", async (req, res) => {
       //   kidsNames = children.map(child => child.name);
       // }
 
-
       // Generate JWT token for parent user (no OTP)
       const token = jwt.sign(
         { userId: user.userId, role: user.role },
@@ -1425,8 +1433,6 @@ app.post("/create-families", verifyToken, async (req, res) => {
       child.familyId.push(newFamily.familyId);
       await child.save();
     }
-
-
 
     // Respond with the created family data
     res.status(200).json({
@@ -1556,25 +1562,22 @@ app.post("/create-family", verifyToken, async (req, res) => {
       budgetlimit: budgetlimit || 0,
       parentId: userId,
       children: [],
-      guardianId: []
+      guardianId: [],
     });
 
     // Save the new family to the database
     await newFamily.save();
     // Assign the new familyId to each child, set the guardianId and add the child to the family's children array
     for (let child of children) {
-
       // Add the child's userId to the family's children array
       newFamily.children.push(child.userId);
-
-
     }
 
     const guardians = await User.find({ role: "guardian" });
     console.log(guardians);
 
     // Filter guardians based on familyId matching the parent's familyId
-    const validGuardians = guardians.filter(guardian =>
+    const validGuardians = guardians.filter((guardian) =>
       guardian.familyId.includes(parentFamilyId)
     );
     console.log(validGuardians);
@@ -1583,8 +1586,6 @@ app.post("/create-family", verifyToken, async (req, res) => {
     for (let guardian of validGuardians) {
       newFamily.guardianId.push(guardian.userId); // Add guardian's userId to the family
     }
-
-
 
     // Assign the new familyId to each child of the parent
     //for (let child of children) {
@@ -1603,13 +1604,6 @@ app.post("/create-family", verifyToken, async (req, res) => {
     res.status(500).json({ status: 0, message: "Internal server error" });
   }
 });
-
-
-
-
-
-
-
 
 // logic is create family, then create guardian, inside guardian - family [family Id1, familyId2], inside child user- family [familyId] and guardian[guardian2,guardian2]
 app.post("/create-guardian", verifyParentRole, async (req, res) => {
@@ -1666,23 +1660,26 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
       password,
       role: normalizedRole,
       dob,
-      familyId:[familyId],
+      familyId: [familyId],
       guardianId: parent.familyId,
       parentId: parentId,
     });
 
     // Save the new user to the database
     await newUser.save();
-    const userResponse = await User.findById(newUser._id).select('-parentId');
+    const userResponse = await User.findById(newUser._id).select("-parentId");
     res
       .status(200)
-      .json({ status: 1, message: "User created successfully", user: userResponse });
+      .json({
+        status: 1,
+        message: "User created successfully",
+        user: userResponse,
+      });
   } catch (err) {
     console.error("Error creating user:", err);
     res.status(500).json({ status: 0, message: "Server error", err });
   }
 });
-
 
 // Create a route to handle the creation of the guardian user
 app.post("/create-guardian-form", async (req, res) => {
@@ -1698,7 +1695,7 @@ app.post("/create-guardian-form", async (req, res) => {
   }
 
   // Normalize the gender field (optional)
-  const normalizedGender = gender ? gender.toLowerCase() : '';
+  const normalizedGender = gender ? gender.toLowerCase() : "";
 
   try {
     // Check if the email already exists in the system
@@ -1718,7 +1715,7 @@ app.post("/create-guardian-form", async (req, res) => {
       name,
       email,
       password,
-      role: 'guardian', // Set the role to 'guardian'
+      role: "guardian", // Set the role to 'guardian'
       gender: normalizedGender,
       dob,
       parentId, // Parent ID from request body
@@ -1749,10 +1746,6 @@ app.post("/create-guardian-form", async (req, res) => {
   }
 });
 
-
-
-
-
 // app.post("/invite-guardian", async (req, res) => {
 //   const { guardianEmail, guardianName, parentId } = req.body;
 
@@ -1763,8 +1756,6 @@ app.post("/create-guardian-form", async (req, res) => {
 //       message: "Please provide guardian name and email",
 //     });
 //   }
-
-
 
 //   try {
 //     // Find the family by familyId
@@ -1801,7 +1792,6 @@ app.post("/create-guardian-form", async (req, res) => {
 //         message: "You are already a guardian of this family",
 //       });
 //     }
-
 
 //     // Create a JWT token with the guardian's email and role
 //     const token = jwt.sign({ email: guardianEmail }, process.env.JWT_SECRET, {
@@ -1906,8 +1896,9 @@ app.post("/invite-guardian", async (req, res) => {
     // Find the family by parentId
     const family = await Family.findOne({
       parentId: parentId,
-      "familyId": { $exists: true, $not: { $size: 0 } },
+      familyId: { $exists: true, $not: { $size: 0 } },
     });
+    console.log(family);
 
     // Check if the family exists
     if (!family) {
@@ -1922,12 +1913,13 @@ app.post("/invite-guardian", async (req, res) => {
 
     if (existingUser) {
       const existingGuardianId = existingUser.userId;
-      const isGuardianInFamily = family.guardianIds.includes(existingGuardianId);
+      const isGuardianInFamily =
+        family.guardianIds.includes(existingGuardianId);
 
       if (isGuardianInFamily) {
         return res.status(400).json({
           status: 0,
-          message: `${guardianName} is already a guardian of this family.`//"You are already a guardian of this family",
+          message: `${guardianName} is already a guardian of this family.`, //"You are already a guardian of this family",
         });
       }
 
@@ -1967,7 +1959,8 @@ app.post("/invite-guardian", async (req, res) => {
         // Respond with success message if email is sent
         res.status(200).json({
           status: 1,
-          message: "Verification email sent successfully. Please check your email to verify your account.",
+          message:
+            "Verification email sent successfully. Please check your email to verify your account.",
         });
       });
     } else {
@@ -2007,7 +2000,8 @@ app.post("/invite-guardian", async (req, res) => {
         // Respond with success message if email is sent
         res.status(200).json({
           status: 1,
-          message: "Registration email sent successfully. Please complete your registration.",
+          message:
+            "Registration email sent successfully. Please complete your registration.",
         });
       });
     }
@@ -2032,7 +2026,7 @@ app.post("/invite-second-parent", async (req, res) => {
     // Find the family by firstParentId
     const family = await Family.findOne({
       parentId: firstParentId,
-      "familyId": { $exists: true, $not: { $size: 0 } },
+      familyId: { $exists: true, $not: { $size: 0 } },
     });
 
     // Check if the family exists
@@ -2066,9 +2060,13 @@ app.post("/invite-second-parent", async (req, res) => {
       }
 
       // If the user exists, create a JWT token with the second parent's email
-      const token = jwt.sign({ email: secondParentEmail }, process.env.JWT_SECRET, {
-        expiresIn: "24h",
-      });
+      const token = jwt.sign(
+        { email: secondParentEmail },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: "24h",
+        }
+      );
 
       // Send the verification email to the second parent
       const verificationLink = `http://93.127.172.167:5001/verify-parent?token=${token}&email=${secondParentEmail}&firstParentId=${firstParentId}`;
@@ -2101,14 +2099,19 @@ app.post("/invite-second-parent", async (req, res) => {
         // Respond with success message if email is sent
         res.status(200).json({
           status: 1,
-          message: "Verification email sent successfully. Please check your email to verify your account.",
+          message:
+            "Verification email sent successfully. Please check your email to verify your account.",
         });
       });
     } else {
       // If the user does not exist, create a JWT token for registration
-      const token = jwt.sign({ email: secondParentEmail }, process.env.JWT_SECRET, {
-        expiresIn: "24h",
-      });
+      const token = jwt.sign(
+        { email: secondParentEmail },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: "24h",
+        }
+      );
 
       const registrationLink = `http://93.127.172.167:5001/register-form-parent?token=${token}&email=${secondParentEmail}&firstParentId=${firstParentId}`;
 
@@ -2141,7 +2144,8 @@ app.post("/invite-second-parent", async (req, res) => {
         // Respond with success message if email is sent
         res.status(200).json({
           status: 1,
-          message: "Registration email sent successfully. Please complete your registration.",
+          message:
+            "Registration email sent successfully. Please complete your registration.",
         });
       });
     }
@@ -2178,7 +2182,7 @@ app.post("/verify-second-parent", async (req, res) => {
     // Step 3: Find the family linked to the first parent
     const family = await Family.findOne({
       parentId: firstParentId,
-      "familyId": { $exists: true, $not: { $size: 0 } }
+      familyId: { $exists: true, $not: { $size: 0 } },
     });
 
     if (!family) {
@@ -2204,12 +2208,15 @@ app.post("/verify-second-parent", async (req, res) => {
     family.parentId.push(secondParent.userId);
     await family.save(); // Save the updated family document
 
-     //secondParent.familyId = secondParent.familyId || []; // Initialize if undefined
-     //secondParent.familyId.push(family.familyId); // Add the familyId from the family document
-     //await secondParent.save(); // Save the second parent document
+    //secondParent.familyId = secondParent.familyId || []; // Initialize if undefined
+    //secondParent.familyId.push(family.familyId); // Add the familyId from the family document
+    //await secondParent.save(); // Save the second parent document
 
     // Step 6: Find all children linked to the first parent
-    const children = await User.find({ parentId: firstParentId, role: 'child' });
+    const children = await User.find({
+      parentId: firstParentId,
+      role: "child",
+    });
 
     // Step 7: Update each child with the new second parent in their parentIds array
     for (let child of children) {
@@ -2222,7 +2229,8 @@ app.post("/verify-second-parent", async (req, res) => {
     // Step 8: Respond with success
     res.status(200).json({
       status: 1,
-      message: "Second parent has been successfully added to the family, and children have been updated.",
+      message:
+        "Second parent has been successfully added to the family, and children have been updated.",
     });
   } catch (err) {
     console.error("Error adding second parent:", err);
@@ -2235,7 +2243,7 @@ app.post("/create-parent-form", async (req, res) => {
   console.log(req.body);
 
   // Validate required fields
-  if (!name || !email || !password || !dob ) {
+  if (!name || !email || !password || !dob) {
     return res.status(400).json({
       status: 0,
       message: "Please provide all required fields",
@@ -2243,7 +2251,7 @@ app.post("/create-parent-form", async (req, res) => {
   }
 
   // Normalize the gender field (optional)
-  const normalizedGender = gender ? gender.toLowerCase() : '';
+  const normalizedGender = gender ? gender.toLowerCase() : "";
 
   try {
     // Check if the email already exists in the system
@@ -2254,8 +2262,7 @@ app.post("/create-parent-form", async (req, res) => {
         message: "Email already exists",
       });
     }
-    console.log('First Parent ID:', firstParentId);
-
+    console.log("First Parent ID:", firstParentId);
 
     const firstParent = await User.findOne({ userId: firstParentId });
     console.log(firstParent);
@@ -2268,17 +2275,17 @@ app.post("/create-parent-form", async (req, res) => {
 
     // Hash the password before storing it
     //const hashedPassword = await bcrypt.hash(password, 10); // Use 10 rounds for bcrypt hashing
-    const familyId = firstParent.familyId[0]; 
+    const familyId = firstParent.familyId[0];
 
     // Create a new user with the guardian role
     const newUser = new User({
       name,
       email,
       password,
-      role: 'parent', // Set the role to 'guardian'
+      role: "parent", // Set the role to 'guardian'
       gender: normalizedGender,
       dob,
-      familyId: [familyId] // Parent ID from request body
+      familyId: [familyId], // Parent ID from request body
     });
 
     // Save the new user to the database
@@ -2305,11 +2312,6 @@ app.post("/create-parent-form", async (req, res) => {
     });
   }
 });
-
-
-
-
-
 
 // API to invite a guardian and map familyId
 // app.post("/invites1-guardian", async (req, res) => {
@@ -2587,10 +2589,6 @@ app.post("/create-parent-form", async (req, res) => {
 //   }
 // });
 
-
-
-
-
 app.post("/assign-guardians", verifyParentRole, async (req, res) => {
   const { childId, guardian, familyId } = req.body;
 
@@ -2719,7 +2717,20 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
   const parentId = req.user.userId; // Get the parentId from the decoded token
   console.log("Parent ID:", parentId);
 
-  const { name, gender, email, password, role, dob, Totalpoints,lastName,school,hobby1,hobby2,hobby3} = req.body;
+  const {
+    name,
+    gender,
+    email,
+    password,
+    role,
+    dob,
+    Totalpoints,
+    lastName,
+    school,
+    hobby1,
+    hobby2,
+    hobby3,
+  } = req.body;
   const normalizedRole = role ? role.toLowerCase() : "";
   const normalizedGender = gender ? gender.toLowerCase() : "";
 
@@ -2752,12 +2763,11 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
     }
     const parentNameParts = parent.name.split(" ");
 
-
     //const childFirstName = name || parent.firstName;
     // Check if the name exists in the parent's kidsNames
     //const childFirstName = parent.kidsNames.includes(name) ? name : null;
-    const childLastName = parentNameParts.length > 1 ? parentNameParts.slice(1).join(" ") : null;
-
+    const childLastName =
+      parentNameParts.length > 1 ? parentNameParts.slice(1).join(" ") : null;
 
     // if (!childFirstName) {
     //   // If the name isn't found in parent's kidsNames, return an error or set default
@@ -2775,11 +2785,11 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
       parentId,
       Totalpoints,
       familyId: parent.familyId,
-      lastName : childLastName, 
+      lastName: childLastName,
       school,
       hobby1,
       hobby2,
-      hobby3
+      hobby3,
     });
 
     // Save the new user to the database
@@ -2790,7 +2800,7 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
     }
 
     // Add the child's userId to the family's children array
-    family.children.push(newUser.userId);  // Assuming the child is assigned a userId on creation
+    family.children.push(newUser.userId); // Assuming the child is assigned a userId on creation
 
     // Save the updated family document
     await family.save();
@@ -3025,10 +3035,9 @@ const Task = require("./models/Task");
 //   }
 // });
 
-
 // Middleware to verify token
 
-app.post("/create-task",verifyToken, async (req, res) => {
+app.post("/create-task", verifyToken, async (req, res) => {
   const {
     title,
     description,
@@ -3051,18 +3060,19 @@ app.post("/create-task",verifyToken, async (req, res) => {
     completionTime,
   } = req.body;
 
-  if (!title || !assignedTo ||
-    !expectedCompletionDate
-  ) {
+  if (!title || !assignedTo || !expectedCompletionDate) {
     return res
       .status(400)
-      .json({ status: 0, message: "Please title,assignedTo and expectedCompletionDate" });
+      .json({
+        status: 0,
+        message: "Please title,assignedTo and expectedCompletionDate",
+      });
   }
 
   const currentDate = new Date();
   const expectedDate = new Date(expectedCompletionDate);
 
-  if ( expectedDate < currentDate) {
+  if (expectedDate < currentDate) {
     return res.status(400).json({
       status: 0,
       message: "Expected completion date must be in the future",
@@ -3459,8 +3469,9 @@ app.get("/view-tasks", verifyToken, async (req, res) => {
     // Return the tasks in the response
     res.status(200).json({
       status: 1,
-      message: `${user.role.charAt(0).toUpperCase() + user.role.slice(1)
-        }'s tasks retrieved successfully.`,
+      message: `${
+        user.role.charAt(0).toUpperCase() + user.role.slice(1)
+      }'s tasks retrieved successfully.`,
       tasks: tasks,
     });
   } catch (err) {
@@ -3914,8 +3925,9 @@ app.post("/rewards/claim/:rewardId", verifyToken, async (req, res) => {
     if (user.Totalpoints < reward.requiredPoints) {
       return res.status(400).json({
         status: 0,
-        message: `You need ${reward.requiredPoints - user.Totalpoints
-          } more points to claim this reward.`,
+        message: `You need ${
+          reward.requiredPoints - user.Totalpoints
+        } more points to claim this reward.`,
       });
     }
 
@@ -4527,18 +4539,17 @@ app.get("/get-user-families/:userId", async (req, res) => {
     //const parentFamilyName = user.name;
     //const formattedFamilyName = `${parentFamilyName}'s Family`;  // Format as "FamilyName's Family"
 
-    let formattedFamilyName = '';
-    if (user.role === 'parent') {
+    let formattedFamilyName = "";
+    if (user.role === "parent") {
       const parentFamilyName = user.name;
-      formattedFamilyName = `${parentFamilyName}'s Family`;  // For the parent, it's the parent's name
-    } else if (user.role === 'guardian' || user.role === 'child') {
+      formattedFamilyName = `${parentFamilyName}'s Family`; // For the parent, it's the parent's name
+    } else if (user.role === "guardian" || user.role === "child") {
       // For a guardian or child, fetch the family info of the parent
       const parentUser = await User.findOne({ userId: user.parentId });
       if (parentUser) {
-        formattedFamilyName = `${parentUser.name}'s Family`;  // Parent's family name
+        formattedFamilyName = `${parentUser.name}'s Family`; // Parent's family name
       }
     }
-
 
     // Return the familyIds
     res.status(200).json({
@@ -4546,7 +4557,7 @@ app.get("/get-user-families/:userId", async (req, res) => {
       message: "Family IDs associated with user fetched successfully",
       familyIds,
       familyName: formattedFamilyName,
-      role: user.role
+      role: user.role,
     });
   } catch (err) {
     console.error("Error fetching user families:", err);
@@ -4605,8 +4616,6 @@ app.get("/get-user-families/:userId", async (req, res) => {
 
 //     let familyIds = [];
 //     let familyNames = [];
-
-
 
 //     // If the user is a parent, include their primary familyId (stored in `familyId`)
 //     if (user.familyId && user.familyId.length > 0) {
@@ -4768,7 +4777,7 @@ app.get("/get-families/:userId", async (req, res) => {
 
     // If the user is a guardian, include the family IDs stored in `guardianIds`
     if (user.guardianIds && user.guardianIds.length > 0) {
-      familyIds = [...familyIds, ...user.guardianIds];  // Include guardian families
+      familyIds = [...familyIds, ...user.guardianIds]; // Include guardian families
     }
 
     // Remove duplicates by converting to a Set and back to an array
@@ -4784,19 +4793,19 @@ app.get("/get-families/:userId", async (req, res) => {
       }
 
       // Based on the user's role, update the family document
-      if (user.role === 'parent') {
+      if (user.role === "parent") {
         // Add to parentId array
         if (!family.parentId) family.parentId = [];
         if (!family.parentId.includes(userId)) {
           family.parentId.push(userId);
         }
-      } else if (user.role === 'child') {
+      } else if (user.role === "child") {
         // Add to children array
         if (!family.children) family.children = [];
         if (!family.children.includes(userId)) {
           family.children.push(userId);
         }
-      } else if (user.role === 'guardian') {
+      } else if (user.role === "guardian") {
         // Add to guardianIds array
         if (!family.guardianIds) family.guardianIds = [];
         if (!family.guardianIds.includes(userId)) {
@@ -4820,14 +4829,11 @@ app.get("/get-families/:userId", async (req, res) => {
     });
   } catch (err) {
     console.error("Error fetching or updating family data:", err);
-    res.status(500).json({ status: 0, message: "Server error", error: err.message });
+    res
+      .status(500)
+      .json({ status: 0, message: "Server error", error: err.message });
   }
 });
-
-
-
-
-
 
 //Start the server
 
