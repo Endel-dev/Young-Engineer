@@ -1667,14 +1667,14 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
 
     // Save the new user to the database
     await newUser.save();
-    const userResponse = await User.findById(newUser._id).select("-parentId");
-    res
-      .status(200)
-      .json({
-        status: 1,
-        message: "User created successfully",
-        user: userResponse,
-      });
+    const userResponse = await User.findById(newUser.userId).select(
+      "-parentId"
+    );
+    res.status(200).json({
+      status: 1,
+      message: "User created successfully",
+      user: userResponse,
+    });
   } catch (err) {
     console.error("Error creating user:", err);
     res.status(500).json({ status: 0, message: "Server error", err });
@@ -3061,12 +3061,10 @@ app.post("/create-task", verifyToken, async (req, res) => {
   } = req.body;
 
   if (!title || !assignedTo || !expectedCompletionDate) {
-    return res
-      .status(400)
-      .json({
-        status: 0,
-        message: "Please title,assignedTo and expectedCompletionDate",
-      });
+    return res.status(400).json({
+      status: 0,
+      message: "Please title,assignedTo and expectedCompletionDate",
+    });
   }
 
   const currentDate = new Date();
