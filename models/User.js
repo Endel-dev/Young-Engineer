@@ -1,64 +1,76 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-const { v4: uuidv4 } = require('uuid');
+const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
+const { v4: uuidv4 } = require("uuid");
 
 // Define the user schema
 const userSchema = new mongoose.Schema({
   userId: { type: String, unique: true, default: uuidv4 },
   name: { type: String, required: true },
-  gender: { type: String, enum: ['male', 'female', 'other'] },
+  gender: { type: String, enum: ["male", "female", "other"] },
   image: { type: String }, // URL or base64 of the image
   region: { type: String },
-  currency: { type: String, default: 'INR' }, // Default to USD
+  currency: { type: String, default: "INR" }, // Default to USD
   email: {
     type: String,
     sparse: true,
     required: function () {
-      return this.role === 'parent' || this.role === 'guardian';
+      return this.role === "parent" || this.role === "guardian";
     },
     validate: {
       validator: async function (value) {
-        if (this.role === 'parent' || this.role === 'guardian') {
-          const existingUser = await mongoose.model('User').findOne({ email: value });
+        if (this.role === "parent" || this.role === "guardian") {
+          const existingUser = await mongoose
+            .model("User")
+            .findOne({ email: value });
           return !existingUser;
         }
         return true;
       },
-      message: 'Email must be unique for parent and guardian roles',
+      message: "Email must be unique for parent and guardian roles",
     },
   },
   password: { type: String, required: true },
-  role: { type: String, enum: ['parent', 'child', 'guardian'], default: 'parent' }, // Default role
+  role: {
+    type: String,
+    enum: ["parent", "child", "guardian"],
+    default: "parent",
+  }, // Default role
   dob: { type: Date, required: true },
   balance: { type: Number, default: 0 },
   dateOfJoining: { type: Date, default: Date.now },
   isActive: { type: Boolean, default: true },
 
-  parentId: [{
-    type: String,   // Refers to the User model itself
-    required: function () {
-      return this.role === 'child';  // Only required if the role is 'child'
+  parentId: [
+    {
+      type: String, // Refers to the User model itself
+      required: function () {
+        return this.role === "child"; // Only required if the role is 'child'
+      },
+      default: null,
     },
-    default: null
-  }],
+  ],
   guardianId: [{ type: String }],
 
   deviceId: {
-    type: String
+    type: String,
   },
   //deviceToken: {
   //  type: String, // Array of device tokens
   // default: null
   //},
   Totalpoints: { type: Number, default: 0 },
-  familyId: [{
-    type: String,
-    ref: 'Family',
-  }],
-  guardian: [{
-    type: String,
-    ref: 'User',
-  }],
+  familyId: [
+    {
+      type: String,
+      ref: "Family",
+    },
+  ],
+  guardian: [
+    {
+      type: String,
+      ref: "User",
+    },
+  ],
   //Fields specific to 'parent' role
   phoneNumber: { type: String },
   address1: { type: String },
@@ -66,7 +78,7 @@ const userSchema = new mongoose.Schema({
   address3: { type: String },
   city: { type: String },
   state: { type: String },
-  pinCode: { type: String},
+  pinCode: { type: String },
   numberOfKids: { type: Number },
   kidsNames: [{ type: String }],
 
@@ -74,16 +86,15 @@ const userSchema = new mongoose.Schema({
   //firstName: { type: String },
   lastName: { type: String },
   school: { type: String },
-  hobby1: { type: String},
+  hobby1: { type: String },
   hobby2: { type: String },
-  hobby3: { type: String},
-
-
+  hobby3: { type: String },
+  autoIndex: false,
 });
 
 // Hash password before saving (bcryptjs for hashing)
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
 
   // Only hash if password is modified
   try {
@@ -100,6 +111,6 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model("User", userSchema);
 
 module.exports = User;
