@@ -89,7 +89,7 @@ const userSchema = new mongoose.Schema({
   hobby1: { type: String },
   hobby2: { type: String },
   hobby3: { type: String },
-  autoIndex: false,
+  autoIndex: false
 });
 
 // Hash password before saving (bcryptjs for hashing)
