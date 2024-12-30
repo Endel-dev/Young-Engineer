@@ -84,14 +84,8 @@ const userSchema = new mongoose.Schema(
     kidsNames: [{ type: String }],
 
     // Fields specific to 'child' role
-    firstName: { type: String, required: function () {
-      return this.role === 'parent' || this.role === 'guardian'; // Required if role is parent or guardian
-    },
- },
-    lastName: { type: String, required: function () {
-      return this.role === 'parent' || this.role === 'guardian'; // Required if role is parent or guardian
-    },
- },
+    firstName: { type: String },
+    lastName: { type: String },
     school: { type: String },
     hobby1: { type: String },
     hobby2: { type: String },
