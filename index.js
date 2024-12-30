@@ -286,7 +286,7 @@ app.post("/register", async (req, res) => {
   }
 
   // Validate required fields
-  if (!name || !email || !password || !dob || !gender) {
+  if (!name || !email || !password || !dob || !gender ||!firstName ||!lastName) {
     return res
       .status(400)
       .json({ status: 0, message: "Please provide all required fields" });
@@ -1652,7 +1652,7 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
   }
 
   // Validate required fields
-  if (!name || !email || !password || !dob) {
+  if (!name || !email || !password || !dob || !firstName || !lastName) {
     return res
       .status(400)
       .json({ status: 0, message: "Please provide all required fields" });
