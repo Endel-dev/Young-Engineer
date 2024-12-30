@@ -621,6 +621,8 @@ app.post("/verify-email1", async (req, res) => {
     const newUser = new User({
       email: verificationToken.email,
       name: verificationToken.name,
+      firstName:verificationToken.firstName,
+      lastName:verificationToken.lastName,
       role: verificationToken.role,
       gender: verificationToken.gender,
       dob: verificationToken.dob,
