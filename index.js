@@ -327,7 +327,7 @@ app.post("/register", async (req, res) => {
       email,
       token,
       name,
-      firstName: name || firstName,
+      firstName,
       lastName,
       role: normalizedRole,
       gender: normalizedGender,
@@ -1355,6 +1355,8 @@ app.post("/login", async (req, res) => {
         userId: user.userId,
         role: user.role,
         name: user.name,
+        firstName:user.firstName,
+        lastName:user.lastName,
         familyId: user.familyId || null,
         familyName: user.familyId
           ? await Family.findOne({ familyId: user.familyId }).familyName
@@ -1675,7 +1677,7 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
       password,
       role: normalizedRole,
       dob,
-      firstName:name ||firstName,
+      firstName,
       lastName,
       //familyId: [familyId],
       //guardianId: parent.familyId,
@@ -2776,13 +2778,14 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
     if (!parent) {
       return res.status(400).json({ status: 0, message: "Parent not found" });
     }
-    const parentNameParts = parent.name.split(" ");
+    //const parentNameParts = parent.name.split(" ");
+    const parentNameParts = parent.lastName;
 
     //const childFirstName = name || parent.firstName;
     // Check if the name exists in the parent's kidsNames
     //const childFirstName = parent.kidsNames.includes(name) ? name : null;
     const childLastName =
-      parentNameParts.length > 1 ? parentNameParts.slice(1).join(" ") : null;
+      parentNameParts;
 
     // if (!childFirstName) {
     //   // If the name isn't found in parent's kidsNames, return an error or set default
