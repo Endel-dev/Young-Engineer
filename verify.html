@@ -74,9 +74,10 @@
             // Extract email and token from the URL
             const email = getQueryParam('email');
             const token = getQueryParam('token');
+            const parentId = getQueryParam('parentId');
 
-            if (!email || !token) {
-                alert('Missing email or token in the URL.');
+            if (!email || !token || !parentId) {
+                alert('Missing email or token or parentId in the URL.');
                 return;
             }
 
@@ -88,7 +89,7 @@
             xhr.setRequestHeader('Content-Type', 'application/json');
 
             // Prepare the request payload
-            const data = JSON.stringify({ email, token });
+            const data = JSON.stringify({ email, token, parentId });
 
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === XMLHttpRequest.DONE) {
