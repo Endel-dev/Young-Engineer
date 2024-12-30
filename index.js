@@ -4886,13 +4886,17 @@ app.get("/get-families1/:userId", async (req, res) => {
       // Based on the user's role, prepare the response
       let role = "";
 
-      if (user.role === "parent") {
-        role = "parent";
-      } else if (user.role === "child") {
-        role = "child";
-      } else if (user.role === "guardian") {
+      // Check if userId is in the guardianId array of the family
+      if (family.guardianIds && family.guardianIds.includes(userId)) {
         role = "guardian";
       }
+      // Check if userId is in the parentId array of the family
+      else if (family.parentId && family.parentId.includes(userId)) {
+        role = "parent";
+      }
+      else if (family.children && family.children.includes(userId)) {
+          role = "child";
+        }
 
       // Construct the family name (e.g., "John's Family")
       const familyName = `${user.name}'s Family`;
@@ -4907,7 +4911,7 @@ app.get("/get-families1/:userId", async (req, res) => {
     // Step 4: Return the list of families
     res.status(200).json({
       status: 1,
-      message: "Families fetched successfully",
+      message: "Families updated with user roles successfully",
       families,
     });
   } catch (err) {
