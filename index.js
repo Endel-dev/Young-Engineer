@@ -724,7 +724,7 @@ app.post("/verify-guardians", async (req, res) => {
     // if (!guardian.guardianId) {
     //   guardian.guardianId = [];
     // }
-    // //guardian.guardianId.push(family.familyId);  // Add the familyId to the guardian's guardianIds array
+    guardian.guardianId.push(family.familyId);  // Add the familyId to the guardian's guardianIds array
     // guardian.guardianId.push(String(family.familyId)); // Ensure it's a string.
 
     await guardian.save();
