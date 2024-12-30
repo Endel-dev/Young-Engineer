@@ -693,7 +693,7 @@ app.post("/verify-guardians", async (req, res) => {
       });
     }
 
-    const parent = await Family.findOne({ parentId });
+    const parent = await Family.findOne({ parentId:parentId });
     if (!parent) {
       return res.status(404).json({
         status: 0,
