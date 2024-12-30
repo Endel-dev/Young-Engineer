@@ -651,7 +651,8 @@ app.post("/verify-email1", async (req, res) => {
 });
 
 app.post("/verify-guardians", async (req, res) => {
-  const { email, token } = req.body;
+  const { email, token,parentId } = req.body;
+
   console.log(req.body);
 
   if (!email || !token) {
@@ -684,6 +685,14 @@ app.post("/verify-guardians", async (req, res) => {
     //   });
     // }
 
+    const parent = await User.findOne({ userId:parentId });
+    if (!parent) {
+      return res.status(404).json({
+        status: 0,
+        message: "Parent not found",
+      });
+    }
+
     // Step 4: Find the family by familyId
     const family = await Family.findOne({ familyId: parent.familyId[0] });
     if (!family) {
@@ -693,13 +702,7 @@ app.post("/verify-guardians", async (req, res) => {
       });
     }
 
-    const parent = await Family.findOne({ parentId:parentId });
-    if (!parent) {
-      return res.status(404).json({
-        status: 0,
-        message: "Parent not found",
-      });
-    }
+    
 
     // Step 5: Check if the guardian is already part of the family
     if (family.guardianIds && family.guardianIds.includes(guardian.userId)) {
