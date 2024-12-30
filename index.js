@@ -286,7 +286,7 @@ app.post("/register", async (req, res) => {
   }
 
   // Validate required fields
-  if (!name || !email || !password || !dob || !gender || !firstName || !lastName) {
+  if (!name || !email || !password || !dob || !gender ||!firstName ||!lastName) {
     return res
       .status(400)
       .json({ status: 0, message: "Please provide all required fields" });
@@ -621,8 +621,8 @@ app.post("/verify-email1", async (req, res) => {
     const newUser = new User({
       email: verificationToken.email,
       name: verificationToken.name,
-      firstName: verificationToken.firstName,
-      lastName: verificationToken.lastName,
+      firstName:verificationToken.firstName,
+      lastName:verificationToken.lastName,
       role: verificationToken.role,
       gender: verificationToken.gender,
       dob: verificationToken.dob,
@@ -657,7 +657,7 @@ app.post("/verify-email1", async (req, res) => {
 });
 
 app.post("/verify-guardians", async (req, res) => {
-  const { email, token, parentId } = req.body;
+  const { email, token,parentId } = req.body;
 
   console.log(req.body);
 
@@ -692,7 +692,7 @@ app.post("/verify-guardians", async (req, res) => {
     // }
     console.log(parentId);
 
-    const parent = await User.findOne({ userId: parentId });
+    const parent = await User.findOne({ userId:parentId });
     if (!parent) {
       return res.status(404).json({
         status: 0,
@@ -709,7 +709,7 @@ app.post("/verify-guardians", async (req, res) => {
       });
     }
 
-
+    
 
     // Step 5: Check if the guardian is already part of the family
     if (family.guardianIds && family.guardianIds.includes(guardian.userId)) {
@@ -731,7 +731,7 @@ app.post("/verify-guardians", async (req, res) => {
     //   guardian.guardianId = [];
     // }
     //guardian.guardianId.push(family.familyId);  // Add the familyId to the guardian's guardianIds array
-    guardian.guardianId.push(String(family.familyId)); // Ensure it's a string.
+   guardian.guardianId.push(String(family.familyId)); // Ensure it's a string.
 
     await guardian.save();
 
@@ -1290,7 +1290,7 @@ app.post("/login", async (req, res) => {
           token: token,
           userId: user.userId,
           name: user.name,
-          firstName: user.firstName,
+          firstName:user.firstName,
           lastName: user.lastName,
           school: user.school,
           hobby1: user.hobby1,
@@ -1358,8 +1358,8 @@ app.post("/login", async (req, res) => {
         userId: user.userId,
         role: user.role,
         name: user.name,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        firstName:user.firstName,
+        lastName:user.lastName,
         familyId: user.familyId || null,
         familyName: user.familyId
           ? await Family.findOne({ familyId: user.familyId }).familyName
@@ -1628,7 +1628,7 @@ app.post("/create-family", verifyToken, async (req, res) => {
 
 // logic is create family, then create guardian, inside guardian - family [family Id1, familyId2], inside child user- family [familyId] and guardian[guardian2,guardian2]
 app.post("/create-guardian", verifyParentRole, async (req, res) => {
-  const { name, gender, email, password, role, dob, firstName, lastName } = req.body;
+  const { name, gender, email, password, role, dob,firstName,lastName } = req.body;
   const normalizedRole = role ? role.toLowerCase() : "";
   const normalizedgender = gender ? gender.toLowerCase() : "";
   const parentId = req.user.userId;
@@ -2788,7 +2788,7 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
     //const childFirstName = name || parent.firstName;
     // Check if the name exists in the parent's kidsNames
     //const childFirstName = parent.kidsNames.includes(name) ? name : null;
-    const childLastName = parent.lastName;
+    const childLastName =parent.lastName;
     //console.log(childLastName);
 
     // if (!childFirstName) {
@@ -3489,8 +3489,9 @@ app.get("/view-tasks", verifyToken, async (req, res) => {
     // Return the tasks in the response
     res.status(200).json({
       status: 1,
-      message: `${user.role.charAt(0).toUpperCase() + user.role.slice(1)
-        }'s tasks retrieved successfully.`,
+      message: `${
+        user.role.charAt(0).toUpperCase() + user.role.slice(1)
+      }'s tasks retrieved successfully.`,
       tasks: tasks,
     });
   } catch (err) {
@@ -3944,8 +3945,9 @@ app.post("/rewards/claim/:rewardId", verifyToken, async (req, res) => {
     if (user.Totalpoints < reward.requiredPoints) {
       return res.status(400).json({
         status: 0,
-        message: `You need ${reward.requiredPoints - user.Totalpoints
-          } more points to claim this reward.`,
+        message: `You need ${
+          reward.requiredPoints - user.Totalpoints
+        } more points to claim this reward.`,
       });
     }
 
@@ -4814,39 +4816,25 @@ app.get("/get-families/:userId", async (req, res) => {
       }
 
       // Based on the user's role, update the family document
-      // if (user.role === "parent") {
-      //   // Add to parentId array
-      //   if (!family.parentId) family.parentId = [];
-      //   if (!family.parentId.includes(userId)) {
-      //     family.parentId.push(userId);
-      //   }
-      // } else if (user.role === "child") {
-      //   // Add to children array
-      //   if (!family.children) family.children = [];
-      //   if (!family.children.includes(userId)) {
-      //     family.children.push(userId);
-      //   }
-      // } else if (user.role === "guardian") {
-      //   // Add to guardianIds array
-      //   if (!family.guardianIds) family.guardianIds = [];
-      //   if (!family.guardianIds.includes(userId)) {
-      //     family.guardianIds.push(userId);
-      //   }
-      // }
-
-      // Check if userId is in the guardianId array of the family
-      if (family.guardianIds && family.guardianIds.includes(userId)) {
-        role = "guardian";
+      if (user.role === "parent") {
+        // Add to parentId array
+        if (!family.parentId) family.parentId = [];
+        if (!family.parentId.includes(userId)) {
+          family.parentId.push(userId);
+        }
+      } else if (user.role === "child") {
+        // Add to children array
+        if (!family.children) family.children = [];
+        if (!family.children.includes(userId)) {
+          family.children.push(userId);
+        }
+      } else if (user.role === "guardian") {
+        // Add to guardianIds array
+        if (!family.guardianIds) family.guardianIds = [];
+        if (!family.guardianIds.includes(userId)) {
+          family.guardianIds.push(userId);
+        }
       }
-      // Check if userId is in the parentId array of the family
-      else if (family.parentId && family.parentId.includes(userId)) {
-        role = "parent";
-      }
-      // Check if userId is in the children array of the family
-      else if (family.children && family.children.includes(userId)) {
-        role = "child";
-      }
-
 
       // Save the updated family document
       //await family.save();
@@ -4920,8 +4908,8 @@ app.get("/get-families1/:userId", async (req, res) => {
         role = "parent";
       }
       else if (family.children && family.children.includes(userId)) {
-        role = "child";
-      }
+          role = "child";
+        }
 
       // Construct the family name (e.g., "John's Family")
       const familyName = `${user.name}'s Family`;
