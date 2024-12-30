@@ -1288,6 +1288,7 @@ app.post("/login", async (req, res) => {
           token: token,
           userId: user.userId,
           name: user.name,
+          firstName:user.firstName,
           lastName: user.lastName,
           school: user.school,
           hobby1: user.hobby1,
