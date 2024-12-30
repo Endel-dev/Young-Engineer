@@ -2780,7 +2780,7 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
     if (!parent) {
       return res.status(400).json({ status: 0, message: "Parent not found" });
     }
-    console.log(parent);
+    //console.log(parent);
     //const parentNameParts = parent.name.split(" ");
     const parentNameParts = parent.lastName;
     //console.log(parentNameParts);
@@ -2789,7 +2789,7 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
     // Check if the name exists in the parent's kidsNames
     //const childFirstName = parent.kidsNames.includes(name) ? name : null;
     const childLastName =parent.lastName;
-    console.log(childLastName);
+    //console.log(childLastName);
 
     // if (!childFirstName) {
     //   // If the name isn't found in parent's kidsNames, return an error or set default
