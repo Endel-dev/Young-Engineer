@@ -2743,7 +2743,6 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
     role,
     dob,
     Totalpoints,
-    lastName,
     school,
     hobby1,
     hobby2,
@@ -2781,6 +2780,7 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
     }
     //const parentNameParts = parent.name.split(" ");
     const parentNameParts = parent.lastName;
+    console.log(parentNameParts);
 
     //const childFirstName = name || parent.firstName;
     // Check if the name exists in the parent's kidsNames
