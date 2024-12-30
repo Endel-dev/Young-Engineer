@@ -684,6 +684,7 @@ app.post("/verify-guardians", async (req, res) => {
     //     message: "Parent not found",
     //   });
     // }
+    console.log(parentId);
 
     const parent = await User.findOne({ userId:parentId });
     if (!parent) {
