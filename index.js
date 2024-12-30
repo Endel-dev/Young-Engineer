@@ -720,7 +720,7 @@ app.post("/verify-guardians", async (req, res) => {
     // Step 6: Respond with success
     res.status(200).json({
       status: 1,
-      message: "Guardian email successfully verified and added to the family",
+      message: "Email Verified Successfully",
     });
   } catch (err) {
     console.error("Error verifying email:", err);
