@@ -4866,7 +4866,7 @@ app.get("/get-families1/:userId", async (req, res) => {
 
     // If the user has guardianIds (they're a guardian), add them
     if (user.guardianId && user.guardianId.length > 0) {
-      familyIds = [...familyIds, ...user.guardianIds]; // Include guardian families
+      familyIds = [...familyIds, ...user.guardianId]; // Include guardian families
     }
 
     // Remove duplicate familyIds by converting to a Set and then back to an array
