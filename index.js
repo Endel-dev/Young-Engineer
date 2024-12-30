@@ -4842,6 +4842,7 @@ app.get("/get-families/:userId", async (req, res) => {
       // Add the family name to the familyNames array
       const familyName = `${user.name}'s Family`;
       familyNames.push({ familyId, familyName, role: user.role });
+      console.log(familyNames);
     }
 
     // Step 4: Return the family data
@@ -4920,6 +4921,7 @@ app.get("/get-families1/:userId", async (req, res) => {
         role,
       });
     }
+    console.log(families);
 
     // Step 4: Return the list of families
     res.status(200).json({
