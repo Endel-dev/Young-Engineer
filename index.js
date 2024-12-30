@@ -1659,7 +1659,7 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
       password,
       role: normalizedRole,
       dob,
-      familyId: [familyId],
+      //familyId: [familyId],
       guardianId: parent.familyId,
       parentId: parentId,
     });
@@ -4829,6 +4829,82 @@ app.get("/get-families/:userId", async (req, res) => {
       .json({ status: 0, message: "Server error", error: err.message });
   }
 });
+
+app.get("/get-families1/:userId", async (req, res) => {
+  const { userId } = req.params; // User ID from the URL parameter
+
+  try {
+    // Step 1: Find the user by userId
+    const user = await User.findOne({ userId: userId });
+
+    if (!user) {
+      return res.status(404).json({ status: 0, message: "User not found" });
+    }
+
+    // Step 2: Prepare an array to store familyIds the user belongs to
+    let familyIds = [];
+
+    // If the user has a familyId (they're a parent), add it
+    if (user.familyId && user.familyId.length > 0) {
+      familyIds = [...familyIds, ...user.familyId];
+    }
+
+    // If the user has guardianIds (they're a guardian), add them
+    if (user.guardianIds && user.guardianIds.length > 0) {
+      familyIds = [...familyIds, ...user.guardianIds]; // Include guardian families
+    }
+
+    // Remove duplicate familyIds by converting to a Set and then back to an array
+    familyIds = [...new Set(familyIds)];
+
+    // Step 3: Fetch family details for each familyId
+    const families = [];
+
+    for (let familyId of familyIds) {
+      // Retrieve the family document by familyId
+      const family = await Family.findOne({ familyId: familyId });
+
+      if (!family) {
+        continue; // If no family is found for this familyId, skip to the next
+      }
+
+      // Based on the user's role, prepare the response
+      let role = "";
+
+      if (user.role === "parent") {
+        role = "parent";
+      } else if (user.role === "child") {
+        role = "child";
+      } else if (user.role === "guardian") {
+        role = "guardian";
+      }
+
+      // Construct the family name (e.g., "John's Family")
+      const familyName = `${user.name}'s Family`;
+
+      families.push({
+        familyId: family.familyId,
+        familyName,
+        role,
+      });
+    }
+
+    // Step 4: Return the list of families
+    res.status(200).json({
+      status: 1,
+      message: "Families fetched successfully",
+      families,
+    });
+  } catch (err) {
+    console.error("Error fetching family data:", err);
+    res.status(500).json({
+      status: 0,
+      message: "Server error",
+      error: err.message,
+    });
+  }
+});
+
 
 //Start the server
 
