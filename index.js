@@ -676,13 +676,13 @@ app.post("/verify-guardians", async (req, res) => {
 
     // Step 3: Find the parent using the familyId
     // The guardian's family ID is mapped to the parent's family ID
-    const parent = await User.findOne({ userId: guardian.parentId });
-    if (!parent) {
-      return res.status(404).json({
-        status: 0,
-        message: "Parent not found",
-      });
-    }
+    // const parent = await User.findOne({ userId: guardian.parentId });
+    // if (!parent) {
+    //   return res.status(404).json({
+    //     status: 0,
+    //     message: "Parent not found",
+    //   });
+    // }
 
     // Step 4: Find the family by familyId
     const family = await Family.findOne({ familyId: parent.familyId[0] });
@@ -690,6 +690,14 @@ app.post("/verify-guardians", async (req, res) => {
       return res.status(404).json({
         status: 0,
         message: "Family not found",
+      });
+    }
+
+    const parent = await Family.findOne({ parentId });
+    if (!parent) {
+      return res.status(404).json({
+        status: 0,
+        message: "Parent not found",
       });
     }
 
@@ -4355,8 +4363,8 @@ app.post("/app_versions", async (req, res) => {
 app.get("/check-update", async (req, res) => {
   try {
     // Find the most recent app version by sorting the collection in descending order of version
-    const allAppVersions = await app_versions.find();
-    console.log(allAppVersions);
+    //const allAppVersions = await app_versions.find();
+    //console.log(allAppVersions);
     const latestAppVersion = await app_versions.findOne().sort({ version: -1 }).collation({ locale: 'en', numericOrdering: true }).exec();;
     console.log(latestAppVersion);
 
