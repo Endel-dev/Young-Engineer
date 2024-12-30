@@ -4356,6 +4356,7 @@ app.get("/check-update", async (req, res) => {
   try {
     // Find the most recent app version by sorting the collection in descending order of version
     const latestAppVersion = await app_versions.findOne().sort({ version: -1 });
+    console.log(latestAppVersion);
 
     // If no app version is found
     if (!latestAppVersion) {
