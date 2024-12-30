@@ -1660,7 +1660,7 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
       role: normalizedRole,
       dob,
       //familyId: [familyId],
-      guardianId: parent.familyId,
+      //guardianId: parent.familyId,
       parentId: parentId,
     });
 
