@@ -1934,7 +1934,7 @@ app.post("/invite-guardian", async (req, res) => {
       });
 
       // Send the verification email to the guardian
-      const verificationLink = `http://93.127.172.167:5001/verify?token=${token}&email=${guardianEmail}`;
+      const verificationLink = `http://93.127.172.167:5001/verify?token=${token}&email=${guardianEmail}&parentId=${parentId}`;
 
       const transporter = nodemailer.createTransport({
         host: "mail.weighingworld.com",
