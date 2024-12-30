@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 
 const VerificationTokenSchema = new mongoose.Schema({
   name: { type: String },
+  firstName:{type:String},
+  lastName:{type:String},
   gender: { type: String},
   password: { type: String },
   role: { type: String},
