@@ -257,6 +257,8 @@ app.post("/register", async (req, res) => {
   const {
     name,
     gender,
+    firstName,
+    lastName,
     email,
     password,
     role,
@@ -325,6 +327,8 @@ app.post("/register", async (req, res) => {
       email,
       token,
       name,
+      firstName: name || firstName,
+      lastName,
       role: normalizedRole,
       gender: normalizedGender,
       dob,
@@ -1619,7 +1623,7 @@ app.post("/create-family", verifyToken, async (req, res) => {
 
 // logic is create family, then create guardian, inside guardian - family [family Id1, familyId2], inside child user- family [familyId] and guardian[guardian2,guardian2]
 app.post("/create-guardian", verifyParentRole, async (req, res) => {
-  const { name, gender, email, password, role, dob } = req.body;
+  const { name, gender, email, password, role, dob,firstName,lastName } = req.body;
   const normalizedRole = role ? role.toLowerCase() : "";
   const normalizedgender = gender ? gender.toLowerCase() : "";
   const parentId = req.user.userId;
@@ -1671,6 +1675,8 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
       password,
       role: normalizedRole,
       dob,
+      firstName:name ||firstName,
+      lastName,
       //familyId: [familyId],
       //guardianId: parent.familyId,
       parentId: parentId,
