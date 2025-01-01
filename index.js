@@ -1697,6 +1697,7 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
 
     // Save the new user to the database
     await newUser.save();
+    console.log("User created successfully!",newUser);
     const userResponse = await User.findById(newUser._id).select("-parentId");
     res.status(200).json({
       status: 1,
