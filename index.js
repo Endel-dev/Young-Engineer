@@ -5042,10 +5042,10 @@ app.post('/forgot-password', async (req, res) => {
 
 app.post('/reset-password', async (req, res) => {
   const { email,token } = req.params;
-  const { password, confirmPassword } = req.body;
+  const { newPassword, confirmPassword } = req.body;
 
   // Validate password fields
-  if (!password || !confirmPassword) {
+  if (!newPassword || !confirmPassword) {
     return res.status(400).json({
       status: 0,
       message: 'Please provide both password and confirm password',
