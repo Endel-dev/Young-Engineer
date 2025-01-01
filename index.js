@@ -272,7 +272,7 @@ app.post("/register", async (req, res) => {
     pinCode,
     numberOfKids,
     kidsNames,
-  } = req.body;
+  } = req.body; 
 
   const normalizedRole = role ? role.toLowerCase() : "";
   const normalizedGender = gender ? gender.toLowerCase() : "";
@@ -2031,7 +2031,7 @@ app.post("/invite-guardian", async (req, res) => {
   }
 });
 
-app.post("/invite-second-parent", async (req, res) => {ch
+app.post("/invite-second-parent", async (req, res) => {
   const { secondParentEmail, secondParentName, firstParentId } = req.body;
 
   // Validate required fields
