@@ -5043,6 +5043,7 @@ app.post('/forgot-password', async (req, res) => {
 app.post('/reset-password', async (req, res) => {
   //const { email,token } = req.params;
   const { token,email,newPassword, confirmPassword } = req.body;
+  console.log(newPassword);
 
   // Validate password fields
   if (!newPassword || !confirmPassword) {
