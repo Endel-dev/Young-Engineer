@@ -1357,6 +1357,7 @@ app.post("/login", async (req, res) => {
         process.env.JWT_SECRET,
         { expiresIn: "15d" }
       );
+      console.log("Login is working.")
 
       return res.status(200).json({
         status: 1,
