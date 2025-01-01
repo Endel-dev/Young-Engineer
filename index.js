@@ -4939,6 +4939,159 @@ app.get("/get-families/:userId", async (req, res) => {
   }
 });
 
+app.post('/forgot-password', async (req, res) => {
+  const { email } = req.body;
+
+  // Validate required fields
+  if (!email) {
+    return res.status(400).json({
+      status: 0,
+      message: 'Please provide an email address',
+    });
+  }
+
+  try {
+    // Check if the email exists in the database
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({
+        status: 0,
+        message: 'Email not found',
+      });
+    }
+
+    // Generate a reset token (using JWT)
+    const resetToken = jwt.sign({ email: user.email, userId: user.userId }, process.env.JWT_SECRET, {
+      expiresIn: '1h', // Token expires in 1 hour
+    });
+
+    // Generate reset link
+    const resetLink = `http://93.127.172.167:5001/reset-password?token=${resetToken}&email=${email}`;
+
+    // Set up the transporter to send emails (Using Nodemailer)
+    // const transporter = nodemailer.createTransport({
+    //   host: process.env.EMAIL_HOST,
+    //   port: process.env.EMAIL_PORT,
+    //   secure: true, // true for 465, false for other ports
+    //   auth: {
+    //     user: process.env.EMAIL_USER,
+    //     pass: process.env.EMAIL_PASS,
+    //   },
+    // });
+
+    // // Prepare email content
+    // const mailOptions = {
+    //   from: process.env.EMAIL_USER,
+    //   to: email,
+    //   subject: 'Password Reset Request',
+    //   text: `Hello,\n\nYou requested a password reset. Click the link to reset your password: ${resetLink}`,
+    // };
+
+    // // Send reset email
+    // transporter.sendMail(mailOptions, (error, info) => {
+    //   if (error) {
+    //     return res.status(500).json({
+    //       status: 0,
+    //       message: 'Error sending password reset email',
+    //     });
+    //   }
+
+    const transporter = nodemailer.createTransport({
+      host: "mail.weighingworld.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: "no-reply@weighingworld.com",
+        pass: "$]IIWt4blS^_",
+      },
+    });
+
+    const mailOptions = {
+      from: "no-reply@weighingworld.com",
+      to: guardianEmail,
+      subject: "Password Reset - Email Verification",
+      text: `Hello ${email},\n\nPlease verify your email by clicking on the following link: ${resetLink}`,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        return res.status(500).json({
+          status: 0,
+          message: "Error sending verification email",
+        });
+      }
+
+
+      // Respond with success if email was sent successfully
+      res.status(200).json({
+        status: 1,
+        message: 'Password reset link sent. Please check your email to reset your password.',
+      });
+    });
+  } catch (err) {
+    console.error('Error processing forgot-password:', err);
+    res.status(500).json({
+      status: 0,
+      message: 'Server error',
+    });
+  }
+});
+
+app.post('/reset-password', async (req, res) => {
+  const { email,token } = req.params;
+  const { password, confirmPassword } = req.body;
+
+  // Validate password fields
+  if (!password || !confirmPassword) {
+    return res.status(400).json({
+      status: 0,
+      message: 'Please provide both password and confirm password',
+    });
+  }
+
+  if (password !== confirmPassword) {
+    return res.status(400).json({
+      status: 0,
+      message: 'Passwords do not match',
+    });
+  }
+  try {
+    // Verify the reset token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const { email, userId } = decoded;
+
+    // Find the user by email (or userId)
+    const user = await User.findOne({ userId: userId, email });
+    if (!user) {
+      return res.status(404).json({
+        status: 0,
+        message: 'User not found or token expired',
+      });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Update user's password
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({
+      status: 1,
+      message: 'Password successfully updated.',
+    });
+  } catch (error) {
+    console.error('Error resetting password:', error);
+    res.status(500).json({
+      status: 0,
+      message: 'Server error',
+    });
+  }
+});
+
+
+
+
 
 //Start the server
 
