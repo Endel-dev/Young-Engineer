@@ -85,7 +85,11 @@ app.get("/register-form-parent", (req, res) => {
 });
 app.get("/reset-password", (req,res) => {
   res.sendFile(path.join(__dirname,"reset-password.html"));
-})
+});
+app.get("/reset-successfull", (req,res) => {
+  res.sendFile(path.join(__dirname,"reset-successfull.html"));
+});
+
 
 // app.get('/verify-email', (req, res) => {
 //   res.sendFile(path.join(__dirname, 'verify-email.html'));
