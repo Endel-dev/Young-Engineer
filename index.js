@@ -5052,7 +5052,7 @@ app.post('/reset-password', async (req, res) => {
     });
   }
 
-  if (password !== confirmPassword) {
+  if (newPassword !== confirmPassword) {
     return res.status(400).json({
       status: 0,
       message: 'Passwords do not match',
@@ -5073,7 +5073,7 @@ app.post('/reset-password', async (req, res) => {
     }
 
     // Hash the new password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     // Update user's password
     user.password = hashedPassword;
