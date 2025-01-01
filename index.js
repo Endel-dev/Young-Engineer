@@ -5108,6 +5108,30 @@ app.post('/reset-password', async (req, res) => {
   }
 });
 
+// API endpoint for email suggestions
+app.get("/suggest-emails", async (req, res) => {
+  const { emailPrefix } = req.query; // Get the input from the query parameter
+
+  // Ensure the emailPrefix has at least 3 characters
+  if (!emailPrefix || emailPrefix.length < 3) {
+    return res.status(400).json({ message: "Please enter at least 3 characters." });
+  }
+
+  try {
+    // Query the database for emails starting with the provided prefix
+    const emails = await User.find({
+      email: { $regex: `^${emailPrefix}`, $options: "i" }, // Case-insensitive regex match
+    }).select("email"); // Only select the email field
+
+    // Return the suggestions
+    const emailSuggestions = emails.map(user => user.email);
+    res.json({ suggestions: emailSuggestions });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error. Please try again later." });
+  }
+});
+
 
 
 
