@@ -5074,11 +5074,12 @@ app.post('/reset-password', async (req, res) => {
     }
 
     // Hash the new password
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    //const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     // Update user's password
-    user.password = hashedPassword;
+    user.password = newPassword;
     await user.save();
+    
 
     res.status(200).json({
       status: 1,
