@@ -2031,7 +2031,7 @@ app.post("/invite-guardian", async (req, res) => {
   }
 });
 
-app.post("/invite-second-parent", async (req, res) => {
+app.post("/invite-second-parent", async (req, res) => {ch
   const { secondParentEmail, secondParentName, firstParentId } = req.body;
 
   // Validate required fields
