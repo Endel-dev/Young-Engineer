@@ -5008,7 +5008,7 @@ app.post('/forgot-password', async (req, res) => {
 
     const mailOptions = {
       from: "no-reply@weighingworld.com",
-      to: guardianEmail,
+      to: email,
       subject: "Password Reset - Email Verification",
       text: `Hello ${email},\n\nPlease verify your email by clicking on the following link: ${resetLink}`,
     };
