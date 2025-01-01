@@ -5109,12 +5109,38 @@ app.post('/reset-password', async (req, res) => {
 });
 
 // API endpoint for email suggestions
+// app.get("/suggest-emails", async (req, res) => {
+//   const { emailPrefix } = req.query; // Get the input from the query parameter
+
+//   // Ensure the emailPrefix has at least 3 characters
+//   if (!emailPrefix || emailPrefix.length < 3) {
+//     return res.status(400).json({ status:0,message: "Please enter at least 3 characters." });
+//   }
+
+//   try {
+//     // Query the database for emails starting with the provided prefix
+//     const emails = await User.find({
+//       email: { $regex: `^${emailPrefix}`, $options: "i" }, // Case-insensitive regex match
+//     }).select("email"); // Only select the email field
+
+//     // Return the suggestions
+//     const emailSuggestions = emails.map(user => user.email);
+//     res.json({ suggestions: emailSuggestions });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: "Server error. Please try again later." });
+//   }
+// });
+
 app.get("/suggest-emails", async (req, res) => {
   const { emailPrefix } = req.query; // Get the input from the query parameter
 
   // Ensure the emailPrefix has at least 3 characters
   if (!emailPrefix || emailPrefix.length < 3) {
-    return res.status(400).json({ message: "Please enter at least 3 characters." });
+    return res.status(400).json({
+      status: 0,
+      message: "Please enter at least 3 characters."
+    });
   }
 
   try {
@@ -5123,14 +5149,29 @@ app.get("/suggest-emails", async (req, res) => {
       email: { $regex: `^${emailPrefix}`, $options: "i" }, // Case-insensitive regex match
     }).select("email"); // Only select the email field
 
-    // Return the suggestions
-    const emailSuggestions = emails.map(user => user.email);
-    res.json({ suggestions: emailSuggestions });
+    // Return the suggestions if found
+    if (emails.length > 0) {
+      const emailSuggestions = emails.map(user => user.email);
+      return res.json({
+        status: 1,
+        suggestions: emailSuggestions
+      });
+    } else {
+      return res.json({
+        status: 1,
+        message: "No suggestions found."
+      });
+    }
+
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error. Please try again later." });
+    res.status(500).json({
+      status: 0,
+      message: "Server error. Please try again later."
+    });
   }
 });
+
 
 
 
