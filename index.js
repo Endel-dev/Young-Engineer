@@ -83,6 +83,9 @@ app.get("/send-invite", (req, res) => {
 app.get("/register-form-parent", (req, res) => {
   res.sendFile(path.join(__dirname, "register-form-parent.html"));
 });
+app.get("/reset-password", (req,res) => {
+  res.sendFile(path.join(__dirname,"reset-password.html"));
+})
 
 // app.get('/verify-email', (req, res) => {
 //   res.sendFile(path.join(__dirname, 'verify-email.html'));
