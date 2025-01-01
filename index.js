@@ -4963,7 +4963,7 @@ app.post('/forgot-password', async (req, res) => {
     // Check if the email exists in the database
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({
+      return res.status(400).json({
         status: 0,
         message: 'Email not found',
       });
