@@ -5077,6 +5077,14 @@ app.post('/reset-password', async (req, res) => {
       });
     }
 
+    const isMatch = await bcrypt.compare(newPassword, user.password);
+    if (isMatch) {
+      return res.status(400).json({
+        status: 0,
+        message: 'New password cannot be the same as the current password.',
+      });
+    }
+
     // Hash the new password
     //const hashedPassword = await bcrypt.hash(newPassword, 10);
 
