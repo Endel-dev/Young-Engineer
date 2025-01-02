@@ -5155,6 +5155,10 @@ app.post('/change-password', async (req, res) => {
   try {
     const {  childId, newPassword } = req.body;
 
+    if(!childId || !newPassword){
+      return res.status(400).json({status:0, message:'Please provide the required fields.'});
+    }
+
     // Step 2: Retrieve the child user based on childId
     const child = await User.findOne({userId:childId});
     if (!child) {
