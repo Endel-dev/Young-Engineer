@@ -1754,7 +1754,7 @@ app.post("/create-guardian-form", async (req, res) => {
     await newUser.save();
 
     const family = await Family.findOne({
-      parentId: firstParentId,
+      parentId: parentId,
       familyId: { $exists: true, $not: { $size: 0 } },
     });
     if (family) {
