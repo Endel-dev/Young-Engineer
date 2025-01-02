@@ -5155,29 +5155,18 @@ app.post('/change-password', async (req, res) => {
   try {
     const { parentId, childId, newPassword } = req.body;
 
-    // Step 1: Check if the logged-in user is a parent and matches the provided parentId
-    // if (req.user.role !== 'parent' || req.user._id.toString() !== parentId) {
-    //   return res.status(403).send('You are not authorized to change this child\'s password.');
-    // }
-
     // Step 2: Retrieve the child user based on childId
     const child = await User.findOne({userId:childId});
     if (!child) {
       return res.status(404).json({status:0, message:'Child user not found.'});
     }
 
-    // Step 3: Ensure the parentId in the child record matches the provided parentId
-    if (child.parentId.toString() !== parentId) {
-      return res.status(403).json({status:0, message:'This child does not belong to the specified parent.'});
-    }
 
     const isSamePassword = await bcrypt.compare(newPassword, child.password);
     if (isSamePassword) {
       return res.status(400).json({ status: 0, message: 'The new password cannot be the same as the current password.' });
     }
 
-    // Step 4: Hash the new password
-    //const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     // Step 5: Update the child's password in the database
     child.password = newPassword;
