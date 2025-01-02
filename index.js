@@ -1712,11 +1712,11 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
 
 // Create a route to handle the creation of the guardian user
 app.post("/create-guardian-form", async (req, res) => {
-  const { name, email, password, gender, dob, parentId,firstName } = req.body;
+  const { name, email, password, gender, dob, parentId,firstName,lastName } = req.body;
   console.log(req.body);
 
   // Validate required fields
-  if (!firstName || !email || !password || !dob || !parentId) {
+  if (!firstName ||lastName || !email || !password || !dob || !parentId) {
     return res.status(400).json({
       status: 0,
       message: "Please provide all required fields",
@@ -1741,6 +1741,8 @@ app.post("/create-guardian-form", async (req, res) => {
 
     // Create a new user with the guardian role
     const newUser = new User({
+      firstName,
+      lastName,
       name,
       email,
       password,
