@@ -90,6 +90,12 @@
                 <option value="other">Other</option>
             </select>
             <input type="date" id="dob" name="dob" placeholder="Date of Birth" required>
+            <input type="text" id="phone" name="phone" placeholder="Phone Number" required>
+            <input type="text" id="address" name="address" placeholder="Address" required>
+            <input type="text" id="city" name="city" placeholder="City" required>
+            <input type="text" id="state" name="state" placeholder="State" required>
+            <input type="text" id="pincode" name="pincode" placeholder="Pincode" required>
+            
             <button type="submit">Create Account</button>
             <p class="error" id="error-message"></p>
         </form>
@@ -139,13 +145,18 @@
 
                 // Prepare the data to send to the API
                 const data = {
-                    name: formData.get('name'),
+                    //name: formData.get('name'),
                     firstName: formData.get('firstName'),
                     lastName:formData.get('lastName'),
                     email: email,
                     password: formData.get('password'),
                     gender: formData.get('gender'),
                     dob: formData.get('dob'),
+                    phone: formData.get('phone'),
+                    address: formData.get('address'),
+                    city: formData.get('city'),
+                    state: formData.get('state'),
+                    pincode: formData.get('pincode'),
                     role: 'parent',
                     firstParentId: firstParentId,  // Include parentId from URL
                 };
