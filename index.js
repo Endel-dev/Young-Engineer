@@ -1753,6 +1753,21 @@ app.post("/create-guardian-form", async (req, res) => {
     // Save the new user to the database
     await newUser.save();
 
+    const family = await Family.findOne({
+      parentId: firstParentId,
+      familyId: { $exists: true, $not: { $size: 0 } },
+    });
+    if (family) {
+      // Push the new user's userId into the parentId array
+      family.guardianIds.push(newUser.userId);
+      await family.save(); // Save the updated family document
+    } else {
+      return res.status(404).json({
+        status: 0,
+        message: "Family not found",
+      });
+    }
+
     // Return success response
     res.status(200).json({
       status: 1,
