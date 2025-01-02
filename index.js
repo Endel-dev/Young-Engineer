@@ -5171,6 +5171,11 @@ app.post('/change-password', async (req, res) => {
       return res.status(403).json({status:0, message:'This child does not belong to the specified parent.'});
     }
 
+    const isSamePassword = await bcrypt.compare(newPassword, child.password);
+    if (isSamePassword) {
+      return res.status(400).json({ status: 0, message: 'The new password cannot be the same as the current password.' });
+    }
+
     // Step 4: Hash the new password
     //const hashedPassword = await bcrypt.hash(newPassword, 10);
 
