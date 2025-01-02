@@ -117,15 +117,7 @@
             return phoneRegex.test(phone);
         }
 
-        function validatePassword(password) {
-            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(.{8,})$/;
-            const passwordErrorElement = document.getElementById('password-error');
-            if (!passwordRegex.test(password)) {
-                passwordErrorElement.textContent = 'Password must contain at least one uppercase letter, one lowercase letter, one special character, and be at least 8 characters long.';
-            } else {
-                passwordErrorElement.textContent = ''; // Clear error message if password is valid
-            }
-        }
+        
 
         // Populate the email field from the URL and get the parentId
         window.onload = function () {
@@ -157,20 +149,20 @@
                 const phone = formData.get('phone');
 
                 // Password validation regex
-                //const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(.{8,})$/;
+                const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(.{8,})$/;
 
                 // Validate password strength
-                // if (!passwordRegex.test(password)) {
-                //     document.getElementById('error-message').textContent = 'Password must contain at least one uppercase letter, one lowercase letter, one special character, and be at least 8 characters long.';
-                //     return;
-                // }
+                if (!passwordRegex.test(password)) {
+                    document.getElementById('error-message').textContent = 'Password must contain at least one uppercase letter, one lowercase letter, one special character, and be at least 8 characters long.';
+                    return;
+                }
 
-                // if (!passwordRegex.test(password)) {
-                //     document.getElementById('password-error').textContent = 'Password must contain at least one uppercase letter, one lowercase letter, one special character, and be at least 8 characters long.';
-                //     return;
-                // } else {
-                //     document.getElementById('password-error').textContent = ''; // Clear the error if password is valid
-                // }
+                if (!passwordRegex.test(password)) {
+                    document.getElementById('password-error').textContent = 'Password must contain at least one uppercase letter, one lowercase letter, one special character, and be at least 8 characters long.';
+                    return;
+                } else {
+                    document.getElementById('password-error').textContent = ''; // Clear the error if password is valid
+                }
 
 
                 // Check if passwords match
