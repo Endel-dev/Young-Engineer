@@ -96,6 +96,13 @@ const userSchema = new mongoose.Schema(
   }
 );
 
+userSchema.pre("save", function (next) {
+  if (this.firstName && this.lastName) {
+    this.name = `${this.firstName} ${this.lastName}`;
+  }
+  next();
+});
+
 // Hash password before saving (bcryptjs for hashing)
 userSchema.pre("save", async function (next) {
     if (typeof this.dob === 'string') {

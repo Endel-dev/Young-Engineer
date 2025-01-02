@@ -2319,11 +2319,25 @@ app.post("/create-parent-form", async (req, res) => {
 
     // Save the new user to the database
     await newUser.save();
+    const family = await Family.findOne({
+      parentId: firstParentId,
+      familyId: { $exists: true, $not: { $size: 0 } },
+    });
+    if (family) {
+      // Push the new user's userId into the parentId array
+      family.parentId.push(newUser.userId);
+      await family.save(); // Save the updated family document
+    } else {
+      return res.status(404).json({
+        status: 0,
+        message: "Family not found",
+      });
+    }
 
     // Return success response
     res.status(200).json({
       status: 1,
-      message: "Guardian account created successfully!",
+      message: "Parent account created successfully!",
       user: {
         name: newUser.name,
         email: newUser.email,
@@ -5151,40 +5165,46 @@ app.get("/suggest-emails", async (req, res) => {
   }
 });
 
-app.post('/changes-password', async (req, res) => {
+app.get("/suggest-username", async (req, res) => {
+  const { emailPrefix } = req.query; // Get the input from the query parameter
+
+  // Ensure the emailPrefix has at least 3 characters
+  if (!emailPrefix || emailPrefix.length < 3) {
+    return res.status(400).json({
+      status: 0,
+      message: "Please enter at least 3 characters."
+    });
+  }
+
   try {
-    const {  childId, newPassword,currentPassword } = req.body;
+    // Query the database for emails starting with the provided prefix
+    const emails = await User.find({
+      email: { $regex: `^${emailPrefix}`, $options: "i" }, // Case-insensitive regex match
+    }).select("email"); // Only select the email field
 
-    if(!childId || !newPassword){
-      return res.status(400).json({status:0, message:'Please provide the required fields.'});
+    // Return the suggestions if found
+    if (emails.length > 0) {
+      const emailSuggestions = emails.map(user => user.email);
+      return res.json({
+        status: 1,
+        suggestions: emailSuggestions
+      });
+    } else {
+      return res.json({
+        status: 0,
+        message: "No suggestions found."
+      });
     }
 
-    // Step 2: Retrieve the child user based on childId
-    const child = await User.findOne({userId:childId});
-    if (!child) {
-      return res.status(404).json({status:0, message:'Child user not found.'});
-    }
-    
-
-
-    const isSamePassword = await bcrypt.compare(newPassword, child.password);
-    if (isSamePassword) {
-      return res.status(400).json({ status: 0, message: 'The new password cannot be the same as the current password.' });
-    }
-
-  
-
-
-    // Step 5: Update the child's password in the database
-    child.password = newPassword;
-    await child.save();
-
-    return res.status(200).json({status:1,message:'Password updated successfully for the child user.'});
   } catch (error) {
     console.error(error);
-    res.status(500).json({status:0, message:'Server Error.'});
+    res.status(500).json({
+      status: 0,
+      message: "Server error. Please try again later."
+    });
   }
 });
+
 
 app.post('/change-password', async (req, res) => {
   try {

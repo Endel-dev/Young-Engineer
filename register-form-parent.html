@@ -82,6 +82,7 @@
             <input type="text" id="lastName" name="name" placeholder="Parent's Last Name" required>
             <input type="email" id="email" name="email" placeholder="Parent's Email" readonly required>
             <input type="password" id="password" name="password" placeholder="Password" required>
+            <input type="password" id="confirmpassword" name="confirmpassword" placeholder="Confirm Password" required>
             <select id="gender" name="gender" required>
                 <option value="">Select Gender</option>
                 <option value="male">Male</option>
@@ -126,6 +127,15 @@
 
                 const formData = new FormData(event.target);
                 formData.append('parentId', firstParentId);  // Add parentId to the form data
+
+                const password = formData.get('password');
+                const confirmPassword = formData.get('confirmpassword');
+
+                // Check if passwords match
+                if (password !== confirmPassword) {
+                    document.getElementById('error-message').textContent = 'Passwords do not match.';
+                    return;
+                }
 
                 // Prepare the data to send to the API
                 const data = {
