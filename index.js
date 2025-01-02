@@ -5153,7 +5153,7 @@ app.get("/suggest-emails", async (req, res) => {
 
 app.post('/change-password', async (req, res) => {
   try {
-    const {  childId, newPassword } = req.body;
+    const {  childId, newPassword,currentPassword } = req.body;
 
     if(!childId || !newPassword){
       return res.status(400).json({status:0, message:'Please provide the required fields.'});
@@ -5164,12 +5164,15 @@ app.post('/change-password', async (req, res) => {
     if (!child) {
       return res.status(404).json({status:0, message:'Child user not found.'});
     }
+    
 
 
     const isSamePassword = await bcrypt.compare(newPassword, child.password);
     if (isSamePassword) {
       return res.status(400).json({ status: 0, message: 'The new password cannot be the same as the current password.' });
     }
+
+  
 
 
     // Step 5: Update the child's password in the database
@@ -5183,6 +5186,41 @@ app.post('/change-password', async (req, res) => {
   }
 });
 
+app.post('/changes-password', async (req, res) => {
+  try {
+    const { parentId, childId, currentPassword, newPassword } = req.body;
+
+    // Step 1: Retrieve the child user based on childId
+    const child = await User.findById(childId);  // Use `findById` instead of `findOne` for direct ObjectId lookup
+    if (!child) {
+      return res.status(404).json({ status: 0, message: 'Child user not found.' });
+    }
+
+    // Step 3: Compare the provided current password with the stored password (hashed)
+    const isCurrentPasswordCorrect = await bcrypt.compare(currentPassword, child.password);
+    if (!isCurrentPasswordCorrect) {
+      return res.status(400).json({ status: 0, message: 'The current password is incorrect.' });
+    }
+
+    // Step 4: Compare the new password with the stored password to prevent reusing the same password
+    const isSamePassword = await bcrypt.compare(newPassword, child.password);
+    if (isSamePassword) {
+      return res.status(400).json({ status: 0, message: 'The new password cannot be the same as the current password.' });
+    }
+
+    // Step 5: Hash the new password
+    //const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Step 6: Update the child's password in the database
+    child.password = newPassword;
+    await child.save();
+
+    return res.status(200).json({ status: 1, message: 'Password updated successfully for the child user.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: 0, message: 'Server Error.' });
+  }
+});
 
 
 
