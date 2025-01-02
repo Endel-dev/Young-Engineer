@@ -110,6 +110,12 @@
             return urlParams.get(param);
         }
 
+        // Validate phone number
+        function validatePhoneNumber(phoneNumber) {
+            const phoneRegex = /^[0-9]{10}$/;
+            return phoneRegex.test(phoneNumber);
+        }
+
         // Populate the email field from the URL and get the parentId
         window.onload = function () {
             const email = getQueryParam('email');
@@ -136,10 +142,26 @@
 
                 const password = formData.get('password');
                 const confirmPassword = formData.get('confirmpassword');
+                const pincode = formData.get('pincode');
+
+                // Password validation regex
+                const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(.{8,})$/;
+
+                // Validate password strength
+                if (!passwordRegex.test(password)) {
+                    document.getElementById('error-message').textContent = 'Password must contain at least one uppercase letter, one lowercase letter, one special character, and be at least 8 characters long.';
+                    return;
+                }
+
 
                 // Check if passwords match
                 if (password !== confirmPassword) {
                     document.getElementById('error-message').textContent = 'Passwords do not match.';
+                    return;
+                }
+
+                if (isNaN(pincode) || pincode.trim() === "") {
+                    document.getElementById('error-message').textContent = 'Pincode must be a valid number.';
                     return;
                 }
 
@@ -153,7 +175,7 @@
                     gender: formData.get('gender'),
                     dob: formData.get('dob'),
                     phone: formData.get('phone'),
-                    address: formData.get('address'),
+                    address1: formData.get('address'),
                     city: formData.get('city'),
                     state: formData.get('state'),
                     pincode: formData.get('pincode'),

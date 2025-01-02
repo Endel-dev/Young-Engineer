@@ -2283,11 +2283,11 @@ app.post("/verify-second-parent", async (req, res) => {
 });
 
 app.post("/create-parent-form", async (req, res) => {
-  const { name, email, password, gender, dob, firstParentId } = req.body;
+  const { firstName,lastName,phone,address1,city,state,pincode, email, password, gender, dob, firstParentId } = req.body;
   console.log(req.body);
 
   // Validate required fields
-  if (!name || !email || !password || !dob) {
+  if (!firstName || !email || !password || !dob) {
     return res.status(400).json({
       status: 0,
       message: "Please provide all required fields",
@@ -2323,7 +2323,13 @@ app.post("/create-parent-form", async (req, res) => {
 
     // Create a new user with the guardian role
     const newUser = new User({
-      name,
+      firstName,
+      lastName,
+      phone,
+      address1,
+      city,
+      state,
+      pincode,
       email,
       password,
       role: "parent", // Set the role to 'guardian'
