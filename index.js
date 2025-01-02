@@ -5137,7 +5137,7 @@ app.get("/suggest-emails", async (req, res) => {
       });
     } else {
       return res.json({
-        status: 1,
+        status: 0,
         message: "No suggestions found."
       });
     }
