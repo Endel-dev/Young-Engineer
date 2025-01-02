@@ -1743,7 +1743,6 @@ app.post("/create-guardian-form", async (req, res) => {
     const newUser = new User({
       firstName,
       lastName,
-      name,
       email,
       password,
       role: "guardian", // Set the role to 'guardian'
