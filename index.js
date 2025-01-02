@@ -1716,7 +1716,7 @@ app.post("/create-guardian-form", async (req, res) => {
   console.log(req.body);
 
   // Validate required fields
-  if (!firstName ||lastName || !email || !password || !dob || !parentId) {
+  if (!firstName ||!lastName || !email || !password || !dob || !parentId) {
     return res.status(400).json({
       status: 0,
       message: "Please provide all required fields",
@@ -1743,6 +1743,7 @@ app.post("/create-guardian-form", async (req, res) => {
     const newUser = new User({
       firstName,
       lastName,
+      name,
       email,
       password,
       role: "guardian", // Set the role to 'guardian'
