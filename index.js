@@ -5151,6 +5151,40 @@ app.get("/suggest-emails", async (req, res) => {
   }
 });
 
+app.post('/change-password', authenticateToken, async (req, res) => {
+  try {
+    const { parentId, childId, newPassword } = req.body;
+
+    // Step 1: Check if the logged-in user is a parent and matches the provided parentId
+    // if (req.user.role !== 'parent' || req.user._id.toString() !== parentId) {
+    //   return res.status(403).send('You are not authorized to change this child\'s password.');
+    // }
+
+    // Step 2: Retrieve the child user based on childId
+    const child = await User.findById(childId);
+    if (!child) {
+      return res.status(404).send('Child user not found.');
+    }
+
+    // Step 3: Ensure the parentId in the child record matches the provided parentId
+    if (child.parentId.toString() !== parentId) {
+      return res.status(403).send('This child does not belong to the specified parent.');
+    }
+
+    // Step 4: Hash the new password
+    //const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Step 5: Update the child's password in the database
+    child.password = newPassword;
+    await child.save();
+
+    res.send('Password updated successfully for the child user.');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Something went wrong.');
+  }
+});
+
 
 
 
