@@ -5153,7 +5153,7 @@ app.get("/suggest-emails", async (req, res) => {
 
 app.post('/change-password', async (req, res) => {
   try {
-    const { parentId, childId, newPassword } = req.body;
+    const {  childId, newPassword } = req.body;
 
     // Step 2: Retrieve the child user based on childId
     const child = await User.findOne({userId:childId});
