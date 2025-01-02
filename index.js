@@ -5151,7 +5151,7 @@ app.get("/suggest-emails", async (req, res) => {
   }
 });
 
-app.post('/change-password', authenticateToken, async (req, res) => {
+app.post('/change-password', async (req, res) => {
   try {
     const { parentId, childId, newPassword } = req.body;
 
