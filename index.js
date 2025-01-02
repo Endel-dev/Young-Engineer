@@ -1716,7 +1716,7 @@ app.post("/create-guardian-form", async (req, res) => {
   console.log(req.body);
 
   // Validate required fields
-  if (!name || !email || !password || !dob || !parentId) {
+  if (!firstName || !email || !password || !dob || !parentId) {
     return res.status(400).json({
       status: 0,
       message: "Please provide all required fields",
