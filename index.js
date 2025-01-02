@@ -5161,7 +5161,7 @@ app.post('/change-password', async (req, res) => {
     // }
 
     // Step 2: Retrieve the child user based on childId
-    const child = await User.findById(childId);
+    const child = await User.findOne({userId:childId});
     if (!child) {
       return res.status(404).send('Child user not found.');
     }
