@@ -147,13 +147,13 @@
                 const phone = formData.get('phone');
 
                 // Password validation regex
-                const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(.{8,})$/;
+                //const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(.{8,})$/;
 
                 // Validate password strength
-                if (!passwordRegex.test(password)) {
-                    document.getElementById('error-message').textContent = 'Password must contain at least one uppercase letter, one lowercase letter, one special character, and be at least 8 characters long.';
-                    return;
-                }
+                // if (!passwordRegex.test(password)) {
+                //     document.getElementById('error-message').textContent = 'Password must contain at least one uppercase letter, one lowercase letter, one special character, and be at least 8 characters long.';
+                //     return;
+                // }
 
 
                 // Check if passwords match
