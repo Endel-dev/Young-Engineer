@@ -5191,7 +5191,7 @@ app.post('/changes-password', async (req, res) => {
     const { parentId, childId, currentPassword, newPassword } = req.body;
 
     // Step 1: Retrieve the child user based on childId
-    const child = await User.findById(childId);  // Use `findById` instead of `findOne` for direct ObjectId lookup
+    const child = await User.findOne({userId:childId});  // Use `findById` instead of `findOne` for direct ObjectId lookup
     if (!child) {
       return res.status(404).json({ status: 0, message: 'Child user not found.' });
     }
