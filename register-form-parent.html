@@ -82,8 +82,7 @@
             <input type="text" id="lastName" name="lastName" placeholder="Parent's Last Name" required>
             <input type="email" id="email" name="email" placeholder="Parent's Email" readonly required>
             <input type="password" id="password" name="password" placeholder="Password" required>
-            <p style="font-size: 12px;
-    color: #666;">Password must contain at least one uppercase letter, one lowercase letter, one special character, and be at least 8 characters long.</p>
+            <div class="error" id="password-error"></div>
             <input type="password" id="confirmpassword" name="confirmpassword" placeholder="Confirm Password" required>
             <select id="gender" name="gender" required>
                 <option value="">Select Gender</option>
@@ -151,9 +150,16 @@
                 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(.{8,})$/;
 
                 // Validate password strength
+                // if (!passwordRegex.test(password)) {
+                //     document.getElementById('error-message').textContent = 'Password must contain at least one uppercase letter, one lowercase letter, one special character, and be at least 8 characters long.';
+                //     return;
+                // }
+
                 if (!passwordRegex.test(password)) {
-                    document.getElementById('error-message').textContent = 'Password must contain at least one uppercase letter, one lowercase letter, one special character, and be at least 8 characters long.';
+                    document.getElementById('password-error').textContent = 'Password must contain at least one uppercase letter, one lowercase letter, one special character, and be at least 8 characters long.';
                     return;
+                } else {
+                    document.getElementById('password-error').textContent = ''; // Clear the error if password is valid
                 }
 
 
