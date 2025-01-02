@@ -5196,6 +5196,10 @@ app.post('/change-password', async (req, res) => {
       return res.status(404).json({ status: 0, message: 'Child user not found.' });
     }
 
+    if (child.parentId.toString() !== parentId) {
+      return res.status(403).json({ status: 0, message: 'This child does not belong to the specified parent.' });
+    }
+
     // Step 3: Compare the provided current password with the stored password (hashed)
     const isCurrentPasswordCorrect = await bcrypt.compare(currentPassword, child.password);
     if (!isCurrentPasswordCorrect) {
