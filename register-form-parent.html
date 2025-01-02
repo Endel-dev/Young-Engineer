@@ -161,6 +161,11 @@
                     return;
                 }
 
+                if (!validatePhoneNumber(phone)) {
+                    document.getElementById('error-message').textContent = 'Please enter a valid 10-digit phone number.';
+                    return;
+                }
+
                 if (isNaN(pincode) || pincode.trim() === "") {
                     document.getElementById('error-message').textContent = 'Pincode must be a valid number.';
                     return;
