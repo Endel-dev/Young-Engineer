@@ -5151,7 +5151,7 @@ app.get("/suggest-emails", async (req, res) => {
   }
 });
 
-app.post('/change-password', async (req, res) => {
+app.post('/changes-password', async (req, res) => {
   try {
     const {  childId, newPassword,currentPassword } = req.body;
 
@@ -5186,7 +5186,7 @@ app.post('/change-password', async (req, res) => {
   }
 });
 
-app.post('/changes-password', async (req, res) => {
+app.post('/change-password', async (req, res) => {
   try {
     const { parentId, childId, currentPassword, newPassword } = req.body;
 
