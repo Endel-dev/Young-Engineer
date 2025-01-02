@@ -5163,12 +5163,12 @@ app.post('/change-password', async (req, res) => {
     // Step 2: Retrieve the child user based on childId
     const child = await User.findOne({userId:childId});
     if (!child) {
-      return res.status(404).send('Child user not found.');
+      return res.status(404).json({status:0, message:'Child user not found.'});
     }
 
     // Step 3: Ensure the parentId in the child record matches the provided parentId
     if (child.parentId.toString() !== parentId) {
-      return res.status(403).send('This child does not belong to the specified parent.');
+      return res.status(403).json({status:0, message:'This child does not belong to the specified parent.'});
     }
 
     // Step 4: Hash the new password
@@ -5178,10 +5178,10 @@ app.post('/change-password', async (req, res) => {
     child.password = newPassword;
     await child.save();
 
-    res.send('Password updated successfully for the child user.');
+    return res.status(200).json({status:1,message:'Password updated successfully for the child user.'});
   } catch (error) {
     console.error(error);
-    res.status(500).send('Something went wrong.');
+    res.status(500).json({status:0, message:'Server Error.'});
   }
 });
 
