@@ -1468,7 +1468,7 @@ app.post("/login", async (req, res) => {
 
       // Ensure user exists for parent
       if (!user) {
-        return res.status(401).json({ status: 0, message: "User not found" });
+        return res.status(400).json({ status: 0, message: "User not found" });
       }
 
       // Compare the provided password with the stored password
