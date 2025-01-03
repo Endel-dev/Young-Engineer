@@ -1830,6 +1830,7 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
       //familyId: [familyId],
       //guardianId: parent.familyId,
       parentId: parentId,
+      phoneNumber
     });
 
     // Save the new user to the database
