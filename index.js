@@ -5325,10 +5325,10 @@ app.get("/suggest-emails", async (req, res) => {
 });
 
 app.get("/suggest-username", async (req, res) => {
-  const { emailPrefix } = req.query; // Get the input from the query parameter
+  const { usernamePrefix } = req.query; // Get the input from the query parameter
 
   // Ensure the emailPrefix has at least 3 characters
-  if (!emailPrefix || emailPrefix.length < 3) {
+  if (!usernamePrefix || usernamePrefix.length < 3) {
     return res.status(400).json({
       status: 0,
       message: "Please enter at least 3 characters."
