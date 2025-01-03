@@ -260,7 +260,7 @@ mongoose
 
 // POST /register
 
-app.post("/register", async (req, res) => {
+app.post("/registers", async (req, res) => {
   const {
     name,
     gender,
@@ -395,7 +395,7 @@ app.post("/register", async (req, res) => {
   }
 });
 
-app.post("/registers", async (req, res) => {
+app.post("/register", async (req, res) => {
   const {
     name,
     gender,
