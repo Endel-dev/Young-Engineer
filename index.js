@@ -395,6 +395,143 @@ app.post("/register", async (req, res) => {
   }
 });
 
+app.post("/registers", async (req, res) => {
+  const {
+    name,
+    gender,
+    firstName,
+    lastName,
+    email,
+    password,
+    role,
+    dob,
+    city,
+    phoneNumber,
+    address1,
+    address2,
+    address3,
+    state,
+    pinCode,
+    numberOfKids,
+    kidsNames,
+  } = req.body; 
+
+  const normalizedRole = role ? role.toLowerCase() : "";
+  const normalizedGender = gender ? gender.toLowerCase() : "";
+
+  // Validate role
+  if (normalizedRole !== "parent" && normalizedRole !== "guardian") {
+    return res.status(400).json({
+      status: 0,
+      message: "Only parent and guardian roles are allowed to register",
+    });
+  }
+
+  // Validate required fields
+  if (!name || !email || !password || !dob || !gender || !firstName || !lastName) {
+    return res
+      .status(400)
+      .json({ status: 0, message: "Please provide all required fields" });
+  }
+
+  try {
+    // Check if the email already exists in the User model
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ status: 0, message: "User already verified" });
+    }
+
+    // Check if the email exists in the VerificationToken model and is expired
+    const existingVerificationToken = await VerificationToken.findOne({
+      email,
+      expiresAt: { $gt: Date.now() }, // Check if the token is still valid (not expired)
+    });
+
+    if (existingVerificationToken) {
+      // If verification token exists and is not expired, don't send mail
+      return res.status(400).json({
+        status: 0,
+        message:
+          "Mail already sent for email verification and token is still valid",
+      });
+    }
+
+    // If no valid verification token exists, proceed with generating the verification token
+    const token = jwt.sign({ email }, process.env.JWT_SECRET, {
+      expiresIn: "24h",
+    });
+    const verificationLink = `http://93.127.172.167:5001/sample?token=${token}&email=${email}`;
+
+    // Create a new verification token
+    const verificationToken = new VerificationToken({
+      email,
+      token,
+      name,
+      firstName,
+      lastName,
+      role: normalizedRole,
+      gender: normalizedGender,
+      dob,
+      password,
+      city,
+      phoneNumber,
+      address1,
+      address2,
+      address3,
+      state,
+      pinCode,
+      numberOfKids,
+      kidsNames,
+      expiresAt: Date.now() + 24 * 60 * 60 * 1000, // expires in 24 hours
+    });
+
+    // Save the verification token to the database
+    await verificationToken.save();
+
+    console.log("Verification Token:", verificationToken);
+
+    // Respond with a 202 Accepted status indicating the request was accepted and is being processed
+    res.status(202).json({
+      status: 1,
+      message: "Registration successful. A verification email will be sent shortly.",
+    });
+
+    // Send the email asynchronously after the response has been sent
+    const transporter = nodemailer.createTransport({
+      host: "mail.weighingworld.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: "no-reply@weighingworld.com",
+        pass: "$]IIWt4blS^_",
+      },
+    });
+
+    const mailOptions = {
+      from: "no-reply@weighingworld.com",
+      to: email,
+      subject: "Email Verification",
+      text: `Please verify your email by clicking on the following link: ${verificationLink}`,
+    };
+
+    // Send the verification email
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending verification email:", error);
+      } else {
+        console.log("Verification email sent successfully:", info.response);
+      }
+    });
+
+  } catch (err) {
+    console.error("Error registering user:", err);
+    res.status(500).json({ status: 0, message: "Server error", err });
+  }
+});
+
+
 // app.post('/registers', async (req, res) => {
 //   const { name, gender, email, password, role, dob } = req.body;
 
