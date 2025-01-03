@@ -104,35 +104,61 @@ userSchema.pre("save", function (next) {
 });
 
 // Hash password before saving (bcryptjs for hashing)
-userSchema.pre("save", async function (next) {
-    if (typeof this.dob === 'string') {
-      const dobParts = this.dob.split('-');
-      if (dobParts.length === 3) {
-        const day = dobParts[0];
-        const month = dobParts[1] - 1; // Month is 0-indexed in JavaScript Date
-        const year = dobParts[2];
+// userSchema.pre("save", async function (next) {
+//     if (typeof this.dob === 'string') {
+//       const dobParts = this.dob.split('-');
+//       if (dobParts.length === 3) {
+//         const day = dobParts[0];
+//         const month = dobParts[1] - 1; // Month is 0-indexed in JavaScript Date
+//         const year = dobParts[2];
   
-        // Create a Date object from the string
-        this.dob = new Date(year, month, day);
+//         // Create a Date object from the string
+//         this.dob = new Date(year, month, day);
   
-        if (isNaN(this.dob)) {
-          return next(new Error("Invalid date format. Expected dd-mm-yyyy."));
-        }
-      } else {
-        return next(new Error("Invalid date format. Expected dd-mm-yyyy."));
-      }
-    }
+//         if (isNaN(this.dob)) {
+//           return next(new Error("Invalid date format. Expected dd-mm-yyyy."));
+//         }
+//       } else {
+//         return next(new Error("Invalid date format. Expected dd-mm-yyyy."));
+//       }
+//     }
 
     
-  if (!this.isModified("password")) return next();
+//   if (!this.isModified("password")) return next();
 
-  // Only hash if password is modified
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (err) {
-    next(err);
+//   // Only hash if password is modified
+//   try {
+//     const salt = await bcrypt.genSalt(10);
+//     this.password = await bcrypt.hash(this.password, salt);
+//     next();
+//   } catch (err) {
+//     next(err);
+//   }
+// });
+
+userSchema.pre("save", async function (next) {
+  if (typeof this.dob === 'string') {
+    const dobParts = this.dob.split('-');
+    if (dobParts.length === 3) {
+      const day = parseInt(dobParts[0], 10);
+      const month = parseInt(dobParts[1], 10) - 1; // Month is 0-indexed in JavaScript Date
+      const year = parseInt(dobParts[2], 10);
+  
+      // Check if parsed values are valid
+      if (isNaN(day) || isNaN(month) || isNaN(year)) {
+        return next(new Error("Invalid date format. Expected dd-mm-yyyy with valid day, month, and year."));
+      }
+
+      // Create a Date object from the string
+      this.dob = new Date(year, month, day);
+
+      // Check if the date is valid
+      if (this.dob.getTime() !== this.dob.getTime()) { // NaN check for Date objects
+        return next(new Error("Invalid date format. Expected dd-mm-yyyy."));
+      }
+    } else {
+      return next(new Error("Invalid date format. Expected dd-mm-yyyy."));
+    }
   }
 });
 
