@@ -23,7 +23,7 @@ const VerificationTokenSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-userSchema.pre("save", async function (next) {
+VerificationTokenSchema.pre("save", async function (next) {
   if (typeof this.dob === 'string') {
     const dobParts = this.dob.split('-');
     if (dobParts.length === 3) {
