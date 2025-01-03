@@ -1799,7 +1799,7 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
   }
 
   // Validate required fields
-  if ( email || !password || !dob || !firstName || !lastName ||!gender ||!phoneNumber) {
+  if ( !email || !password || !dob || !firstName || !lastName ||!gender ||!phoneNumber) {
     return res
       .status(400)
       .json({ status: 0, message: "Please provide all required fields" });
