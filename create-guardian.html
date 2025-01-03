@@ -89,6 +89,7 @@
                 <option value="female">Female</option>
                 <option value="other">Other</option>
             </select>
+            <input type="text" id="phone" name="phone" placeholder="Phone Number" required>
             <input type="date" id="dob" name="dob" placeholder="Date of Birth" required>
             <button type="submit" href="http://93.127.172.167:5001/send-invite">Create Account</button>
             <p class="error" id="error-message"></p>
@@ -102,6 +103,10 @@
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(param);
+        }
+        function validatePhoneNumber(phone) {
+            const phoneRegex = /^[0-9]{10}$/;
+            return phoneRegex.test(phone);
         }
 
         // Populate the email field from the URL and get the parentId
@@ -128,9 +133,16 @@
 
                 const password = formData.get('password');
                 const confirmPassword = formData.get('confirmpassword');
+                const phone = formData.get('phone');
+                
 
                 if (password !== confirmPassword) {
                     document.getElementById('error-message').textContent = 'Passwords do not match.';
+                    return;
+                }
+
+                if (!validatePhoneNumber(phone)) {
+                    document.getElementById('error-message').textContent = 'Please enter a valid 10-digit phone number.';
                     return;
                 }
 
