@@ -23,5 +23,28 @@ const VerificationTokenSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
+userSchema.pre("save", async function (next) {
+  if (typeof this.dob === 'string') {
+    const dobParts = this.dob.split('-');
+    if (dobParts.length === 3) {
+      const day = dobParts[0];
+      const month = dobParts[1] - 1; // Month is 0-indexed in JavaScript Date
+      const year = dobParts[2];
+
+      // Create a Date object from the string
+      this.dob = new Date(year, month, day);
+
+      if (isNaN(this.dob)) {
+        return next(new Error("Invalid date format. Expected dd-mm-yyyy."));
+      }
+    } else {
+      return next(new Error("Invalid date format. Expected dd-mm-yyyy."));
+    }
+  }
+});
+
+
 const VerificationToken = mongoose.model('VerificationToken', VerificationTokenSchema);
 module.exports = VerificationToken;
+
+
