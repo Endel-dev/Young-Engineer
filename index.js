@@ -1773,7 +1773,7 @@ app.post("/create-family", verifyToken, async (req, res) => {
 
 // logic is create family, then create guardian, inside guardian - family [family Id1, familyId2], inside child user- family [familyId] and guardian[guardian2,guardian2]
 app.post("/create-guardian", verifyParentRole, async (req, res) => {
-  const { name, gender, email, password, role, dob,firstName,lastName } = req.body;
+  const { name, gender, email, password, role, dob,firstName,lastName,phoneNumber } = req.body;
   const normalizedRole = role ? role.toLowerCase() : "";
   const normalizedgender = gender ? gender.toLowerCase() : "";
   const parentId = req.user.userId;
@@ -1799,7 +1799,7 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
   }
 
   // Validate required fields
-  if (!name || !email || !password || !dob || !firstName || !lastName) {
+  if ( email || !password || !dob || !firstName || !lastName ||!gender ||!phoneNumber) {
     return res
       .status(400)
       .json({ status: 0, message: "Please provide all required fields" });
