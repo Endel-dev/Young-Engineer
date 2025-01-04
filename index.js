@@ -2274,13 +2274,14 @@ app.post("/invite-second-parent", async (req, res) => {
 
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
+          console.error("Error sending verification email:", error);
           return res.status(500).json({
             status: 0,
             message: "Error sending verification email",
           });
         }
         console.log('Email sent:', error); 
-        
+
 
         // Respond with success message if email is sent
         res.status(200).json({
