@@ -139,51 +139,32 @@ userSchema.pre("save", function (next) {
 //   }
 // });
 
-// userSchema.pre("save", function (next) {
-//   if (typeof this.dob === "string") {
-//     // Parse the date string 'dd-mm-yyyy' format into a Date object
-//     const parsedDob = parse(this.dob, "dd-MM-yyyy", new Date());
+userSchema.pre("save", function (next) {
+  if (typeof this.dob === "string") {
+    // Parse the date string 'dd-mm-yyyy' format into a Date object
+    const parsedDob = parse(this.dob, "dd-MM-yyyy", new Date());
 
-//     // Check if the parsed date is valid
-//     if (!isValid(parsedDob)) {
-//       return next(new Error("Invalid date format. Expected dd-mm-yyyy."));
-//     }
+    // Check if the parsed date is valid
+    if (!isValid(parsedDob)) {
+      return next(new Error("Invalid date format. Expected dd-mm-yyyy."));
+    }
 
-//     // Set the dob field to the parsed Date object
-//     this.dob = parsedDob;
-//   }
-// });
+    // Set the dob field to the parsed Date object
+    this.dob = parsedDob;
+  }
+});
 
-// userSchema.pre('save', function (next) {
-//   if (typeof this.dob === 'string') {
-//     const dobParts = this.dob.split('-'); // Split the date string by the '-'
-
-//     if (dobParts.length === 3) {
-//       // Extract day, month, and year from the string
-//       const day = parseInt(dobParts[0], 10);
-//       const month = parseInt(dobParts[1], 10) - 1; // Month is 0-indexed in JavaScript
-//       const year = parseInt(dobParts[2], 10);
-
-//       // Create a Date object in the correct format (yyyy-mm-dd)
-//       const parsedDate = new Date(year, month, day);
-
-//       // Check if the created date is valid
-//       if (isNaN(parsedDate)) {
-//         return next(new Error('Invalid date format. Expected dd-mm-yyyy.'));
-//       }
-
-//       // Assign the parsed date to the dob field
-//       this.dob = parsedDate;
-//     } else {
-//       return next(new Error('Invalid date format. Expected dd-mm-yyyy.'));
-//     }
-//   }
-
-//   // Proceed with the save if everything is okay
-//   next();
-// });
-
-
+userSchema.pre("save", async function (next) {
+  // Ensure that the password is hashed before saving
+  if (this.isModified("password")) {
+    try {
+      const salt = await bcrypt.genSalt(10); // Generate salt
+      this.password = await bcrypt.hash(this.password, salt); // Hash the password
+    } catch (error) {
+      return next(error);
+    }
+  }
+});
 
 
 // userSchema.pre("save", async function (next) {
