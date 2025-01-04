@@ -96,8 +96,8 @@
         </form>
     </div>
 
-    
-    
+
+
     <script>
         // Function to extract query parameters from the URL
         function getQueryParam(param) {
@@ -124,6 +124,20 @@
                 alert('Parent ID parameter is missing in the URL.');
             }
 
+            function calculateAge(dob) {
+                const birthDate = new Date(dob);
+                const today = new Date();
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const month = today.getMonth();
+                const day = today.getDate();
+
+                // Adjust age if the current date is before the birthday
+                if (month < birthDate.getMonth() || (month === birthDate.getMonth() && day < birthDate.getDate())) {
+                    age--;
+                }
+
+                return age;
+            }
             // Attach the parentId to the form submission (via a hidden input)
             document.getElementById('guardian-form').addEventListener('submit', function (event) {
                 event.preventDefault(); // Prevent default form submission
@@ -134,7 +148,13 @@
                 const password = formData.get('password');
                 const confirmPassword = formData.get('confirmpassword');
                 const phone = formData.get('phone');
-                
+                const age = calculateAge(dob);
+
+                if (age < 18) {
+                    document.getElementById('error-message').textContent = 'You must be at least 18 years old.';
+                    return;
+                }
+
 
                 if (password !== confirmPassword) {
                     document.getElementById('error-message').textContent = 'Passwords do not match.';
@@ -157,13 +177,13 @@
                 // Prepare the data to send to the API
                 const data = {
                     name: formData.get('name'),
-                    firstName:formData.get('firstName'),
-                    lastName:formData.get('lastName'),
+                    firstName: formData.get('firstName'),
+                    lastName: formData.get('lastName'),
                     email: formData.get('email'),
                     password: formData.get('password'),
                     gender: formData.get('gender'),
                     dob: formData.get('dob'),
-                    phoneNumber:formData.get('phone'),
+                    phoneNumber: formData.get('phone'),
                     role: 'guardian',
                     parentId: parentId,  // Include parentId from URL
                 };
@@ -181,7 +201,7 @@
                         if (result.status === 1) {
                             alert('Guardian created successfully!');
                             //document.getElementById('guardian-form').reset(); // Reset the form on success
-                            window.location.href = '/send-invite'; 
+                            window.location.href = '/send-invite';
                         } else {
                             throw new Error(result.message || 'Something went wrong');
                         }
@@ -192,7 +212,7 @@
             });
         };
     </script>
-    
+
 
 </body>
 
