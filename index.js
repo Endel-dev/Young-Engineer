@@ -4561,13 +4561,52 @@ app.post("/app_versions", async (req, res) => {
 //     });
 //   }
 // });
+// app.get("/check-update", async (req, res) => {
+//   try {
+//     // Find the most recent app version by sorting the collection in descending order of version
+//     //const allAppVersions = await app_versions.find();
+//     //console.log(allAppVersions);
+//     const latestAppVersion = await app_versions.findOne().sort({ version: -1 }).collation({ locale: 'en', numericOrdering: true }).exec();;
+//     console.log(latestAppVersion);
+
+//     // If no app version is found
+//     if (!latestAppVersion) {
+//       return res.status(404).json({
+//         status: 0,
+//         message: "No app versions found.",
+//       });
+//     }
+
+//     // Send the latest app version as the response
+//     return res.status(200).json({
+//       status: 1,
+//       message: "Latest app version retrieved successfully.",
+//       data: {
+//         platform: latestAppVersion.platform,
+//         version: latestAppVersion.version,
+//         url: latestAppVersion.url,
+//       },
+//     });
+//     console.log(data);
+//   } catch (err) {
+//     console.error("Error retrieving the latest app version:", err);
+//     return res.status(500).json({
+//       status: 0,
+//       message: "Server error. Failed to retrieve the latest app version.",
+//     });
+//   }
+// });
+
 app.get("/check-update", async (req, res) => {
   try {
-    // Find the most recent app version by sorting the collection in descending order of version
-    //const allAppVersions = await app_versions.find();
-    //console.log(allAppVersions);
-    const latestAppVersion = await app_versions.findOne().sort({ version: -1 }).collation({ locale: 'en', numericOrdering: true }).exec();;
-    console.log(latestAppVersion);
+    // Convert version string to an array of integers for proper sorting
+    const latestAppVersion = await app_versions
+      .findOne()
+      .sort({
+        version: -1, // You may need to manually parse and sort versions numerically
+      })
+      .collation({ locale: "en", numericOrdering: true }) // Ensure correct ordering for version strings
+      .exec();
 
     // If no app version is found
     if (!latestAppVersion) {
@@ -4587,7 +4626,6 @@ app.get("/check-update", async (req, res) => {
         url: latestAppVersion.url,
       },
     });
-    console.log(data);
   } catch (err) {
     console.error("Error retrieving the latest app version:", err);
     return res.status(500).json({
@@ -4596,6 +4634,7 @@ app.get("/check-update", async (req, res) => {
     });
   }
 });
+
 
 // Assuming you are using Express.js and Mongoose
 app.delete("/delete-account", async (req, res) => {
