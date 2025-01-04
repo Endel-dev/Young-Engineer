@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const { v4: uuidv4 } = require("uuid");
-const moment = require("moment");
+//const moment = require("moment");
 
 // Define the user schema
 const userSchema = new mongoose.Schema(
@@ -105,51 +105,51 @@ userSchema.pre("save", function (next) {
 });
 
 // Hash password before saving (bcryptjs for hashing)
-// userSchema.pre("save", async function (next) {
-//     if (typeof this.dob === 'string') {
-//       const dobParts = this.dob.split('-');
-//       if (dobParts.length === 3) {
-//         const day = dobParts[0];
-//         const month = dobParts[1] - 1; // Month is 0-indexed in JavaScript Date
-//         const year = dobParts[2];
-  
-//         // Create a Date object from the string
-//         this.dob = new Date(year, month, day);
-  
-//         if (isNaN(this.dob)) {
-//           return next(new Error("Invalid date format. Expected dd-mm-yyyy."));
-//         }
-//       } else {
-//         return next(new Error("Invalid date format. Expected dd-mm-yyyy."));
-//       }
-//     }
-    
-
-    
-//   if (!this.isModified("password")) return next();
-
-//   // Only hash if password is modified
-//   try {
-//     const salt = await bcrypt.genSalt(10);
-//     this.password = await bcrypt.hash(this.password, salt);
-//     next();
-//   } catch (err) {
-//     next(err);
-//   }
-// });
-
 userSchema.pre("save", async function (next) {
-  if (typeof this.dob === "string") {
-    // Validate the format before proceeding
-    const validDate = moment(this.dob, "DD-MM-YYYY", true); // 'true' enforces strict parsing
-    if (!validDate.isValid()) {
-      return next(new Error("Invalid date format. Expected dd-mm-yyyy."));
+    if (typeof this.dob === 'string') {
+      const dobParts = this.dob.split('-');
+      if (dobParts.length === 3) {
+        const day = dobParts[0];
+        const month = dobParts[1] - 1; // Month is 0-indexed in JavaScript Date
+        const year = dobParts[2];
+  
+        // Create a Date object from the string
+        this.dob = new Date(year, month, day);
+  
+        if (isNaN(this.dob)) {
+          return next(new Error("Invalid date format. Expected dd-mm-yyyy."));
+        }
+      } else {
+        return next(new Error("Invalid date format. Expected dd-mm-yyyy."));
+      }
     }
+    
 
-    // Now that it's valid, convert to a Date object
-    this.dob = validDate.toDate(); // Convert the moment object to a native Date
+    
+  if (!this.isModified("password")) return next();
+
+  // Only hash if password is modified
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (err) {
+    next(err);
   }
 });
+
+// userSchema.pre("save", async function (next) {
+//   if (typeof this.dob === "string") {
+//     // Validate the format before proceeding
+//     const validDate = moment(this.dob, "DD-MM-YYYY", true); // 'true' enforces strict parsing
+//     if (!validDate.isValid()) {
+//       return next(new Error("Invalid date format. Expected dd-mm-yyyy."));
+//     }
+
+//     // Now that it's valid, convert to a Date object
+//     this.dob = validDate.toDate(); // Convert the moment object to a native Date
+//   }
+// });
 
 
 
