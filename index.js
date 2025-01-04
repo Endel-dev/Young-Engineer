@@ -3018,7 +3018,7 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
 
     res
       .status(200)
-      .json({ status: 1, message: "User created successfully", user: newUser });
+      .json({ status: 1, message: "Child created successfully", user: newUser });
   } catch (err) {
     console.error("Error creating user:", err);
     res.status(500).json({ message: "Server error", err });
