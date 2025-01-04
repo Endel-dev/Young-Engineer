@@ -136,6 +136,21 @@
                 alert('Parent ID parameter is missing in the URL.');
             }
 
+            function calculateAge(dob) {
+                const birthDate = new Date(dob);
+                const today = new Date();
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const month = today.getMonth();
+                const day = today.getDate();
+
+                // Adjust age if the current date is before the birthday
+                if (month < birthDate.getMonth() || (month === birthDate.getMonth() && day < birthDate.getDate())) {
+                    age--;
+                }
+
+                return age;
+            }
+
             // Attach the parentId to the form submission (via a hidden input)
             document.getElementById('guardian-form').addEventListener('submit', function (event) {
                 event.preventDefault(); // Prevent default form submission
@@ -147,6 +162,13 @@
                 const confirmPassword = formData.get('confirmpassword');
                 const pincode = formData.get('pincode');
                 const phone = formData.get('phone');
+                const dob = formData.get('dob');
+                const age = calculateAge(dob);
+
+                if (age < 18) {
+                    document.getElementById('error-message').textContent = 'You must be at least 18 years old.';
+                    return;
+                }
 
                 // Password validation regex
                 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(.{8,})$/;
