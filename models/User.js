@@ -139,20 +139,30 @@ userSchema.pre("save", function (next) {
 //   }
 // });
 
-userSchema.pre("save", function (next) {
-  if (typeof this.dob === "string") {
-    // Parse the date string 'dd-mm-yyyy' format into a Date object
-    const parsedDob = parse(this.dob, "dd-MM-yyyy", new Date());
+// userSchema.pre("save", function (next) {
+//   if (typeof this.dob === "string") {
+//     // Parse the date string 'dd-mm-yyyy' format into a Date object
+//     const parsedDob = parse(this.dob, "dd-MM-yyyy", new Date());
 
-    // Check if the parsed date is valid
-    if (!isValid(parsedDob)) {
-      return next(new Error("Invalid date format. Expected dd-mm-yyyy."));
-    }
+//     // Check if the parsed date is valid
+//     if (!isValid(parsedDob)) {
+//       return next(new Error("Invalid date format. Expected dd-mm-yyyy."));
+//     }
 
-    // Set the dob field to the parsed Date object
-    this.dob = parsedDob;
-  }
-});
+//     // Set the dob field to the parsed Date object
+//     this.dob = parsedDob;
+//   }
+// });
+
+// Format the date of birth (dob) to yyyy-mm-dd
+if (typeof this.dob === "string") {
+  const parsedDob = parse(this.dob, "dd-MM-yyyy", new Date()); // Parse dd-mm-yyyy string
+  this.dob = format(parsedDob, "yyyy-MM-dd"); // Convert to yyyy-mm-dd format
+}
+
+
+
+
 
 userSchema.pre("save", async function (next) {
   // Ensure that the password is hashed before saving
