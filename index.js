@@ -2196,14 +2196,14 @@ app.post("/invite-guardian", async (req, res) => {
 });
 
 app.post("/invite-second-parent", async (req, res) => {
-  const { secondParentEmail, secondParentName, firstParentId } = req.body;
+  const { secondParentEmail, secondParentlastName,firstParentId } = req.body;
   console.log(req.body);
 
   // Validate required fields
-  if (!secondParentEmail || !secondParentName || !firstParentId) {
+  if (!secondParentEmail || !secondParentfirstName ||!secondParentlastName || !firstParentId) {
     return res.status(400).json({
       status: 0,
-      message: "Please provide second parent name, email, and first parent ID",
+      message: "Please provide second parent first name,last name, email, and first parent ID",
     });
   }
 
