@@ -1816,8 +1816,8 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
         .json({ status: 0, message: "Email or Name already exists" });
     }
 
-    const parsedDob = parse(dob, 'dd-MM-yyyy', new Date()); // parse dd-mm-yyyy to Date object
-    const formattedDob = format(parsedDob, 'yyyy-MM-dd'); 
+    //const parsedDob = parse(dob, 'dd-MM-yyyy', new Date()); // parse dd-mm-yyyy to Date object
+    // formattedDob = format(parsedDob, 'yyyy-MM-dd'); 
 
     const userUuid = uuidv4(); // This generates a unique UUID for the user
     const familyId = userUuid.slice(-4); // Extract the last 4 characters for the family ID
@@ -1829,7 +1829,7 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
       email,
       password,
       role: normalizedRole,
-      dob:formattedDob,
+      dob,
       firstName,
       lastName,
       //familyId: [familyId],
