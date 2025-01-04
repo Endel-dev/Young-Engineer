@@ -4587,6 +4587,7 @@ app.get("/check-update", async (req, res) => {
         url: latestAppVersion.url,
       },
     });
+    console.log(data);
   } catch (err) {
     console.error("Error retrieving the latest app version:", err);
     return res.status(500).json({
