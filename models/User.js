@@ -141,19 +141,17 @@ userSchema.pre("save", function (next) {
 
 userSchema.pre("save", function (next) {
   if (typeof this.dob === "string") {
-    // Parse the date from dd-mm-yyyy format to Date object using date-fns
-    const parsedDate = parse(this.dob, 'dd-MM-yyyy', new Date());
+    // Parse the date string 'dd-mm-yyyy' format into a Date object
+    const parsedDob = parse(this.dob, "dd-MM-yyyy", new Date());
 
     // Check if the parsed date is valid
-    if (!isValid(parsedDate)) {
+    if (!isValid(parsedDob)) {
       return next(new Error("Invalid date format. Expected dd-mm-yyyy."));
     }
 
-    // If valid, assign the parsed Date object to this.dob
-    this.dob = parsedDate;
+    // Set the dob field to the parsed Date object
+    this.dob = parsedDob;
   }
-
-  next();
 });
 
 
