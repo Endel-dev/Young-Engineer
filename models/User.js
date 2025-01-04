@@ -105,38 +105,81 @@ userSchema.pre("save", function (next) {
 });
 
 // Hash password before saving (bcryptjs for hashing)
-userSchema.pre("save", async function (next) {
-    if (typeof this.dob === 'string') {
-      const dobParts = this.dob.split('-');
-      if (dobParts.length === 3) {
-        const day = dobParts[0];
-        const month = dobParts[1] - 1; // Month is 0-indexed in JavaScript Date
-        const year = dobParts[2];
+// userSchema.pre("save", async function (next) {
+//     if (typeof this.dob === 'string') {
+//       const dobParts = this.dob.split('-');
+//       if (dobParts.length === 3) {
+//         const day = dobParts[0];
+//         const month = dobParts[1] - 1; // Month is 0-indexed in JavaScript Date
+//         const year = dobParts[2];
   
-        // Create a Date object from the string
-        this.dob = new Date(year, month, day);
+//         // Create a Date object from the string
+//         this.dob = new Date(year, month, day);
   
-        if (isNaN(this.dob)) {
-          return next(new Error("Invalid date format. Expected dd-mm-yyyy."));
-        }
-      } else {
+//         if (isNaN(this.dob)) {
+//           return next(new Error("Invalid date format. Expected dd-mm-yyyy."));
+//         }
+//       } else {
+//         return next(new Error("Invalid date format. Expected dd-mm-yyyy."));
+//       }
+//     }
+    
+
+    
+//   if (!this.isModified("password")) return next();
+
+//   // Only hash if password is modified
+//   try {
+//     const salt = await bcrypt.genSalt(10);
+//     this.password = await bcrypt.hash(this.password, salt);
+//     next();
+//   } catch (err) {
+//     next(err);
+//   }
+// });
+
+userSchema.pre("save", function (next) {
+  if (typeof this.dob === "string") {
+    // Split the dd-mm-yyyy string into parts
+    const dobParts = this.dob.split("-");
+
+    // Ensure the format is valid (dd-mm-yyyy)
+    if (dobParts.length === 3) {
+      const day = parseInt(dobParts[0], 10);
+      const month = parseInt(dobParts[1], 10) - 1; // JavaScript months are 0-indexed
+      const year = parseInt(dobParts[2], 10);
+
+      // Validate that day, month, and year are valid numbers
+      if (
+        isNaN(day) ||
+        isNaN(month) ||
+        isNaN(year) ||
+        day <= 0 ||
+        month < 0 ||
+        month > 11 ||
+        year < 1900
+      ) {
         return next(new Error("Invalid date format. Expected dd-mm-yyyy."));
       }
+
+      // Create a Date object and check if it's valid
+      const dateObj = new Date(year, month, day);
+
+      // Check if the Date object is valid
+      if (dateObj.getDate() !== day || dateObj.getMonth() !== month || dateObj.getFullYear() !== year) {
+        return next(new Error("Invalid date format. Expected dd-mm-yyyy."));
+      }
+
+      // If everything is valid, assign the date to this.dob
+      this.dob = dateObj;
+    } else {
+      return next(new Error("Invalid date format. Expected dd-mm-yyyy."));
     }
-    
-
-    
-  if (!this.isModified("password")) return next();
-
-  // Only hash if password is modified
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (err) {
-    next(err);
   }
+
+  next();
 });
+
 
 // userSchema.pre("save", async function (next) {
 //   if (typeof this.dob === "string") {
