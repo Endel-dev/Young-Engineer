@@ -3748,6 +3748,7 @@ app.get("/children", verifyToken, async (req, res) => {
         // Attach tasks to each child
         return {
           ...child.toObject(), // Convert Mongoose document to plain object
+          dob: formattedDob,
           task, // Add tasks to the child object
         };
       })
