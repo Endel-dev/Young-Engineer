@@ -156,30 +156,30 @@ userSchema.pre("save", function (next) {
 
 userSchema.pre('save', function (next) {
   if (typeof this.dob === 'string') {
-    // Split the date string into parts
-    const dobParts = this.dob.split('-');
-    
+    const dobParts = this.dob.split('-'); // Split the date string by the '-'
+
     if (dobParts.length === 3) {
-      // Extract day, month, and year
+      // Extract day, month, and year from the string
       const day = parseInt(dobParts[0], 10);
-      const month = parseInt(dobParts[1], 10) - 1; // Months are 0-indexed in JavaScript
+      const month = parseInt(dobParts[1], 10) - 1; // Month is 0-indexed in JavaScript
       const year = parseInt(dobParts[2], 10);
-      
-      // Manually create a Date object
+
+      // Create a Date object in the correct format (yyyy-mm-dd)
       const parsedDate = new Date(year, month, day);
 
-      // Check if the date is valid
+      // Check if the created date is valid
       if (isNaN(parsedDate)) {
         return next(new Error('Invalid date format. Expected dd-mm-yyyy.'));
       }
 
-      // Assign the parsed date back to dob
+      // Assign the parsed date to the dob field
       this.dob = parsedDate;
     } else {
       return next(new Error('Invalid date format. Expected dd-mm-yyyy.'));
     }
   }
 
+  // Proceed with the save if everything is okay
   next();
 });
 
