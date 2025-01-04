@@ -2197,6 +2197,7 @@ app.post("/invite-guardian", async (req, res) => {
 
 app.post("/invite-second-parent", async (req, res) => {
   const { secondParentEmail, secondParentName, firstParentId } = req.body;
+  console.log(req.body);
 
   // Validate required fields
   if (!secondParentEmail || !secondParentName || !firstParentId) {
