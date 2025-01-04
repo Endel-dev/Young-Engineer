@@ -2196,14 +2196,14 @@ app.post("/invite-guardian", async (req, res) => {
 });
 
 app.post("/invite-second-parent", async (req, res) => {
-  const { secondParentEmail, secondParentfirstName,secondParentlastName,firstParentId } = req.body;
+  const { secondParentEmail, secondParentName, firstParentId } = req.body;
   console.log(req.body);
 
   // Validate required fields
-  if (!secondParentEmail || !secondParentfirstName ||!secondParentlastName || !firstParentId) {
+  if (!secondParentEmail || !secondParentName || !firstParentId) {
     return res.status(400).json({
       status: 0,
-      message: "Please provide second parent first name,last name, email, and first parent ID",
+      message: "Please provide second parent name, email, and first parent ID",
     });
   }
 
@@ -2270,7 +2270,7 @@ app.post("/invite-second-parent", async (req, res) => {
         from: "no-reply@weighingworld.com",
         to: secondParentEmail,
         subject: "Second Parent Invitation - Email Verification",
-        text: `Hello ${secondParentfirstName},\n\nPlease verify your email by clicking on the following link: ${verificationLink}`,
+        text: `Hello ${secondParentName},\n\nPlease verify your email by clicking on the following link: ${verificationLink}`,
       };
 
       transporter.sendMail(mailOptions, (error, info) => {
