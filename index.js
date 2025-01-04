@@ -461,6 +461,8 @@ app.post("/register", async (req, res) => {
       });
     }
 
+    const parsedDob = moment(dob, 'DD-MM-YYYY').format('YYYY-MM-DD');
+
     // If no valid verification token exists, proceed with generating the verification token
     const token = jwt.sign({ email }, process.env.JWT_SECRET, {
       expiresIn: "24h",
@@ -476,7 +478,7 @@ app.post("/register", async (req, res) => {
       lastName,
       role: normalizedRole,
       gender: normalizedGender,
-      dob,
+      dob: parsedDob,
       password,
       city,
       phoneNumber,
@@ -1821,9 +1823,9 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
     const parsedDob = moment(dob, 'DD-MM-YYYY').format('YYYY-MM-DD');
     
     // If parsing fails, it will return an invalid date
-    if (!moment(parsedDob, 'YYYY-MM-DD', true).isValid()) {
-      return res.status(400).json({ status: 0, message: "Invalid date format. Please use dd-mm-yyyy." });
-    }
+    // if (!moment(parsedDob, 'YYYY-MM-DD', true).isValid()) {
+    //   return res.status(400).json({ status: 0, message: "Invalid date format. Please use dd-mm-yyyy." });
+    // }
 
     //const parsedDob = parse(dob, 'dd-MM-yyyy', new Date()); // parse dd-mm-yyyy to Date object
     // formattedDob = format(parsedDob, 'yyyy-MM-dd'); 
@@ -2983,6 +2985,13 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
     if (!parent) {
       return res.status(400).json({ status: 0, message: "Parent not found" });
     }
+
+    const parsedDob = moment(dob, 'DD-MM-YYYY').format('YYYY-MM-DD');
+    
+    // If parsing fails, it will return an invalid date
+    // if (!moment(parsedDob, 'YYYY-MM-DD', true).isValid()) {
+    //   return res.status(400).json({ status: 0, message: "Invalid date format. Please use dd-mm-yyyy." });
+    // }
     //console.log(parent);
     //const parentNameParts = parent.name.split(" ");
     const parentNameParts = parent.lastName;
@@ -3006,7 +3015,7 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
       email: email || null,
       password,
       role: "child",
-      dob,
+      dob:parsedDob,
       parentId,
       Totalpoints,
       familyId: parent.familyId,
