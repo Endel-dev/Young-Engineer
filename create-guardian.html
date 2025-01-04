@@ -148,6 +148,7 @@
                 const password = formData.get('password');
                 const confirmPassword = formData.get('confirmpassword');
                 const phone = formData.get('phone');
+                const dob = formData.get('dob');
                 const age = calculateAge(dob);
 
                 if (age < 18) {
