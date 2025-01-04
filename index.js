@@ -2066,10 +2066,10 @@ app.post("/create-guardian-form", async (req, res) => {
 // });
 
 app.post("/invite-guardian", async (req, res) => {
-  const { guardianEmail, guardianName, parentId } = req.body;
+  const { guardianEmail, guardianfirstName,guardianlastName, parentId } = req.body;
 
   // Validate required fields
-  if (!guardianEmail || !guardianName) {
+  if (!guardianEmail || !guardianfirstName ||!guardianlastName) {
     return res.status(400).json({
       status: 0,
       message: "Please provide guardian name and email",
@@ -2103,7 +2103,7 @@ app.post("/invite-guardian", async (req, res) => {
       if (isGuardianInFamily) {
         return res.status(400).json({
           status: 0,
-          message: `${guardianName} is already a guardian of this family.`, //"You are already a guardian of this family",
+          message: `${guardianfirstName} is already a guardian of this family.`, //"You are already a guardian of this family",
         });
       }
 
@@ -2129,7 +2129,7 @@ app.post("/invite-guardian", async (req, res) => {
         from: "no-reply@weighingworld.com",
         to: guardianEmail,
         subject: "Guardian Invitation - Email Verification",
-        text: `Hello ${guardianName},\n\nPlease verify your email by clicking on the following link: ${verificationLink}`,
+        text: `Hello ${guardianfirstName},\n\nPlease verify your email by clicking on the following link: ${verificationLink}`,
       };
 
       transporter.sendMail(mailOptions, (error, info) => {
@@ -2170,7 +2170,7 @@ app.post("/invite-guardian", async (req, res) => {
         from: "no-reply@weighingworld.com",
         to: guardianEmail,
         subject: "Guardian Invitation - Registration",
-        text: `Hello ${guardianName},\n\nIt seems like you are not registered. Please complete your registration by clicking on the following link: ${registrationLink}`,
+        text: `Hello ${guardianfirstName},\n\nIt seems like you are not registered. Please complete your registration by clicking on the following link: ${registrationLink}`,
       };
 
       transporter.sendMail(mailOptions, (error, info) => {
