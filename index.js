@@ -2318,7 +2318,7 @@ app.post("/invite-second-parent", async (req, res) => {
         from: "no-reply@weighingworld.com",
         to: secondParentEmail,
         subject: "Second Parent Invitation - Registration",
-        text: `Hello ${secondParentName},\n\nIt seems like you are not registered. Please complete your registration by clicking on the following link: ${registrationLink}`,
+        text: `Hello ${secondParentfirstName},\n\nIt seems like you are not registered. Please complete your registration by clicking on the following link: ${registrationLink}`,
       };
 
       transporter.sendMail(mailOptions, (error, info) => {
