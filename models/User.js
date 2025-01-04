@@ -155,10 +155,10 @@ userSchema.pre("save", function (next) {
 // });
 
 // Format the date of birth (dob) to yyyy-mm-dd
-if (typeof this.dob === "string") {
-  const parsedDob = parse(this.dob, "dd-MM-yyyy", new Date()); // Parse dd-mm-yyyy string
-  this.dob = format(parsedDob, "yyyy-MM-dd"); // Convert to yyyy-mm-dd format
-}
+// if (typeof this.dob === "string") {
+//   const parsedDob = parse(this.dob, "dd-MM-yyyy", new Date()); // Parse dd-mm-yyyy string
+//   this.dob = format(parsedDob, "yyyy-MM-dd"); // Convert to yyyy-mm-dd format
+// }
 
 
 

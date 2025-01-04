@@ -25,6 +25,7 @@ const FRONTEND_URL = "templates/sample.html";
 const app_versions = require("./models/app_versions");
 //const moment = require("moment");
 //const { parse, format } = require('date-fns');
+const moment = require('moment');
 
 //const Redemption = require('./models/Redemption');
 
@@ -1814,6 +1815,14 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
       return res
         .status(200)
         .json({ status: 0, message: "Email or Name already exists" });
+
+    }
+
+    const parsedDob = moment(dob, 'DD-MM-YYYY').format('YYYY-MM-DD');
+    
+    // If parsing fails, it will return an invalid date
+    if (!moment(parsedDob, 'YYYY-MM-DD', true).isValid()) {
+      return res.status(400).json({ status: 0, message: "Invalid date format. Please use dd-mm-yyyy." });
     }
 
     //const parsedDob = parse(dob, 'dd-MM-yyyy', new Date()); // parse dd-mm-yyyy to Date object
@@ -1829,7 +1838,7 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
       email,
       password,
       role: normalizedRole,
-      dob,
+      dob:parsedDob,
       firstName,
       lastName,
       //familyId: [familyId],
