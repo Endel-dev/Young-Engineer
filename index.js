@@ -2327,6 +2327,7 @@ app.post("/invite-second-parent", async (req, res) => {
             message: "Error sending registration email",
           });
         }
+        console.log('Verification email sent:', info); 
 
         // Respond with success message if email is sent
         res.status(200).json({
