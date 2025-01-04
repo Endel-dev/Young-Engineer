@@ -3701,7 +3701,7 @@ app.get("/children", verifyToken, async (req, res) => {
     }
 
     // Fetch children where the parent's userId is the parentId
-    const children = await User.find({ parentId: parent.userId })
+    const children = await User.find({ parentId: parent.userId , role: "child" })
       .select("userId name email gender dob isActive") // Select only relevant fields
       .sort({ name: 1 }); // Optional: Sort children by name or any other criteria
 
