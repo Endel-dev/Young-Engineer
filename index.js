@@ -3714,6 +3714,11 @@ app.get("/children", verifyToken, async (req, res) => {
     // Fetch tasks related to each child (populate the tasks with fairAmount and fairType)
     const childrenWithTasks = await Promise.all(
       children.map(async (child) => {
+        const formattedDob = child.dob
+          ? new Date(child.dob).getDate().toString().padStart(2, '0') + '-' + 
+            (new Date(child.dob).getMonth() + 1).toString().padStart(2, '0') + '-' + 
+            new Date(child.dob).getFullYear()
+          : null;
         // Fetch the tasks related to each child
         const task = await Task.find({ assignedTo: child.userId }) // or Task.find({ childId: child.userId }) depending on your Task schema
           // .select('fairAmount rewardType taskType')  // Select only relevant fields
