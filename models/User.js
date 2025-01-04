@@ -139,38 +139,47 @@ userSchema.pre("save", function (next) {
 //   }
 // });
 
-userSchema.pre('save', function (next) {
-  if (typeof this.dob === 'string') {
-    // Parse the dob from 'dd-mm-yyyy' format
-    const parsedDob = parse(this.dob, 'dd-MM-yyyy', new Date());
+// userSchema.pre("save", function (next) {
+//   if (typeof this.dob === "string") {
+//     // Parse the date string 'dd-mm-yyyy' format into a Date object
+//     const parsedDob = parse(this.dob, "dd-MM-yyyy", new Date());
 
-    // Validate if the parsed date is valid
-    if (!isValid(parsedDob)) {
-      return next(new Error('Invalid date format. Expected dd-mm-yyyy.'));
-    }
+//     // Check if the parsed date is valid
+//     if (!isValid(parsedDob)) {
+//       return next(new Error("Invalid date format. Expected dd-mm-yyyy."));
+//     }
 
-    // Assign the parsed date back to dob
-    this.dob = parsedDob;
-  }
-
-  next();
-});
-
+//     // Set the dob field to the parsed Date object
+//     this.dob = parsedDob;
+//   }
+// });
 
 userSchema.pre('save', function (next) {
   if (typeof this.dob === 'string') {
-    // Parse the dob from 'dd-mm-yyyy' format
-    const parsedDob = parse(this.dob, 'dd-MM-yyyy', new Date());
+    // Split the date string into parts
+    const dobParts = this.dob.split('-');
+    
+    if (dobParts.length === 3) {
+      // Extract day, month, and year
+      const day = parseInt(dobParts[0], 10);
+      const month = parseInt(dobParts[1], 10) - 1; // Months are 0-indexed in JavaScript
+      const year = parseInt(dobParts[2], 10);
+      
+      // Manually create a Date object
+      const parsedDate = new Date(year, month, day);
 
-    // Validate if the parsed date is valid
-    if (!isValid(parsedDob)) {
+      // Check if the date is valid
+      if (isNaN(parsedDate)) {
+        return next(new Error('Invalid date format. Expected dd-mm-yyyy.'));
+      }
+
+      // Assign the parsed date back to dob
+      this.dob = parsedDate;
+    } else {
       return next(new Error('Invalid date format. Expected dd-mm-yyyy.'));
     }
-
-    // Assign the parsed date back to dob
-    this.dob = parsedDob;
   }
-  
+
   next();
 });
 
