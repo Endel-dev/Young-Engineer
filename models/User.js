@@ -139,20 +139,23 @@ userSchema.pre("save", function (next) {
 //   }
 // });
 
-// userSchema.pre("save", function (next) {
-//   if (typeof this.dob === "string") {
-//     // Parse the date string 'dd-mm-yyyy' format into a Date object
-//     const parsedDob = parse(this.dob, "dd-MM-yyyy", new Date());
+userSchema.pre('save', function (next) {
+  if (typeof this.dob === 'string') {
+    // Parse the dob from 'dd-mm-yyyy' format
+    const parsedDob = parse(this.dob, 'dd-MM-yyyy', new Date());
 
-//     // Check if the parsed date is valid
-//     if (!isValid(parsedDob)) {
-//       return next(new Error("Invalid date format. Expected dd-mm-yyyy."));
-//     }
+    // Validate if the parsed date is valid
+    if (!isValid(parsedDob)) {
+      return next(new Error('Invalid date format. Expected dd-mm-yyyy.'));
+    }
 
-//     // Set the dob field to the parsed Date object
-//     this.dob = parsedDob;
-//   }
-// });
+    // Assign the parsed date back to dob
+    this.dob = parsedDob;
+  }
+
+  next();
+});
+
 
 userSchema.pre('save', function (next) {
   if (typeof this.dob === 'string') {
