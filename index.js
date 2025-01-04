@@ -3738,9 +3738,7 @@ app.get("/children", verifyToken, async (req, res) => {
     const childrenWithTasks = await Promise.all(
       children.map(async (child) => {
         const formattedDob = child.dob
-          ? new Date(child.dob).getDate().toString().padStart(2, '0') + '-' + 
-            (new Date(child.dob).getMonth() + 1).toString().padStart(2, '0') + '-' + 
-            new Date(child.dob).getFullYear()
+          ? moment(child.dob).format('DD-MM-YYYY') // Use moment.js to format the date
           : null;
         // Fetch the tasks related to each child
         const task = await Task.find({ assignedTo: child.userId }) // or Task.find({ childId: child.userId }) depending on your Task schema
