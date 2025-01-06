@@ -3795,7 +3795,7 @@ app.get("/children", verifyToken, async (req, res) => {
 
     // Fetch children where the parentId or secondParentId belongs to this family
     const children = await User.find({ 
-      familyId: family._id,  // Assuming `familyId` is the field linking children to a family
+      familyId: family.familyId,  // Assuming `familyId` is the field linking children to a family
       role: "child" 
     })
       .select("userId name email gender dob isActive") // Select only relevant fields
