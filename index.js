@@ -3910,6 +3910,8 @@ app.get("/coparents", verifyToken, async (req, res) => {
         .json({ status: 0, message: "No co-parents found for this parent." });
     }
 
+    
+
     // Return the list of co-parents
     res.status(200).json({
       status: 1,

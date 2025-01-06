@@ -159,11 +159,23 @@
                 formData.append('parentId', firstParentId);  // Add parentId to the form data
 
                 const password = formData.get('password');
+                const firstName = formData.get('firstName');
+                const lastName = formData.get('lastName');
                 const confirmPassword = formData.get('confirmpassword');
                 const pincode = formData.get('pincode');
                 const phone = formData.get('phone');
                 const dob = formData.get('dob');
                 const age = calculateAge(dob);
+
+                if (!validateAlphabetic(firstName)) {
+                    document.getElementById('error-message').textContent = 'First name must contain only letters.';
+                    return;
+                }
+
+                if (!validateAlphabetic(lastName)) {
+                    document.getElementById('error-message').textContent = 'Last name must contain only letters.';
+                    return;
+                }
 
                 if (age < 18) {
                     document.getElementById('error-message').textContent = 'You must be at least 18 years old.';
