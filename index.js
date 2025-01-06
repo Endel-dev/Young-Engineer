@@ -3784,7 +3784,7 @@ app.get("/children", verifyToken, async (req, res) => {
 
     // Fetch the family where the logged-in parent is either the first or second parent
     const family = await Family.findOne({ 
-      $or: [{ parentId: parent.userId }, { secondParentId: parent.userId }] 
+      $or: [{ parentId: parent.userId }, { secondParentId: parent.userId },{ guardianIds: parent.userId }] 
     });
 
     if (!family) {
