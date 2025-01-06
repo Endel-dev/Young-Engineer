@@ -3719,62 +3719,62 @@ app.get("/view-tasks", verifyToken, async (req, res) => {
 });
 
 //Updated view children with fair type and fair amount
-app.get("/childrens", verifyToken, async (req, res) => {
-  try {
-    const parent = req.user; // Get user info from the token
-    // Ensure the logged-in user is a parent
-    if (parent.role !== "parent") {
-      return res
-        .status(403)
-        .json({ status: 0, message: "Access denied. You must be a parent." });
-    }
+// app.get("/childrens", verifyToken, async (req, res) => {
+//   try {
+//     const parent = req.user; // Get user info from the token
+//     // Ensure the logged-in user is a parent
+//     if (parent.role !== "parent") {
+//       return res
+//         .status(403)
+//         .json({ status: 0, message: "Access denied. You must be a parent." });
+//     }
 
-    // Fetch children where the parent's userId is the parentId
-    const children = await User.find({ parentId: parent.userId , role: "child" })
-      .select("userId name email gender dob isActive") // Select only relevant fields
-      .sort({ name: 1 }); // Optional: Sort children by name or any other criteria
+//     // Fetch children where the parent's userId is the parentId
+//     const children = await User.find({ parentId: parent.userId , role: "child" })
+//       .select("userId name email gender dob isActive") // Select only relevant fields
+//       .sort({ name: 1 }); // Optional: Sort children by name or any other criteria
 
-    if (children.length === 0) {
-      return res
-        .status(404)
-        .json({ status: 0, message: "No children found for this parent." });
-    }
+//     if (children.length === 0) {
+//       return res
+//         .status(404)
+//         .json({ status: 0, message: "No children found for this parent." });
+//     }
 
-    // Fetch tasks related to each child (populate the tasks with fairAmount and fairType)
-    const childrenWithTasks = await Promise.all(
-      children.map(async (child) => {
-        const formattedDob = child.dob
-          ? moment(child.dob).format('DD-MM-YYYY') // Use moment.js to format the date
-          : null;
-        // Fetch the tasks related to each child
-        const task = await Task.find({ assignedTo: child.userId }) // or Task.find({ childId: child.userId }) depending on your Task schema
-          // .select('fairAmount rewardType taskType')  // Select only relevant fields
-          .sort({ createdAt: -1 }); // Optional: Sort tasks by creation date or any other criteria
+//     // Fetch tasks related to each child (populate the tasks with fairAmount and fairType)
+//     const childrenWithTasks = await Promise.all(
+//       children.map(async (child) => {
+//         const formattedDob = child.dob
+//           ? moment(child.dob).format('DD-MM-YYYY') // Use moment.js to format the date
+//           : null;
+//         // Fetch the tasks related to each child
+//         const task = await Task.find({ assignedTo: child.userId }) // or Task.find({ childId: child.userId }) depending on your Task schema
+//           // .select('fairAmount rewardType taskType')  // Select only relevant fields
+//           .sort({ createdAt: -1 }); // Optional: Sort tasks by creation date or any other criteria
 
-        // Attach tasks to each child
-        return {
-          ...child.toObject(), // Convert Mongoose document to plain object
-          dob: formattedDob,
-          task, // Add tasks to the child object
-        };
-      })
-    );
+//         // Attach tasks to each child
+//         return {
+//           ...child.toObject(), // Convert Mongoose document to plain object
+//           dob: formattedDob,
+//           task, // Add tasks to the child object
+//         };
+//       })
+//     );
 
-    // Return the list of children along with their tasks
-    res.status(200).json({
-      status: 1,
-      message: "Children retrieved successfully.",
-      children: childrenWithTasks,
-    });
-  } catch (err) {
-    console.error("Error fetching children:", err);
-    res.status(500).json({
-      status: 0,
-      message: "Server error while fetching children",
-      err,
-    });
-  }
-});
+//     // Return the list of children along with their tasks
+//     res.status(200).json({
+//       status: 1,
+//       message: "Children retrieved successfully.",
+//       children: childrenWithTasks,
+//     });
+//   } catch (err) {
+//     console.error("Error fetching children:", err);
+//     res.status(500).json({
+//       status: 0,
+//       message: "Server error while fetching children",
+//       err,
+//     });
+//   }
+// });
 
 app.get("/children", verifyToken, async (req, res) => {
   try {
@@ -3847,6 +3847,86 @@ app.get("/children", verifyToken, async (req, res) => {
     });
   }
 });
+
+app.get("/coparents", verifyToken, async (req, res) => {
+  try {
+    const parent = req.user; // Get user info from the token
+
+    // Ensure the logged-in user is a parent or guardian
+    if (parent.role !== "parent" && parent.role !== "guardian") {
+      return res
+        .status(403)
+        .json({ status: 0, message: "Access denied. You must be a parent or guardian." });
+    }
+
+    // Fetch the family where the logged-in parent is listed as parent or guardian
+    const family = await Family.findOne({
+      $or: [
+        { parentId: parent.userId },
+        { guardianIds: parent.userId },
+      ],
+    });
+
+    if (!family) {
+      return res
+        .status(404)
+        .json({ status: 0, message: "No family found for this parent." });
+    }
+
+    // Initialize an empty array to store co-parents
+    let coParents = [];
+
+    // Check for the first parent in the family (excluding the logged-in user)
+    if (family.parentId && family.parentId !== parent.userId) {
+      const firstParent = await User.findOne({ userId: family.parentId });
+      if (firstParent) coParents.push(firstParent);
+    }
+
+    // Check for all guardians (excluding the logged-in user)
+    if (family.guardianIds && family.guardianIds.length > 0) {
+      const guardians = await User.find({
+        userId: { $in: family.guardianIds },
+      });
+
+      // Add guardians to the co-parents list, excluding the logged-in user
+      guardians.forEach((guardian) => {
+        if (guardian.userId !== parent.userId) {
+          coParents.push(guardian);
+        }
+      });
+    }
+
+    // If no co-parents are found, return a message
+    if (coParents.length === 0) {
+      return res
+        .status(404)
+        .json({ status: 0, message: "No co-parents found for this parent." });
+    }
+
+    // Return the list of co-parents
+    res.status(200).json({
+      status: 1,
+      message: "Co-parents retrieved successfully.",
+      coParents: coParents.map((coParent) => ({
+        userId: coParent.userId,
+        name: coParent.name,
+        firstName: coParent.firstName,
+        lastName: coParent.lastName,
+        email: coParent.email,
+        phoneNumber: coParent.phoneNumber,
+        role: coParent.role,
+      })),
+    });
+  } catch (err) {
+    console.error("Error fetching co-parents:", err);
+    res.status(500).json({
+      status: 0,
+      message: "Server error while fetching co-parents",
+      err,
+    });
+  }
+});
+
 
 
 app.post("/update-device-id", async (req, res) => {
