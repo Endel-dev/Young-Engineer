@@ -2950,6 +2950,7 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
 
   const {
     name,
+    username,
     gender,
     email,
     password,
@@ -3017,6 +3018,7 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
     // Create the new user (child)
     const newUser = new User({
       name,
+      username,
       gender: normalizedGender,
       email: email || null,
       password,

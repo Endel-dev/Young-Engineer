@@ -76,6 +76,7 @@ const userSchema = new mongoose.Schema(
     ],
     //Fields specific to 'parent' role
     phoneNumber: { type: String },
+    username:{type:String},
     address1: { type: String },
     address2: { type: String },
     address3: { type: String },
