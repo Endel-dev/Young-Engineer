@@ -2427,6 +2427,7 @@ app.post("/verify-second-parent", async (req, res) => {
     for (let child of children) {
       if (!child.parentId.includes(secondParent.userId)) {
         child.parentId.push(secondParent.userId);
+        console.log("Saving child:", child.userId);
         await child.save(); // Save the updated child document
       }
     }
