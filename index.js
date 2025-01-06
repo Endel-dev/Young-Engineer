@@ -1514,10 +1514,9 @@ app.post("/login", async (req, res) => {
         firstName:user.firstName,
         lastName:user.lastName,
         familyId: user.familyId || null,
-        familyName:familyName //user.familyId
-          //? await Family.findOne({ familyId: user.familyId }).familyName
-          //: null,
-        ,
+        familyName: user.familyId
+          ? await Family.findOne({ familyId: user.familyId }).familyName
+          : null,
         email: user.email,
         dob: user.dob,
         phoneNumber: user.phoneNumber,
