@@ -1463,7 +1463,7 @@ app.post("/login", async (req, res) => {
     }
 
     // If the user is not a 'child', check for parent login (by email or name)
-    if (!user || user.role !== "child") {
+    if (user || user.role !== "child") {
       // If parent is trying to log in, we check by email or name
       if (email) {
         user = await User.findOne({ email });
