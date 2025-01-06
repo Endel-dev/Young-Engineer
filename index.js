@@ -3714,7 +3714,7 @@ app.get("/view-tasks", verifyToken, async (req, res) => {
 });
 
 //Updated view children with fair type and fair amount
-app.get("/children", verifyToken, async (req, res) => {
+app.get("/childrens", verifyToken, async (req, res) => {
   try {
     const parent = req.user; // Get user info from the token
     // Ensure the logged-in user is a parent
@@ -3770,6 +3770,78 @@ app.get("/children", verifyToken, async (req, res) => {
     });
   }
 });
+
+app.get("/children", verifyToken, async (req, res) => {
+  try {
+    const parent = req.user; // Get user info from the token
+
+    // Ensure the logged-in user is a parent
+    if (parent.role !== "parent") {
+      return res
+        .status(403)
+        .json({ status: 0, message: "Access denied. You must be a parent." });
+    }
+
+    // Step 1: Fetch the family of the parent
+    const family = await Family.findOne({ familyId: parent.familyId }); // Assuming the parent has a familyId
+
+    if (!family) {
+      return res.status(404).json({
+        status: 0,
+        message: "Family not found for this parent.",
+      });
+    }
+
+    // Step 2: Get children from the family (children array contains userIds of the children)
+    const children = await User.find({
+      userId: { $in: family.children }, // Match children whose userIds are in the family's children array
+      role: "child", // Ensure the role is child
+    })
+      .select("userId name email gender dob isActive") // Select only relevant fields
+      .sort({ name: 1 }); // Optional: Sort children by name or any other criteria
+
+    if (children.length === 0) {
+      return res
+        .status(404)
+        .json({ status: 0, message: "No children found for this family." });
+    }
+
+    // Step 3: Fetch tasks related to each child
+    const childrenWithTasks = await Promise.all(
+      children.map(async (child) => {
+        const formattedDob = child.dob
+          ? moment(child.dob).format('DD-MM-YYYY') // Format DOB using moment.js
+          : null;
+
+        // Fetch the tasks related to each child
+        const task = await Task.find({ assignedTo: child.userId }) // Assuming the Task schema has assignedTo as the child userId
+          .sort({ createdAt: -1 }); // Optional: Sort tasks by creation date or other criteria
+
+        // Attach tasks to each child object
+        return {
+          ...child.toObject(), // Convert Mongoose document to plain object
+          dob: formattedDob,
+          task, // Add tasks to the child object
+        };
+      })
+    );
+
+    // Return the list of children along with their tasks
+    res.status(200).json({
+      status: 1,
+      message: "Children retrieved successfully.",
+      children: childrenWithTasks,
+    });
+  } catch (err) {
+    console.error("Error fetching children:", err);
+    res.status(500).json({
+      status: 0,
+      message: "Server error while fetching children",
+      err,
+    });
+  }
+});
+
 
 app.post("/update-device-id", async (req, res) => {
   const { userId, deviceId } = req.body;
