@@ -1484,8 +1484,7 @@ app.post("/login", async (req, res) => {
           .json({ status: 0, message: "Invalid name/email or password" });
       }
 
-      console.log("Logged in user:", user.name, user.userId);
-
+     
       // Fetch children's names if the user is a parent
       // Fetch children's names if the user is a parent
       // let kidsNames = [];
@@ -1501,7 +1500,9 @@ app.post("/login", async (req, res) => {
         process.env.JWT_SECRET,
         { expiresIn: "15d" }
       );
-      console.log("Login is working.")
+      console.log("Logged in user:", user.name, user.userId);
+
+      //console.log("Login is working.")
 
       return res.status(200).json({
         status: 1,
