@@ -1848,7 +1848,7 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
       dob:parsedDob,
       firstName,
       lastName,
-      //familyId: [familyId],
+      familyId: [familyId],
       //guardianId: parent.familyId,
       parentId: parentId,
       phoneNumber
