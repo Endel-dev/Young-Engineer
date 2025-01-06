@@ -1484,25 +1484,7 @@ app.post("/login", async (req, res) => {
           .json({ status: 0, message: "Invalid name/email or password" });
       }
 
-      // Fetch the family details to get the guardian's name
-      let familyName = null;
-      let guardianName = null;
-
-      if (user.familyId) {
-        const family = await Family.findOne({ familyId: user.familyId });
-
-        if (family) {
-          // Check if the logged-in user is a guardian (not parent)
-          if (family.guardianIds.includes(user.userId)) {
-            // If the user is a guardian, return the guardian's name
-            guardianName = user.name; // The logged-in user's name is the guardian's name
-          } else {
-            // If the user is a parent, return the parent's name (as their own)
-            guardianName = user.name; // Parents should return their own name
-          }
-          familyName = family.familyName;
-        }
-      }
+      console.log("Logged in user:", user.name, user.userId);
 
       // Fetch children's names if the user is a parent
       // Fetch children's names if the user is a parent
