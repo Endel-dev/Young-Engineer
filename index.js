@@ -3776,7 +3776,7 @@ app.get("/children", verifyToken, async (req, res) => {
     const parent = req.user; // Get user info from the token
 
     // Ensure the logged-in user is a parent
-    if (parent.role !== "parent") {
+    if (parent.role !== "parent" && parent.role !== "guardian") {
       return res
         .status(403)
         .json({ status: 0, message: "Access denied. You must be a parent." });
