@@ -3848,97 +3848,19 @@ app.get("/children", verifyToken, async (req, res) => {
   }
 });
 
+
+
 app.get("/coparents", verifyToken, async (req, res) => {
   try {
     const parent = req.user; // Get user info from the token
     console.log(parent);
 
     // Ensure the logged-in user is a parent or guardian
-    if (parent.role !== "parent" && parent.role !== "guardian") {
-      return res
-        .status(403)
-        .json({ status: 0, message: "Access denied. You must be a parent or guardian." });
-    }
-
-    // Fetch the family where the logged-in parent is listed as parent or guardian
-    const family = await Family.findOne({
-      $or: [
-        { parentId: parent.userId },
-        { guardianIds: parent.userId },
-      ],
-    });
-
-    if (!family) {
-      return res
-        .status(404)
-        .json({ status: 0, message: "No family found for this parent." });
-    }
-
-    // Initialize an empty array to store co-parents
-    let coParents = [];
-
-    // Check for the first parent in the family (excluding the logged-in user)
-    if (family.parentId && family.parentId !== parent.userId) {
-      const firstParent = await User.findOne({ userId: family.parentId });
-      if (firstParent) coParents.push(firstParent);
-    }
-
-    // Check for all guardians (excluding the logged-in user)
-    if (family.guardianIds && family.guardianIds.length > 0) {
-      const guardians = await User.find({
-        userId: { $in: family.guardianIds },
-      });
-
-      // Add guardians to the co-parents list, excluding the logged-in user
-      guardians.forEach((guardian) => {
-        if (guardian.userId !== parent.userId) {
-          coParents.push(guardian);
-        }
-      });
-    }
-
-    // If no co-parents are found, return a message
-    if (coParents.length === 0) {
-      return res
-        .status(404)
-        .json({ status: 0, message: "No co-parents found for this parent." });
-    }
-
-    // Return the list of co-parents
-    res.status(200).json({
-      status: 1,
-      message: "Co-parents retrieved successfully.",
-      coParents: coParents.map((coParent) => ({
-        //userId: coParent.userId,
-        name: coParent.name,
-        //firstName: coParent.firstName,
-        //lastName: coParent.lastName,
-        email: coParent.email,
-        //phoneNumber: coParent.phoneNumber,
-        role: coParent.role,
-      })),
-    });
-  } catch (err) {
-    console.error("Error fetching co-parents:", err);
-    res.status(500).json({
-      status: 0,
-      message: "Server error while fetching co-parents",
-      err,
-    });
-  }
-});
-
-app.get("/coparents1", verifyToken, async (req, res) => {
-  try {
-    const parent = req.user; // Get user info from the token
-    console.log(parent);
-
-    // Ensure the logged-in user is a parent or guardian
-    if (parent.role !== "parent" && parent.role !== "guardian") {
-      return res
-        .status(403)
-        .json({ status: 0, message: "Access denied. You must be a parent or guardian." });
-    }
+    // if (parent.role !== "parent" && parent.role !== "guardian") {
+    //   return res
+    //     .status(403)
+    //     .json({ status: 0, message: "Access denied. You must be a parent or guardian." });
+    // }
 
     // Fetch the family where the logged-in parent is listed as parent or guardian
     const family = await Family.findOne({
