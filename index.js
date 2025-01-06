@@ -3714,7 +3714,7 @@ app.get("/view-tasks", verifyToken, async (req, res) => {
 });
 
 //Updated view children with fair type and fair amount
-app.get("/children", verifyToken, async (req, res) => {
+app.get("/childrens", verifyToken, async (req, res) => {
   try {
     const parent = req.user; // Get user info from the token
     // Ensure the logged-in user is a parent
@@ -3770,6 +3770,79 @@ app.get("/children", verifyToken, async (req, res) => {
     });
   }
 });
+
+app.get("/children", verifyToken, async (req, res) => {
+  try {
+    const parent = req.user; // Get user info from the token
+
+    // Ensure the logged-in user is a parent
+    if (parent.role !== "parent") {
+      return res
+        .status(403)
+        .json({ status: 0, message: "Access denied. You must be a parent." });
+    }
+
+    // Fetch the family where the logged-in parent is either the first or second parent
+    const family = await Family.findOne({ 
+      $or: [{ parentId: parent.userId }, { secondParentId: parent.userId }] 
+    });
+
+    if (!family) {
+      return res
+        .status(404)
+        .json({ status: 0, message: "No family found for this parent." });
+    }
+
+    // Fetch children where the parentId or secondParentId belongs to this family
+    const children = await User.find({ 
+      familyId: family._id,  // Assuming `familyId` is the field linking children to a family
+      role: "child" 
+    })
+      .select("userId name email gender dob isActive") // Select only relevant fields
+      .sort({ name: 1 }); // Optional: Sort children by name or any other criteria
+
+    if (children.length === 0) {
+      return res
+        .status(404)
+        .json({ status: 0, message: "No children found for this parent." });
+    }
+
+    // Fetch tasks related to each child (populate the tasks with fairAmount and fairType)
+    const childrenWithTasks = await Promise.all(
+      children.map(async (child) => {
+        const formattedDob = child.dob
+          ? moment(child.dob).format('DD-MM-YYYY') // Use moment.js to format the date
+          : null;
+        
+        // Fetch the tasks related to each child
+        const tasks = await Task.find({ assignedTo: child.userId })
+          .sort({ createdAt: -1 }); // Optional: Sort tasks by creation date or any other criteria
+
+        // Attach tasks to each child
+        return {
+          ...child.toObject(), // Convert Mongoose document to plain object
+          dob: formattedDob,
+          tasks, // Add tasks to the child object
+        };
+      })
+    );
+
+    // Return the list of children along with their tasks
+    res.status(200).json({
+      status: 1,
+      message: "Children retrieved successfully.",
+      children: childrenWithTasks,
+    });
+  } catch (err) {
+    console.error("Error fetching children:", err);
+    res.status(500).json({
+      status: 0,
+      message: "Server error while fetching children",
+      err,
+    });
+  }
+});
+
 
 app.post("/update-device-id", async (req, res) => {
   const { userId, deviceId } = req.body;
