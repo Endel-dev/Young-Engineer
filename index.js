@@ -5336,7 +5336,7 @@ app.get("/get-families/:userId", async (req, res) => {
         }
 
       // Construct the family name (e.g., "John's Family")
-      //const familyName = `${user.name}'s Family`;
+      const familyName = `${user.name}'s Family`;
 
       families.push({
         familyId: family.familyId,
