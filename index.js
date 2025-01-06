@@ -3916,6 +3916,8 @@ app.get("/coparents", verifyToken, async (req, res) => {
       message: "Co-parents retrieved successfully.",
       coParents: coParents.map((coParent) => ({
         name: coParent.name,
+        firstName:coParent.firstName,
+        lastName:coParent.lastName,
         email: coParent.email,
         role: coParent.role,
       })),
