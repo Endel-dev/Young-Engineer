@@ -1500,7 +1500,7 @@ app.post("/login", async (req, res) => {
         process.env.JWT_SECRET,
         { expiresIn: "15d" }
       );
-      console.log("Logged in user:", user.name, user.userId);
+      console.log("Logged in user:", user.name, user.userId, user.role);
 
       //console.log("Login is working.")
 
