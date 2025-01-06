@@ -3908,12 +3908,12 @@ app.get("/coparents", verifyToken, async (req, res) => {
       status: 1,
       message: "Co-parents retrieved successfully.",
       coParents: coParents.map((coParent) => ({
-        userId: coParent.userId,
+        //userId: coParent.userId,
         name: coParent.name,
-        firstName: coParent.firstName,
-        lastName: coParent.lastName,
+        //firstName: coParent.firstName,
+        //lastName: coParent.lastName,
         email: coParent.email,
-        phoneNumber: coParent.phoneNumber,
+        //phoneNumber: coParent.phoneNumber,
         role: coParent.role,
       })),
     });
