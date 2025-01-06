@@ -2124,7 +2124,8 @@ app.post("/invite-guardian", async (req, res) => {
       if (isGuardianInFamily) {
         return res.status(400).json({
           status: 0,
-          message: `${guardianfirstName} is already a guardian of this family.`, //"You are already a guardian of this family",
+          message: `${guardianfirstName} is already a guardian of this family.`,
+          redirect: "http://93.127.172.167:5001/guardian-verify", //"You are already a guardian of this family",
         });
       }
 
