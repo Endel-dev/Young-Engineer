@@ -3914,13 +3914,13 @@ app.get("/coparents", verifyToken, async (req, res) => {
     res.status(200).json({
       status: 1,
       message: "Co-parents retrieved successfully.",
-      coParents: coParents.map((coParent) => ({
-        name: coParent.name,
-        firstName:coParent.firstName,
-        lastName:coParent.lastName,
-        email: coParent.email,
-        role: coParent.role,
-      })),
+       coParents:coParents,//coParents.map((coParent) => ({
+      //   name: coParent.name,
+      //   firstName:coParent.firstName,
+      //   lastName:coParent.lastName,
+      //   email: coParent.email,
+      //   role: coParent.role,
+      // })),
     });
   } catch (err) {
     console.error("Error fetching co-parents:", err);
