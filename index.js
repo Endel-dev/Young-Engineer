@@ -1455,10 +1455,10 @@ app.post("/login", async (req, res) => {
           //role: user.role,
           name: user.name,
           familyId: user.familyId || null,
-          familyName: user.familyId
-            ? await Family.findOne({ familyId: user.familyId }).familyName
-            : null,
-        });
+          familyName: familyName//user.familyId
+        //     ? await Family.findOne({ familyId: user.familyId }).familyName
+        //     : null,
+         });
       }
     }
 
