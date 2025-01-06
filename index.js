@@ -1528,9 +1528,9 @@ app.post("/login", async (req, res) => {
         password: user.password,
         kidsNames: user.kidsNames,
       });
-      
+      console.log(name);
     }
-    console.log(name);
+    
   } catch (err) {
     console.error("Error logging in user:", err);
     res
