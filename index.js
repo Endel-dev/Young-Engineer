@@ -3058,6 +3058,7 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
 
     // Save the new user to the database
     await newUser.save();
+    console.log(newUser);
     const family = await Family.findOne({ familyId: parent.familyId });
     if (!family) {
       return res.status(400).json({ status: 0, message: "Family not found" });
@@ -3306,6 +3307,7 @@ app.post("/create-task", verifyToken, async (req, res) => {
     title,
     description,
     taskId,
+    createdBy,
     assignedTo,
     associates,
     expectedCompletionDate,
@@ -3373,6 +3375,7 @@ app.post("/create-task", verifyToken, async (req, res) => {
       paymentStatus,
       schedule,
       taskType,
+      createdBy,
       completionDate,
       completionTime,
     });
