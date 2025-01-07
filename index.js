@@ -3333,8 +3333,19 @@ app.post("/create-task", verifyToken, async (req, res) => {
     });
   }
 
+  // Parse and reformat the expectedCompletionDate
+  const formattedExpectedCompletionDate = moment(expectedCompletionDate, "DD-MM-YYYY").format("YYYY-MM-DD");
+
+  // Ensure the formatted date is valid
+  if (!moment(formattedExpectedCompletionDate, "YYYY-MM-DD", true).isValid()) {
+    return res.status(400).json({
+      status: 0,
+      message: "Invalid expected completion date format. Please use dd-mm-yyyy.",
+    });
+  }
+
   const currentDate = new Date();
-  const expectedDate = new Date(expectedCompletionDate);
+  const expectedDate = new Date(formattedExpectedCompletionDate);
 
   if (expectedDate < currentDate) {
     return res.status(400).json({
@@ -3362,7 +3373,7 @@ app.post("/create-task", verifyToken, async (req, res) => {
       taskId,
       assignedTo,
       associates,
-      expectedCompletionDate,
+      expectedCompletionDate:formattedExpectedCompletionDate,
       rewardType,
       fairType,
       fairAmount,

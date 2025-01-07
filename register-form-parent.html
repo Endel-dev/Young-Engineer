@@ -69,6 +69,7 @@
             font-size: 14px;
             margin-top: 10px;
         }
+
         .eye-icon {
             position: absolute;
             right: 10px;
@@ -89,11 +90,11 @@
             <input type="text" id="lastName" name="lastName" placeholder="Parent's Last Name" required>
             <input type="email" id="email" name="email" placeholder="Parent's Email" readonly required>
             <input type="password" id="password" name="password" placeholder="Password" required>
-            
+
             <div class="error" id="password-error"></div>
             <input type="password" id="confirmpassword" name="confirmpassword" placeholder="Confirm Password" required>
-            
-            
+
+
             <!-- Confirm password input with eye icon -->
             <!-- <div class="password-container">
                 <input type="password" id="confirmpassword" name="confirmpassword" placeholder="Confirm Password" required>
@@ -134,19 +135,23 @@
             </div>
             <!--<input type="text" id="state" name="state" placeholder="State" required> -->
             <input type="text" id="pincode" name="pincode" placeholder="Pincode" required>
-            
+
             <button type="submit">Create Account</button>
             <p class="error" id="error-message"></p>
         </form>
     </div>
 
-    
+
     <script>
         const states = {
             "USA": ["California", "Texas", "Florida", "New York"],
             "Canada": ["Ontario", "Quebec", "British Columbia"],
-            "India": ["Delhi", "Maharashtra", "Karnataka", "Tamil Nadu"],
-            "Australia": ["New South Wales", "Victoria", "Queensland", "Western Australia", "South Australia", "Tasmania", "Australian Capital Territory", "Northern Territory"]
+            "India": ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana",
+                "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur",
+                "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana",
+                "Uttar Pradesh", "Uttarakhand", "West Bengal", "Delhi", "Jammu and Kashmir", "Lakshadweep", "Puducherry"],
+            "Australia": ["New South Wales", "Victoria", "Queensland", "Western Australia", "South Australia", "Tasmania",
+                "Australian Capital Territory", "Northern Territory"]
         };
 
         const cities = {
@@ -206,7 +211,7 @@
             }
         }
 
-        document.getElementById("country").addEventListener("change", function() {
+        document.getElementById("country").addEventListener("change", function () {
             const selectedCountry = this.value;
             updateStateDropdown(selectedCountry);
             document.getElementById("city-dropdown").innerHTML = '<option value="">Select City</option>';
@@ -214,13 +219,13 @@
         });
 
         // Event listener for state selection
-        document.getElementById("state").addEventListener("change", function() {
+        document.getElementById("state").addEventListener("change", function () {
             const selectedState = this.value;
             updateCityDropdown(selectedState);
         });
 
         // Event listener for city selection
-        document.getElementById("city-dropdown").addEventListener("change", function() {
+        document.getElementById("city-dropdown").addEventListener("change", function () {
             const selectedCity = this.value;
             const manualCityDiv = document.getElementById("manual-city");
             if (selectedCity === "Other") {
@@ -249,14 +254,14 @@
             return alphabeticRegex.test(str);
         }
 
-        
+
 
         // Populate the email field from the URL and get the parentId
         window.onload = function () {
             const email = getQueryParam('email');
             //const parentId = getQueryParam('parentId');
             //const email = getQueryParam('secondParentEmail');
-            const firstParentId =getQueryParam('firstParentId');
+            const firstParentId = getQueryParam('firstParentId');
 
             if (email) {
                 document.getElementById('email').value = email;
@@ -351,7 +356,7 @@
                 const data = {
                     //name: formData.get('name'),
                     firstName: formData.get('firstName'),
-                    lastName:formData.get('lastName'),
+                    lastName: formData.get('lastName'),
                     email: email,
                     password: formData.get('password'),
                     gender: formData.get('gender'),
@@ -360,7 +365,7 @@
                     address1: formData.get('address'),
                     city: formData.get('city'),
                     state: formData.get('state'),
-                    country:formData.get('country'),
+                    country: formData.get('country'),
                     pincode: formData.get('pincode'),
                     role: 'parent',
                     firstParentId: firstParentId,  // Include parentId from URL
@@ -379,7 +384,7 @@
                         if (result.status === 1) {
                             alert('Parent created successfully!');
                             //document.getElementById('guardian-form').reset(); // Reset the form on success
-                            window.location.href = 'http://93.127.172.167:5001/second-parent'; 
+                            window.location.href = 'http://93.127.172.167:5001/second-parent';
                         } else {
                             throw new Error(result.message || 'Something went wrong');
                         }
@@ -390,7 +395,7 @@
             });
         };
     </script>
-    
+
 
 </body>
 
