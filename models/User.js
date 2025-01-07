@@ -87,6 +87,7 @@ const userSchema = new mongoose.Schema(
     kidsNames: [{ type: String }],
 
     // Fields specific to 'child' role
+    username:{type:String},
     firstName: { type: String },
     lastName: { type: String },
     school: { type: String },

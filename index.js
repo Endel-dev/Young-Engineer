@@ -2957,6 +2957,7 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
 
   const {
     name,
+    username,
     gender,
     email,
     password,
@@ -2977,7 +2978,7 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
   }
 
   // Validate required fields
-  if (!name || !password || !dob) {
+  if (!name || !password || !dob ||!username) {
     return res
       .status(400)
       .json({ status: 0, message: "Please provide all required fields" });
@@ -3024,6 +3025,7 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
     // Create the new user (child)
     const newUser = new User({
       name,
+      username,
       gender: normalizedGender,
       email: email || null,
       password,
