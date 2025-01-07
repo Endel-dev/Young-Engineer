@@ -93,7 +93,6 @@
             <input type="date" id="dob" name="dob" placeholder="Date of Birth" required>
             <input type="text" id="phone" name="phone" placeholder="Phone Number" required>
             <input type="text" id="address" name="address" placeholder="Address" required>
-            <input type="text" id="city" name="city" placeholder="City" required>
             <select id="country" name="country" required>
                 <option value="">Select Country</option>
                 <!-- Add your countries here or use an API to populate dynamically -->
@@ -107,6 +106,16 @@
                 <option value="">Select State</option>
                 <!-- States will be populated based on selected country -->
             </select>
+            <!--<input type="text" id="city" name="city" placeholder="City" required>-->
+            <select id="city-dropdown" name="city" required>
+                <option value="">Select City</option>
+            </select>
+
+            <!-- Manual City Input Field -->
+            <div id="manual-city">
+                <label for="manual-city-input">If your city is not listed, please enter it:</label>
+                <input type="text" id="manual-city-input" name="city" placeholder="Enter City">
+            </div>
             <!--<input type="text" id="state" name="state" placeholder="State" required> -->
             <input type="text" id="pincode" name="pincode" placeholder="Pincode" required>
             
@@ -123,6 +132,20 @@
             "India": ["Delhi", "Maharashtra", "Karnataka", "Tamil Nadu"]
         };
 
+        const cities = {
+            "California": ["Los Angeles", "San Francisco", "San Diego"],
+            "Texas": ["Houston", "Dallas", "Austin"],
+            "Florida": ["Miami", "Orlando", "Tampa"],
+            "New York": ["New York City", "Buffalo", "Rochester"],
+            "Ontario": ["Toronto", "Ottawa", "Hamilton"],
+            "Quebec": ["Montreal", "Quebec City", "Laval"],
+            "British Columbia": ["Vancouver", "Victoria", "Kelowna"],
+            "Delhi": ["New Delhi", "Old Delhi", "Dwarka"],
+            "Maharashtra": ["Mumbai", "Pune", "Nagpur"],
+            "Karnataka": ["Bengaluru", "Mysuru", "Mangalore"],
+            "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai"]
+        };
+
         function updateStateDropdown(country) {
             const stateDropdown = document.getElementById("state");
             stateDropdown.innerHTML = '<option value="">Select State</option>'; // Reset the states
@@ -137,9 +160,49 @@
             }
         }
 
+        function updateCityDropdown(state) {
+            const cityDropdown = document.getElementById("city-dropdown");
+            const manualCityDiv = document.getElementById("manual-city");
+            cityDropdown.innerHTML = '<option value="">Select City</option>';
+
+            if (state in cities) {
+                cities[state].forEach(city => {
+                    const option = document.createElement("option");
+                    option.value = city;
+                    option.textContent = city;
+                    cityDropdown.appendChild(option);
+                });
+                // Show the "Other" option
+                const otherOption = document.createElement("option");
+                otherOption.value = "Other";
+                otherOption.textContent = "Other (Enter manually)";
+                cityDropdown.appendChild(otherOption);
+                manualCityDiv.style.display = 'none'; // Hide manual input by default
+            }
+        }
+
         document.getElementById("country").addEventListener("change", function() {
             const selectedCountry = this.value;
             updateStateDropdown(selectedCountry);
+            document.getElementById("city-dropdown").innerHTML = '<option value="">Select City</option>';
+            document.getElementById("manual-city").style.display = 'none';
+        });
+
+        // Event listener for state selection
+        document.getElementById("state").addEventListener("change", function() {
+            const selectedState = this.value;
+            updateCityDropdown(selectedState);
+        });
+
+        // Event listener for city selection
+        document.getElementById("city-dropdown").addEventListener("change", function() {
+            const selectedCity = this.value;
+            const manualCityDiv = document.getElementById("manual-city");
+            if (selectedCity === "Other") {
+                manualCityDiv.style.display = 'block'; // Show manual input if "Other" is selected
+            } else {
+                manualCityDiv.style.display = 'none'; // Hide manual input if a city is selected
+            }
         });
 
 
