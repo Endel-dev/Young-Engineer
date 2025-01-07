@@ -109,6 +109,11 @@
             return phoneRegex.test(phone);
         }
 
+        function validateAlphabetic(str) {
+            const alphabeticRegex = /^[A-Za-z]+$/;
+            return alphabeticRegex.test(str);
+        }
+
         // Populate the email field from the URL and get the parentId
         window.onload = function () {
             const email = getQueryParam('email');

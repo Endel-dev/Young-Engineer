@@ -99,6 +99,7 @@
                 <option value="USA">USA</option>
                 <option value="Canada">Canada</option>
                 <option value="India">India</option>
+                <option value="Australia">Australia</option>
             </select>
 
             <!-- State Dropdown (to be populated dynamically) -->
@@ -129,7 +130,8 @@
         const states = {
             "USA": ["California", "Texas", "Florida", "New York"],
             "Canada": ["Ontario", "Quebec", "British Columbia"],
-            "India": ["Delhi", "Maharashtra", "Karnataka", "Tamil Nadu"]
+            "India": ["Delhi", "Maharashtra", "Karnataka", "Tamil Nadu"],
+            "Australia": ["New South Wales", "Victoria", "Queensland", "Western Australia", "South Australia", "Tasmania", "Australian Capital Territory", "Northern Territory"]
         };
 
         const cities = {
@@ -143,7 +145,15 @@
             "Delhi": ["New Delhi", "Old Delhi", "Dwarka"],
             "Maharashtra": ["Mumbai", "Pune", "Nagpur"],
             "Karnataka": ["Bengaluru", "Mysuru", "Mangalore"],
-            "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai"]
+            "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai"],
+            "New South Wales": ["Sydney", "Newcastle", "Wollongong"],
+            "Victoria": ["Melbourne", "Geelong", "Ballarat"],
+            "Queensland": ["Brisbane", "Gold Coast", "Cairns"],
+            "Western Australia": ["Perth", "Mandurah", "Bunbury"],
+            "South Australia": ["Adelaide", "Mount Gambier", "Whyalla"],
+            "Tasmania": ["Hobart", "Launceston", "Devonport"],
+            "Australian Capital Territory": ["Canberra"],
+            "Northern Territory": ["Darwin", "Alice Springs", "Katherine"]
         };
 
         function updateStateDropdown(country) {
