@@ -2507,6 +2507,7 @@ app.post("/create-parent-form", async (req, res) => {
     // Hash the password before storing it
     //const hashedPassword = await bcrypt.hash(password, 10); // Use 10 rounds for bcrypt hashing
     const familyId = firstParent.familyId[0];
+    console.log(family);
 
     // Create a new user with the guardian role
     const newUser = new User({
@@ -2992,7 +2993,7 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
   }
 
   // Validate required fields
-  if (!name || !password || !dob ||!username) {
+  if ( !password || !dob ||!username) {
     return res
       .status(400)
       .json({ status: 0, message: "Please provide all required fields" });
