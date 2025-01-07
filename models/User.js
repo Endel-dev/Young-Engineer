@@ -81,6 +81,7 @@ const userSchema = new mongoose.Schema(
     address2: { type: String },
     address3: { type: String },
     city: { type: String },
+    country:{type:String},
     state: { type: String },
     pinCode: { type: String },
     numberOfKids: { type: Number },
