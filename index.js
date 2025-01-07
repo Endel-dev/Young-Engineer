@@ -2993,7 +2993,7 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
   }
 
   // Validate required fields
-  if ( !password || !dob ||!username) {
+  if ( !password || !dob ) {
     return res
       .status(400)
       .json({ status: 0, message: "Please provide all required fields" });
