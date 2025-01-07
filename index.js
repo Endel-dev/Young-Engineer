@@ -1398,7 +1398,7 @@ app.use((err, req, res, next) => {
 // });
 
 app.post("/login", async (req, res) => {
-  const { email, name, password } = req.body;
+  const { email, username, password } = req.body;
 
   // Check if password is provided
   if (!password) {
