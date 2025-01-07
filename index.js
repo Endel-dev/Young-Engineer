@@ -2507,7 +2507,7 @@ app.post("/create-parent-form", async (req, res) => {
     // Hash the password before storing it
     //const hashedPassword = await bcrypt.hash(password, 10); // Use 10 rounds for bcrypt hashing
     const familyId = firstParent.familyId[0];
-    console.log(family);
+    //console.log(family);
 
     // Create a new user with the guardian role
     const newUser = new User({
