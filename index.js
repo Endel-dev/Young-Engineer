@@ -2466,7 +2466,7 @@ app.post("/verify-second-parent", async (req, res) => {
 });
 
 app.post("/create-parent-form", async (req, res) => {
-  const { firstName,lastName,phone,address1,city,state,pincode, email, password, gender, dob, firstParentId } = req.body;
+  const { firstName,lastName,phone,address1,city,state,pincode, email,country, password, gender, dob, firstParentId } = req.body;
   console.log(req.body);
 
   // Validate required fields
@@ -2508,6 +2508,7 @@ app.post("/create-parent-form", async (req, res) => {
     const newUser = new User({
       firstName,
       lastName,
+      country,
       phone,
       address1,
       city,
