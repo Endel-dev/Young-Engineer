@@ -1433,11 +1433,15 @@ app.post("/login", async (req, res) => {
           { expiresIn: "15d" }
         );
 
+        const family = user.familyId ? await Family.findOne({ familyId: user.familyId }) : null;
+        const familyName = family ? family.familyName : null;
+
         return res.status(200).json({
           status: 1,
           message: "Login successful",
           token: token,
           userId: user.userId,
+          familyName,
           name: user.name,
           firstName:user.firstName,
           lastName: user.lastName,
