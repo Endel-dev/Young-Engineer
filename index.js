@@ -1525,6 +1525,7 @@ app.post("/login", async (req, res) => {
         // familyName: user.familyId
         //   ? await Family.findOne({ familyId: user.familyId }).familyName
         //   : null,
+        familyName:familyName,
         email: user.email,
         dob: user.dob,
         phoneNumber: user.phoneNumber,
