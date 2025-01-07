@@ -1443,6 +1443,7 @@ app.post("/login", async (req, res) => {
           userId: user.userId,
           familyName,
           name: user.name,
+          role:user.role,
           firstName:user.firstName,
           lastName: user.lastName,
           school: user.school,
