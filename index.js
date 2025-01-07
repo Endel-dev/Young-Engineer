@@ -1508,6 +1508,10 @@ app.post("/login", async (req, res) => {
 
       //console.log("Login is working.")
 
+      const family = user.familyId ? await Family.findOne({ familyId: user.familyId }) : null;
+      const familyName = family ? family.familyName : null;
+
+
       return res.status(200).json({
         status: 1,
         message: "Login successful",
@@ -1518,9 +1522,9 @@ app.post("/login", async (req, res) => {
         firstName:user.firstName,
         lastName:user.lastName,
         familyId: user.familyId || null,
-        familyName: user.familyId
-          ? await Family.findOne({ familyId: user.familyId }).familyName
-          : null,
+        // familyName: user.familyId
+        //   ? await Family.findOne({ familyId: user.familyId }).familyName
+        //   : null,
         email: user.email,
         dob: user.dob,
         phoneNumber: user.phoneNumber,
