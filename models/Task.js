@@ -16,7 +16,7 @@ const taskSchema = new mongoose.Schema({
   taskStatus: { type: String, enum: ['not-started', 'in-progress', 'completed','pending'], default: 'pending' },
   associatedInterestsChild: { type: [String] },  // Array of interests related to child
   createdBy: { 
-   type: String, required:true  },  // Creator's user ID
+   type: String  },  // Creator's user ID
   fairDistribution: { type: String },
   penaltyAmount: { type: Number },
   taskPriority: { type: String, enum: ['low', 'medium', 'high'], default: 'medium' },
