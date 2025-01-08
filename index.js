@@ -4298,6 +4298,85 @@ app.get("/coparents", verifyToken, async (req, res) => {
   }
 });
 
+// app.post("/family-details", async (req, res) => {
+//   const { familyId } = req.body;
+
+//   // Validation: Ensure familyId is provided
+//   if (!familyId) {
+//     return res.status(400).json({
+//       status: 0,
+//       message: "Please provide familyId.",
+//     });
+//   }
+
+//   try {
+//     // Fetch the family using the familyId provided in the request body
+//     const family = await Family.findOne({ familyId });
+
+//     if (!family) {
+//       return res.status(404).json({
+//         status: 0,
+//         message: "No family found for the given familyId.",
+//       });
+//     }
+
+//     // Initialize empty arrays to store co-parents, guardians, and children
+//     let Parents = [];
+//     let guardians = [];
+//     let children = [];
+
+//     // Get all parents (excluding the logged-in user) from the parentId array
+//     if (family.parentId && family.parentId.length > 0) {
+//       // Fetch the details of the parents
+//       const parents = await User.find({ userId: { $in: family.parentId } });
+//       Parents.push(...parents);
+//     }
+
+//     // Check for all guardians in the family
+//     if (family.guardianIds && family.guardianIds.length > 0) {
+//       const guardiansList = await User.find({
+//         userId: { $in: family.guardianIds },
+//       });
+
+//       // Add guardians to the guardians list
+//       guardians.push(...guardiansList);
+//     }
+
+//     // Get all children from the family children array
+//     if (family.children && family.children.length > 0) {
+//       const childrenList = await User.find({ userId: { $in: family.children } });
+//       children.push(...childrenList);
+//       console.log("Fetched children:", children);
+//     }
+
+//     for (let child of children) {
+//       // Fetch tasks assigned to the current child
+//       const tasks = await Task.find({ assignedTo: child.userId });
+//       //console.log(tasks);
+
+//       // Add the tasks to the child's record
+//       child.tasks = tasks;
+//     }
+
+//     // Return the co-parents, guardians, and children in the response
+//     res.status(200).json({
+//       status: 1,
+//       message: "parents, guardians, and children retrieved successfully.",
+//       Parents: Parents,
+//       guardians: guardians, // Return the list of guardians separately
+//       children: children,   // Return the list of children
+//     });
+//   } catch (err) {
+//     console.error("Error fetching co-parents, guardians, and children:", err);
+//     res.status(500).json({
+//       status: 0,
+//       message: "Server error while fetching co-parents, guardians, and children",
+//       err,
+//     });
+//   }
+// });
+
+
 app.post("/family-details", async (req, res) => {
   const { familyId } = req.body;
 
@@ -4349,19 +4428,23 @@ app.post("/family-details", async (req, res) => {
       console.log("Fetched children:", children);
     }
 
-    for (let child of children) {
-      // Fetch tasks assigned to the current child
-      const tasks = await Task.find({ assignedTo: child.userId });
-      console.log(tasks);
+    // Use Promise.all to fetch all tasks concurrently
+    await Promise.all(
+      children.map(async (child) => {
+        // Fetch tasks assigned to the current child
+        const tasks = await Task.find({ assignedTo: child.userId });
 
-      // Add the tasks to the child's record
-      child.tasks = tasks;
-    }
+        console.log(`Tasks for child ${child.userId}:`, tasks); // Debugging line
+
+        // Add the tasks to the child's record
+        child.tasks = tasks;
+      })
+    );
 
     // Return the co-parents, guardians, and children in the response
     res.status(200).json({
       status: 1,
-      message: "Co-parents, guardians, and children retrieved successfully.",
+      message: "parents, guardians, and children retrieved successfully.",
       Parents: Parents,
       guardians: guardians, // Return the list of guardians separately
       children: children,   // Return the list of children
