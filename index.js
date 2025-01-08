@@ -3478,8 +3478,7 @@ app.post('/complete-task/:taskId', async (req, res) => {
       return res.status(200).json({
         status: 1,
         message: "Transaction successful. Points or money transferred.",
-        task,
-        user,
+        task
       });
     } else {
       return res.status(400).json({
