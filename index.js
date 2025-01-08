@@ -3558,7 +3558,6 @@ app.post("/update-task-status", async (req, res) => {
 
     // 4. Find all tasks assigned to the child (using assignedTo: childUserId)
     const tasks = await Task.find({ assignedTo: childUserId });
-    console.log(tasks);
     if (!tasks || tasks.length === 0) {
       return res.status(400).json({ status: 0, message: "No tasks found for the child" });
     }
@@ -3577,7 +3576,7 @@ app.post("/update-task-status", async (req, res) => {
     if (tasksUpdated > 0) {
       res.status(200).json({
         status: 1,
-        message: `${tasksUpdated} task(s) status updated to 'completed' successfully.`,
+        message: "Task Status Updated Successfully"
       });
     } else {
       res.status(400).json({
