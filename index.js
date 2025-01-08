@@ -4266,11 +4266,11 @@ app.get("/coparents", verifyToken, async (req, res) => {
     }
 
     // If no co-parents are found, return a message
-    if (coParents.length === 0) {
-      return res
-        .status(404)
-        .json({ status: 0, message: "No co-parents found for this parent." });
-    }
+    // if (coParents.length === 0) {
+    //   return res
+    //     .status(404)
+    //     .json({ status: 0, message: "No co-parents found for this parent." });
+    // }
 
 
 
