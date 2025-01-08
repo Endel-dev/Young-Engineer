@@ -13,7 +13,7 @@ const taskSchema = new mongoose.Schema({
   rewardType: { type: String, enum: ['cash', 'points'], default: 'cash' },
   fairType: { type: String },
   fairAmount: { type: Number },
-  taskStatus: { type: String, enum: ['not-started', 'in-progress', 'completed','pending'], default: 'pending' },
+  taskStatus: { type: String, enum: ['not-started', 'in-progress', 'complete','pending'], default: 'pending' },
   associatedInterestsChild: { type: [String] },  // Array of interests related to child
   createdBy: { 
    type: String  },  // Creator's user ID
