@@ -4165,13 +4165,14 @@ app.get("/children", verifyToken, async (req, res) => {
 
         // Fetch the tasks related to each child
         const tasks = await Task.find({ assignedTo: child.userId })
+          .select(' fairAmount ')
           .sort({ createdAt: -1 }); // Optional: Sort tasks by creation date or any other criteria
 
         // Get the parent name from the family record (parentId or secondParentId)
-         const parentIds = [family.parentId];
-         const parentNamePromises = parentIds.map(parentId =>
-           User.findOne({ userId: parentId }).select("name")
-         );
+        const parentIds = [family.parentId];
+        const parentNamePromises = parentIds.map(parentId =>
+          User.findOne({ userId: parentId }).select("name")
+        );
 
         const parentNames = await Promise.all(parentNamePromises);
 
