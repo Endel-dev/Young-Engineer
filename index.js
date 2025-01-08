@@ -4352,6 +4352,7 @@ app.post("/family-details", async (req, res) => {
     for (let child of children) {
       // Fetch tasks assigned to the current child
       const tasks = await Task.find({ assignedTo: child.userId });
+      console.log(tasks);
 
       // Add the tasks to the child's record
       child.tasks = tasks;
