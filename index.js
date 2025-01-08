@@ -3441,8 +3441,8 @@ app.post("/update-task-status", async (req, res) => {
     }
 
     // 5. Automatically update task status to "completed"
-    if (task.taskStatus !== "completed") {
-      task.taskStatus = "completed"; // Automatically set task status to "completed"
+    if (task.taskStatus !== "complete") {
+      task.taskStatus = "complete";// Automatically set task status to "completed"
       await task.save(); // Save the updated task
 
       res.status(200).json({
