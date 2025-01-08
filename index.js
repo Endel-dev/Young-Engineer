@@ -4348,6 +4348,14 @@ app.post("/family-details", async (req, res) => {
       children.push(...childrenList);
     }
 
+    for (let child of children) {
+      // Fetch tasks assigned to the current child
+      const tasks = await Task.find({ assignedTo: child.userId });
+
+      // Add the tasks to the child's record
+      child.tasks = tasks;
+    }
+
     // Return the co-parents, guardians, and children in the response
     res.status(200).json({
       status: 1,
