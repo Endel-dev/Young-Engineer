@@ -3625,8 +3625,6 @@ app.get("/categorize-tasks", verifyToken, async (req, res) => {
 // Route to view a task (only creator or assigned user can view it)
 app.get(
   "/view-task/:taskId",
-  verifyToken,
-  verifyTaskCreatorOrAssigned,
   async (req, res) => {
     const { taskId } = req.params;
 
