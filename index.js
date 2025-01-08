@@ -3553,7 +3553,8 @@ app.post("/transfer-fair-amount", async (req, res) => {
     }
 
     // 3. Ensure that the childUserId exists in the family
-    const child = await User.findOne({ userId: childUserId, familyId: familyId });
+    const child = await User.findOne({ userId: childUserId, familyId: familyId ,taskStatus: "completed",  // Ensure task is completed
+      paymentStatus: "pending", })
     if (!child) {
       return res.status(400).json({ status: 0, message: "Child not found in this family" });
     }
