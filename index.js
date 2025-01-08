@@ -3463,69 +3463,7 @@ app.post("/create-task", verifyToken, async (req, res) => {
 //   }
 // });
 
-// app.post("/update-task-status", async (req, res) => {
-//   const { parentId, childUserId, familyId } = req.body;
 
-//   // Validate the required fields
-//   if (!parentId || !childUserId || !familyId) {
-//     return res.status(400).json({
-//       status: 0,
-//       message: "Please provide parentId, childUserId, and familyId.",
-//     });
-//   }
-
-//   try {
-//     // 1. Find the family by familyId
-//     const family = await Family.findOne({ familyId });
-//     if (!family) {
-//       return res.status(400).json({ status: 0, message: "Family not found" });
-//     }
-
-//     // 2. Ensure that the parentId is in the parentId array of the family
-//     if (!family.parentId.includes(parentId)) {
-//       return res.status(400).json({ status: 0, message: "You are not authorized to modify this family" });
-//     }
-
-//     // 3. Ensure that the childUserId is part of the family
-//     const child = await User.findOne({ userId: childUserId, familyId: familyId });
-//     if (!child) {
-//       return res.status(400).json({ status: 0, message: "Child not found in this family" });
-//     }
-
-//     // 4. Find all tasks assigned to the child (using assignedTo: childUserId)
-//     const tasks = await Task.find({ assignedTo: childUserId });
-//     if (!tasks || tasks.length === 0) {
-//       return res.status(400).json({ status: 0, message: "No tasks found for the child" });
-//     }
-
-//     // 5. Loop through each task and update the status to "complete" if not already completed
-//     let tasksUpdated = 0;  // To track how many tasks are updated
-//     tasks.forEach(async (task) => {
-//       if (task.taskStatus !== "complete") {
-//         task.taskStatus = "complete"; // Automatically set task status to "completed"
-//         await task.save(); // Save the updated task
-//         tasksUpdated++;
-//       }
-//     });
-
-//     // 6. Respond with the result
-//     if (tasksUpdated > 0) {
-//       res.status(200).json({
-//         status: 1,
-//         message: `${tasksUpdated} task(s) status updated to 'completed' successfully.`,
-//       });
-//     } else {
-//       res.status(400).json({
-//         status: 0,
-//         message: "All tasks are already completed.",
-//       });
-//     }
-
-//   } catch (err) {
-//     console.error("Error updating task status:", err);
-//     res.status(500).json({ status: 0, message: "Server error", err });
-//   }
-// });
 
 app.post("/update-task-status", async (req, res) => {
   const { parentId, childUserId, familyId } = req.body;
@@ -3590,6 +3528,87 @@ app.post("/update-task-status", async (req, res) => {
     res.status(500).json({ status: 0, message: "Server error", err });
   }
 });
+
+app.post("/transfer-fair-amount", async (req, res) => {
+  const { parentId, childUserId, familyId } = req.body;
+
+  // Validation: Ensure required fields are provided
+  if (!parentId || !childUserId || !familyId) {
+    return res.status(400).json({
+      status: 0,
+      message: "Please provide parentId, childUserId, and familyId.",
+    });
+  }
+
+  try {
+    // 1. Find the family by familyId
+    const family = await Family.findOne({ familyId });
+    if (!family) {
+      return res.status(400).json({ status: 0, message: "Family not found" });
+    }
+
+    // 2. Ensure that the parentId exists in the family parentId array
+    if (!family.parentId.includes(parentId)) {
+      return res.status(400).json({ status: 0, message: "Parent not part of this family" });
+    }
+
+    // 3. Ensure that the childUserId exists in the family
+    const child = await User.findOne({ userId: childUserId, familyId: familyId });
+    if (!child) {
+      return res.status(400).json({ status: 0, message: "Child not found in this family" });
+    }
+
+    // 4. Find the tasks assigned to the child (based on assignedTo: childUserId)
+    const tasks = await Task.find({ assignedTo: childUserId, familyId: familyId });
+    if (tasks.length === 0) {
+      return res.status(400).json({ status: 0, message: "No tasks found for the child" });
+    }
+
+    let taskFoundAndUpdated = false;
+
+    // Loop through all the tasks assigned to the child
+    for (let task of tasks) {
+      // If task is completed, transfer fairAmount to the child's balance or Totalpoints based on rewardType
+      if (task.taskStatus === "completed") {
+        // Check if fairAmount exists and is a valid number
+        if (task.fairAmount && typeof task.fairAmount === "number") {
+          if (task.rewardType === "cash") {
+            // Add the fairAmount to the child's balance (cash reward)
+            child.balance += task.fairAmount;
+          } else if (task.rewardType === "points") {
+            // Add the fairAmount to the child's Totalpoints (points reward)
+            child.Totalpoints += task.fairAmount;
+          }
+
+          // Save the updated child record with the new balance or Totalpoints
+          await child.save();
+
+          taskFoundAndUpdated = true;
+        }
+      }
+    }
+
+    // If no task was completed, send a response indicating that
+    if (!taskFoundAndUpdated) {
+      return res.status(400).json({
+        status: 0,
+        message: "No completed tasks found for the child to transfer fairAmount.",
+      });
+    }
+
+    // Return success response
+    res.status(200).json({
+      status: 1,
+      message: "Fair amount transferred successfully to the child's account.",
+      childBalance: child.balance, // Return the updated balance (if rewardType is cash)
+      childTotalpoints: child.Totalpoints, // Return the updated Totalpoints (if rewardType is points)
+    });
+  } catch (err) {
+    console.error("Error transferring fair amount:", err);
+    res.status(500).json({ status: 0, message: "Server error", err });
+  }
+});
+
 
 
 
