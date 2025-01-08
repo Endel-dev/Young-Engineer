@@ -3397,11 +3397,99 @@ app.post("/create-task", verifyToken, async (req, res) => {
     // Save the new task to the database
     await newTask.save();
     res
-      .status(201)
+      .status(200)
       .json({ status: 1, message: "Task created successfully", task: newTask });
   } catch (err) {
     console.error("Error creating task:", err);
     res.status(500).json({ status: 0, message: "Server error", err });
+  }
+});
+
+app.post('/complete-task/:taskId', async (req, res) => {
+  const { taskId } = req.params;
+
+  try {
+    // Step 1: Find the task by taskId
+    const task = await Task.findOne({ taskId });
+
+    if (!task) {
+      return res.status(404).json({ status: 0, message: "Task not found" });
+    }
+
+    // Step 2: Ensure the task is completed
+    if (task.taskStatus !== 'completed') {
+      return res.status(400).json({
+        status: 0,
+        message: "Task is not completed, cannot process transaction.",
+      });
+    }
+
+    // Step 3: Find the user to whom the task was assigned (assumes `assignedTo` is a userId)
+    const user = await User.findOne({ userId: task.assignedTo });
+
+    if (!user) {
+      return res.status(404).json({ status: 0, message: "User not found" });
+    }
+
+    let transactionSuccess = false;
+
+    // Step 4: Process reward based on rewardType (cash or points)
+    if (task.rewardType === 'cash') {
+      if (task.fairAmount && task.fairAmount > 0) {
+        // Step 4.1: If reward type is 'cash', increase the user's balance
+        user.balance += task.fairAmount;
+
+        // Save the updated user
+        await user.save();
+
+        // Mark task as paid
+        task.paymentStatus = 'paid';
+        transactionSuccess = true;
+      } else {
+        return res.status(400).json({ status: 0, message: "Invalid cash reward amount" });
+      }
+    } else if (task.rewardType === 'points') {
+      if (task.fairAmount && task.fairAmount > 0) {
+        // Step 4.2: If reward type is 'points', increase the user's points
+        user.Totalpoints += task.fairAmount;
+
+        // Save the updated user
+        await user.save();
+
+        // Mark task as paid
+        task.paymentStatus = 'paid';
+        transactionSuccess = true;
+      } else {
+        return res.status(400).json({ status: 0, message: "Invalid points reward amount" });
+      }
+    } else {
+      return res.status(400).json({ status: 0, message: "Unknown reward type" });
+    }
+
+    // Step 5: Finalize the task and user update
+    if (transactionSuccess) {
+      task.completionDate = new Date();
+      task.completionTime = new Date();
+      task.taskStatus = 'paid'; // Update task status to 'paid'
+
+      // Save the updated task
+      await task.save();
+
+      return res.status(200).json({
+        status: 1,
+        message: "Transaction successful. Points or money transferred.",
+        task,
+        user,
+      });
+    } else {
+      return res.status(400).json({
+        status: 0,
+        message: "Error completing task and processing transaction.",
+      });
+    }
+  } catch (err) {
+    console.error("Error completing task:", err);
+    return res.status(500).json({ status: 0, message: "Server error", err });
   }
 });
 
