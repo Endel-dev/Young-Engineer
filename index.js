@@ -4180,7 +4180,7 @@ app.get("/children", verifyToken, async (req, res) => {
         return {
           ...child.toObject(), // Convert Mongoose document to plain object
           dob: formattedDob,
-          parents: parentNames.map(parent => parent ? parent.name : null),
+          parent: parentNames.map(parent => parent ? parent.name : null),
           tasks, // Add tasks to the child object
         };
       })
