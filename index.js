@@ -3416,6 +3416,13 @@ app.post('/complete-task/:taskId', async (req, res) => {
       return res.status(404).json({ status: 0, message: "Task not found" });
     }
 
+    if (task.isExpired) {
+      return res.status(400).json({
+        status: 0,
+        message: "Transaction already completed, task is expired.",
+      });
+    }
+
     // Step 2: Ensure the task is completed
     if (task.taskStatus !== 'complete') {
       return res.status(400).json({
@@ -3470,6 +3477,7 @@ app.post('/complete-task/:taskId', async (req, res) => {
     if (transactionSuccess) {
       task.completionDate = new Date();
       task.completionTime = new Date();
+      task.isExpired = true;
       //task.taskStatus = 'paid'; // Update task status to 'paid'
 
       // Save the updated task
