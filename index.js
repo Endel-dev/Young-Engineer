@@ -86,11 +86,11 @@ app.get("/send-invite", (req, res) => {
 app.get("/register-form-parent", (req, res) => {
   res.sendFile(path.join(__dirname, "register-form-parent.html"));
 });
-app.get("/reset-password", (req,res) => {
-  res.sendFile(path.join(__dirname,"reset-password.html"));
+app.get("/reset-password", (req, res) => {
+  res.sendFile(path.join(__dirname, "reset-password.html"));
 });
-app.get("/reset-successfull", (req,res) => {
-  res.sendFile(path.join(__dirname,"reset-successfull.html"));
+app.get("/reset-successfull", (req, res) => {
+  res.sendFile(path.join(__dirname, "reset-successfull.html"));
 });
 
 
@@ -282,7 +282,7 @@ app.post("/registers", async (req, res) => {
     pinCode,
     numberOfKids,
     kidsNames,
-  } = req.body; 
+  } = req.body;
 
   const normalizedRole = role ? role.toLowerCase() : "";
   const normalizedGender = gender ? gender.toLowerCase() : "";
@@ -296,7 +296,7 @@ app.post("/registers", async (req, res) => {
   }
 
   // Validate required fields
-  if (!name || !email || !password || !dob || !gender ||!firstName ||!lastName) {
+  if (!name || !email || !password || !dob || !gender || !firstName || !lastName) {
     return res
       .status(400)
       .json({ status: 0, message: "Please provide all required fields" });
@@ -418,7 +418,7 @@ app.post("/register", async (req, res) => {
     pinCode,
     numberOfKids,
     kidsNames,
-  } = req.body; 
+  } = req.body;
 
   const normalizedRole = role ? role.toLowerCase() : "";
   const normalizedGender = gender ? gender.toLowerCase() : "";
@@ -772,15 +772,15 @@ app.post("/verify-email1", async (req, res) => {
     const newUser = new User({
       email: verificationToken.email,
       name: verificationToken.name,
-      firstName:verificationToken.firstName,
-      lastName:verificationToken.lastName,
+      firstName: verificationToken.firstName,
+      lastName: verificationToken.lastName,
       role: verificationToken.role,
       gender: verificationToken.gender,
       dob: verificationToken.dob,
       password: verificationToken.password,
       familyId: familyId,
       city: verificationToken.city,
-      country:verificationToken.country,
+      country: verificationToken.country,
       phoneNumber: verificationToken.phoneNumber,
       address1: verificationToken.address1,
       address2: verificationToken.address2,
@@ -809,7 +809,7 @@ app.post("/verify-email1", async (req, res) => {
 });
 
 app.post("/verify-guardians", async (req, res) => {
-  const { email, token,parentId } = req.body;
+  const { email, token, parentId } = req.body;
 
   console.log(req.body);
 
@@ -844,7 +844,7 @@ app.post("/verify-guardians", async (req, res) => {
     // }
     console.log(parentId);
 
-    const parent = await User.findOne({ userId:parentId });
+    const parent = await User.findOne({ userId: parentId });
     if (!parent) {
       return res.status(404).json({
         status: 0,
@@ -861,7 +861,7 @@ app.post("/verify-guardians", async (req, res) => {
       });
     }
 
-    
+
 
     // Step 5: Check if the guardian is already part of the family
     if (family.guardianIds && family.guardianIds.includes(guardian.userId)) {
@@ -883,7 +883,7 @@ app.post("/verify-guardians", async (req, res) => {
     //   guardian.guardianId = [];
     // }
     //guardian.guardianId.push(family.familyId);  // Add the familyId to the guardian's guardianIds array
-   guardian.guardianId.push(String(family.familyId)); // Ensure it's a string.
+    guardian.guardianId.push(String(family.familyId)); // Ensure it's a string.
 
     await guardian.save();
 
@@ -1401,7 +1401,7 @@ app.use((err, req, res, next) => {
 // });
 
 app.post("/login", async (req, res) => {
-  const { email, username, password,name } = req.body;
+  const { email, username, password, name } = req.body;
 
   // Check if password is provided
   if (!password) {
@@ -1446,8 +1446,8 @@ app.post("/login", async (req, res) => {
           userId: user.userId,
           familyName,
           name: user.name,
-          role:user.role,
-          firstName:user.firstName,
+          role: user.role,
+          firstName: user.firstName,
           lastName: user.lastName,
           school: user.school,
           hobby1: user.hobby1,
@@ -1492,7 +1492,7 @@ app.post("/login", async (req, res) => {
           .json({ status: 0, message: "Invalid name/email or password" });
       }
 
-     
+
       // Fetch children's names if the user is a parent
       // Fetch children's names if the user is a parent
       // let kidsNames = [];
@@ -1523,13 +1523,13 @@ app.post("/login", async (req, res) => {
         userId: user.userId,
         role: user.role,
         name: user.name,
-        firstName:user.firstName,
-        lastName:user.lastName,
+        firstName: user.firstName,
+        lastName: user.lastName,
         familyId: user.familyId || null,
         // familyName: user.familyId
         //   ? await Family.findOne({ familyId: user.familyId }).familyName
         //   : null,
-        familyName:familyName,
+        familyName: familyName,
         email: user.email,
         dob: user.dob,
         phoneNumber: user.phoneNumber,
@@ -1546,7 +1546,7 @@ app.post("/login", async (req, res) => {
       });
       console.log(name);
     }
-    
+
   } catch (err) {
     console.error("Error logging in user:", err);
     res
@@ -1796,7 +1796,7 @@ app.post("/create-family", verifyToken, async (req, res) => {
 
 // logic is create family, then create guardian, inside guardian - family [family Id1, familyId2], inside child user- family [familyId] and guardian[guardian2,guardian2]
 app.post("/create-guardian", verifyParentRole, async (req, res) => {
-  const { name, gender, email, password, role, dob,firstName,lastName,phoneNumber } = req.body;
+  const { name, gender, email, password, role, dob, firstName, lastName, phoneNumber } = req.body;
   const normalizedRole = role ? role.toLowerCase() : "";
   const normalizedgender = gender ? gender.toLowerCase() : "";
   const parentId = req.user.userId;
@@ -1822,7 +1822,7 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
   }
 
   // Validate required fields
-  if ( !email || !password || !dob || !firstName || !lastName ||!gender ||!phoneNumber) {
+  if (!email || !password || !dob || !firstName || !lastName || !gender || !phoneNumber) {
     return res
       .status(400)
       .json({ status: 0, message: "Please provide all required fields" });
@@ -1839,7 +1839,7 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
     }
 
     const parsedDob = moment(dob, 'DD-MM-YYYY').format('YYYY-MM-DD');
-    
+
     // If parsing fails, it will return an invalid date
     // if (!moment(parsedDob, 'YYYY-MM-DD', true).isValid()) {
     //   return res.status(400).json({ status: 0, message: "Invalid date format. Please use dd-mm-yyyy." });
@@ -1858,7 +1858,7 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
       email,
       password,
       role: normalizedRole,
-      dob:parsedDob,
+      dob: parsedDob,
       firstName,
       lastName,
       familyId: [familyId],
@@ -1876,7 +1876,7 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
       familyId: [familyId], // Generate a unique family ID (if necessary)
     });
     await family.save();
-    console.log("User created successfully!",newUser);
+    console.log("User created successfully!", newUser);
     const userResponse = await User.findById(newUser._id).select("-parentId");
     res.status(200).json({
       status: 1,
@@ -1891,11 +1891,11 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
 
 // Create a route to handle the creation of the guardian user
 app.post("/create-guardian-form", async (req, res) => {
-  const {  email, password, gender, dob, parentId,firstName,lastName,phoneNumber } = req.body;
+  const { email, password, gender, dob, parentId, firstName, lastName, phoneNumber } = req.body;
   console.log(req.body);
 
   // Validate required fields
-  if (!firstName ||!lastName || !email || !password || !dob || !parentId) {
+  if (!firstName || !lastName || !email || !password || !dob || !parentId) {
     return res.status(400).json({
       status: 0,
       message: "Please provide all required fields",
@@ -2107,10 +2107,10 @@ app.post("/create-guardian-form", async (req, res) => {
 // });
 
 app.post("/invite-guardian", async (req, res) => {
-  const { guardianEmail, guardianfirstName,guardianlastName, parentId } = req.body;
+  const { guardianEmail, guardianfirstName, guardianlastName, parentId } = req.body;
 
   // Validate required fields
-  if (!guardianEmail || !guardianfirstName ||!guardianlastName) {
+  if (!guardianEmail || !guardianfirstName || !guardianlastName) {
     return res.status(400).json({
       status: 0,
       message: "Please provide guardian name and email",
@@ -2241,7 +2241,7 @@ app.post("/invite-second-parent", async (req, res) => {
   console.log(req.body);
 
   // Validate required fields
-  if (!secondParentEmail || !secondParentfirstName ||!secondParentlastName || !firstParentId) {
+  if (!secondParentEmail || !secondParentfirstName || !secondParentlastName || !firstParentId) {
     return res.status(400).json({
       status: 0,
       message: "Please provide second parent name, email, and first parent ID",
@@ -2322,7 +2322,7 @@ app.post("/invite-second-parent", async (req, res) => {
             message: "Error sending verification email",
           });
         }
-        console.log('Email sent:', error); 
+        console.log('Email sent:', error);
 
 
         // Respond with success message if email is sent
@@ -2369,7 +2369,7 @@ app.post("/invite-second-parent", async (req, res) => {
             message: "Error sending registration email",
           });
         }
-        console.log('Verification email sent:', info); 
+        console.log('Verification email sent:', info);
 
         // Respond with success message if email is sent
         res.status(200).json({
@@ -2470,7 +2470,7 @@ app.post("/verify-second-parent", async (req, res) => {
 });
 
 app.post("/create-parent-form", async (req, res) => {
-  const { firstName,lastName,phone,address1,city,state,pincode, email,country, password, gender, dob, firstParentId } = req.body;
+  const { firstName, lastName, phone, address1, city, state, pincode, email, country, password, gender, dob, firstParentId } = req.body;
   console.log(req.body);
 
   // Validate required fields
@@ -2995,7 +2995,7 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
   }
 
   // Validate required fields
-  if ( !password || !dob ) {
+  if (!password || !dob) {
     return res
       .status(400)
       .json({ status: 0, message: "Please provide all required fields" });
@@ -3018,7 +3018,7 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
     }
 
     const parsedDob = moment(dob, 'DD-MM-YYYY').format('YYYY-MM-DD');
-    
+
     // If parsing fails, it will return an invalid date
     // if (!moment(parsedDob, 'YYYY-MM-DD', true).isValid()) {
     //   return res.status(400).json({ status: 0, message: "Invalid date format. Please use dd-mm-yyyy." });
@@ -3049,7 +3049,7 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
       email: email || null,
       password,
       role: "child",
-      dob:parsedDob,
+      dob: parsedDob,
       parentId,
       Totalpoints,
       familyId: parent.familyId,
@@ -3376,7 +3376,7 @@ app.post("/create-task", verifyToken, async (req, res) => {
       taskId,
       assignedTo,
       associates,
-      expectedCompletionDate:formattedExpectedCompletionDate,
+      expectedCompletionDate: formattedExpectedCompletionDate,
       rewardType,
       fairType,
       fairAmount,
@@ -3559,8 +3559,10 @@ app.post("/transfer-fair-amount", async (req, res) => {
     }
 
     // 4. Find the tasks assigned to the child (based on assignedTo: childUserId)
-    const tasks = await Task.find({ assignedTo: childUserId, taskStatus: "completed",  // Ensure task is completed
-  paymentStatus: "pending",})
+    const tasks = await Task.find({
+      assignedTo: child, taskStatus: "completed",  // Ensure task is completed
+      paymentStatus: "pending",
+    })
     if (tasks.length === 0) {
       return res.status(400).json({ status: 0, message: "No tasks found for the child" });
     }
@@ -3624,7 +3626,7 @@ app.post('/complete-task/:taskId', async (req, res) => {
       return res.status(404).json({ status: 0, message: "Task not found" });
     }
 
-    if (task.paymentStatus =='paid'){
+    if (task.paymentStatus == 'paid') {
       return res.status(400).json({
         status: 0,
         message: "Transaction already completed",
@@ -3847,7 +3849,7 @@ app.get(
 
     try {
       // Find the task by taskId
-      const task = await Task.find({ assignedTo: userId  });
+      const task = await Task.find({ assignedTo: userId });
 
       // If no task is found, return an error message
       if (!task) {
@@ -4050,9 +4052,8 @@ app.get("/view-tasks", verifyToken, async (req, res) => {
     // Return the tasks in the response
     res.status(200).json({
       status: 1,
-      message: `${
-        user.role.charAt(0).toUpperCase() + user.role.slice(1)
-      }'s tasks retrieved successfully.`,
+      message: `${user.role.charAt(0).toUpperCase() + user.role.slice(1)
+        }'s tasks retrieved successfully.`,
       tasks: tasks,
     });
   } catch (err) {
@@ -4131,8 +4132,8 @@ app.get("/children", verifyToken, async (req, res) => {
     }
 
     // Fetch the family where the logged-in parent is either the first or second parent
-    const family = await Family.findOne({ 
-      $or: [{ parentId: parent.userId }, { secondParentId: parent.userId },{ guardianIds: { $in: [parent.userId] }}] 
+    const family = await Family.findOne({
+      $or: [{ parentId: parent.userId }, { secondParentId: parent.userId }, { guardianIds: { $in: [parent.userId] } }]
     });
 
     if (!family) {
@@ -4142,9 +4143,9 @@ app.get("/children", verifyToken, async (req, res) => {
     }
 
     // Fetch children where the parentId or secondParentId belongs to this family
-    const children = await User.find({ 
+    const children = await User.find({
       familyId: family.familyId,  // Assuming `familyId` is the field linking children to a family
-      role: "child" 
+      role: "child"
     })
       .select("userId name email gender dob isActive") // Select only relevant fields
       .sort({ name: 1 }); // Optional: Sort children by name or any other criteria
@@ -4161,15 +4162,25 @@ app.get("/children", verifyToken, async (req, res) => {
         const formattedDob = child.dob
           ? moment(child.dob).format('DD-MM-YYYY') // Use moment.js to format the date
           : null;
-        
+
         // Fetch the tasks related to each child
         const tasks = await Task.find({ assignedTo: child.userId })
           .sort({ createdAt: -1 }); // Optional: Sort tasks by creation date or any other criteria
+
+        // Get the parent name from the family record (parentId or secondParentId)
+        const parentIds = [family.parentId, family.secondParentId];
+        const parentNamePromises = parentIds.map(parentId =>
+          User.findOne({ userId: parentId }).select("name")
+        );
+
+        const parentNames = await Promise.all(parentNamePromises);
+
 
         // Attach tasks to each child
         return {
           ...child.toObject(), // Convert Mongoose document to plain object
           dob: formattedDob,
+          parents: parentNames.map(parent => parent ? parent.name : null),
           tasks, // Add tasks to the child object
         };
       })
@@ -4226,7 +4237,7 @@ app.get("/coparents", verifyToken, async (req, res) => {
     if (family.parentId && family.parentId.length > 0) {
       // Filter out the logged-in user from the parentId array
       const otherParents = family.parentId.filter(parentId => parentId !== parent.userId);
-      
+
       // Fetch the details of the other parents (users) and add to coParents
       const parents = await User.find({ userId: { $in: otherParents } });
       coParents.push(...parents);
@@ -4253,13 +4264,13 @@ app.get("/coparents", verifyToken, async (req, res) => {
         .json({ status: 0, message: "No co-parents found for this parent." });
     }
 
-    
+
 
     // Return the list of co-parents
     res.status(200).json({
       status: 1,
       message: "Co-parents retrieved successfully.",
-       coParents:coParents,//coParents.map((coParent) => ({
+      coParents: coParents,//coParents.map((coParent) => ({
       //   name: coParent.name,
       //   firstName:coParent.firstName,
       //   lastName:coParent.lastName,
@@ -4671,9 +4682,8 @@ app.post("/rewards/claim/:rewardId", verifyToken, async (req, res) => {
     if (user.Totalpoints < reward.requiredPoints) {
       return res.status(400).json({
         status: 0,
-        message: `You need ${
-          reward.requiredPoints - user.Totalpoints
-        } more points to claim this reward.`,
+        message: `You need ${reward.requiredPoints - user.Totalpoints
+          } more points to claim this reward.`,
       });
     }
 
@@ -5675,8 +5685,8 @@ app.get("/get-families/:userId", async (req, res) => {
         role = "parent";
       }
       else if (family.children && family.children.includes(userId)) {
-          role = "child";
-        }
+        role = "child";
+      }
 
       // Construct the family name (e.g., "John's Family")
       //const familyName = `${user.name}'s Family`;
@@ -5806,7 +5816,7 @@ app.post('/forgot-password', async (req, res) => {
 
 app.post('/reset-password', async (req, res) => {
   //const { email,token } = req.params;
-  const { token,email,newPassword, confirmPassword } = req.body;
+  const { token, email, newPassword, confirmPassword } = req.body;
   console.log(newPassword);
 
   // Validate password fields
@@ -5851,7 +5861,7 @@ app.post('/reset-password', async (req, res) => {
     // Update user's password
     user.password = newPassword;
     await user.save();
-    
+
 
     res.status(200).json({
       status: 1,
@@ -5955,7 +5965,7 @@ app.post('/change-password', async (req, res) => {
     const { parentId, childId, currentPassword, newPassword } = req.body;
 
     // Step 1: Retrieve the child user based on childId
-    const child = await User.findOne({userId:childId});  // Use `findById` instead of `findOne` for direct ObjectId lookup
+    const child = await User.findOne({ userId: childId });  // Use `findById` instead of `findOne` for direct ObjectId lookup
     if (!child) {
       return res.status(404).json({ status: 0, message: 'Child user not found.' });
     }
