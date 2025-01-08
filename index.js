@@ -4346,6 +4346,7 @@ app.post("/family-details", async (req, res) => {
     if (family.children && family.children.length > 0) {
       const childrenList = await User.find({ userId: { $in: family.children } });
       children.push(...childrenList);
+      console.log("Fetched children:", children);
     }
 
     for (let child of children) {
