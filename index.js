@@ -3789,6 +3789,7 @@ app.put(
 
       // Save the updated task
       await task.save();
+      console.log(task.fairAmount);
 
       // Return the updated task
       res.status(200).json({ message: "Task updated successfully", task });
