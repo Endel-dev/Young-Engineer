@@ -4298,73 +4298,104 @@ app.get("/coparents", verifyToken, async (req, res) => {
   }
 });
 
-app.post("/coparents1",async (req, res) => {
-  const { familyId } = req.body;
-
-  // Validation: Ensure familyId is provided
-  if (!familyId) {
-    return res.status(400).json({
-      status: 0,
-      message: "Please provide familyId.",
-    });
-  }
-
+app.get("/family-details", verifyToken, async (req, res) => {
   try {
-    // Fetch the family using the familyId provided in the request body
-    const family = await Family.findOne({ familyId });
+    const parent = req.user; // Get user info from the token
+    console.log(parent);
+
+    // Uncomment the role check if you want to restrict access to parent or guardian roles
+    // if (parent.role !== "parent" && parent.role !== "guardian") {
+    //   return res
+    //     .status(403)
+    //     .json({ status: 0, message: "Access denied. You must be a parent or guardian." });
+    // }
+
+    // Fetch the family where the logged-in parent is listed as parent or guardian
+    const family = await Family.findOne({
+      $or: [
+        { parentId: parent.userId },
+        { guardianIds: parent.userId },
+      ],
+    });
 
     if (!family) {
-      return res.status(404).json({
-        status: 0,
-        message: "No family found for the given familyId.",
-      });
+      return res
+        .status(404)
+        .json({ status: 0, message: "No family found for this parent." });
     }
 
-    // Initialize empty arrays to store co-parents and children
+    // Initialize arrays for co-parents, guardians, and children
     let coParents = [];
+    let guardians = [];
     let children = [];
 
-    // Get all parents (excluding the logged-in user) from the parentId array
+    // Get all parents (excluding the logged-in user)
     if (family.parentId && family.parentId.length > 0) {
-      // Fetch the details of the parents
-      const parents = await User.find({ userId: { $in: family.parentId } });
+      const otherParents = family.parentId.filter(parentId => parentId !== parent.userId);
+      const parents = await User.find({ userId: { $in: otherParents } });
       coParents.push(...parents);
     }
 
-    // Check for all guardians in the family
+    // Get all guardians (excluding the logged-in user)
     if (family.guardianIds && family.guardianIds.length > 0) {
-      const guardians = await User.find({
-        userId: { $in: family.guardianIds },
-      });
-
-      // Add guardians to the co-parents list
-      guardians.forEach((guardian) => {
-        coParents.push(guardian);
+      const guardiansList = await User.find({ userId: { $in: family.guardianIds } });
+      guardiansList.forEach(guardian => {
+        if (guardian.userId !== parent.userId) {
+          guardians.push(guardian);
+        }
       });
     }
 
-    // Get all children from the family children array
+    // Get children details
     if (family.children && family.children.length > 0) {
       const childrenList = await User.find({ userId: { $in: family.children } });
       children.push(...childrenList);
     }
 
-    // Return the co-parents and children in the response
+    // If no co-parents or guardians are found, return a message
+    if (coParents.length === 0 && guardians.length === 0) {
+      return res
+        .status(404)
+        .json({ status: 0, message: "No co-parents or guardians found for this parent." });
+    }
+
+    // Return the list of co-parents, guardians, and children
     res.status(200).json({
       status: 1,
-      message: "Co-parents and children retrieved successfully.",
-      coParents: coParents,
-      children: children,  // Return the list of children
+      message: "Co-parents and guardians retrieved successfully.",
+      coParents: coParents.map(coParent => ({
+        userId: coParent.userId,
+        firstName: coParent.firstName,
+        lastName: coParent.lastName,
+        email: coParent.email,
+        role: coParent.role,
+      })),
+      guardians: guardians.map(guardian => ({
+        userId: guardian.userId,
+        firstName: guardian.firstName,
+        lastName: guardian.lastName,
+        email: guardian.email,
+        role: guardian.role,
+      })),
+      children: children.map(child => ({
+        userId: child.userId,
+        firstName: child.firstName,
+        lastName: child.lastName,
+        email: child.email,
+        role: child.role,
+      }))
     });
   } catch (err) {
-    console.error("Error fetching co-parents and children:", err);
+    console.error("Error fetching co-parents and guardians:", err);
     res.status(500).json({
       status: 0,
-      message: "Server error while fetching co-parents and children",
+      message: "Server error while fetching co-parents and guardians",
       err,
     });
   }
 });
+
+
 
 
 
