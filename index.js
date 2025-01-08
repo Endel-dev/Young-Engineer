@@ -4232,6 +4232,8 @@ app.get("/coparents", verifyToken, async (req, res) => {
 
     // Initialize an empty array to store co-parents
     let coParents = [];
+    let children = [];
+
 
     // Get all parents (excluding the logged-in user) from the parentId array
     if (family.parentId && family.parentId.length > 0) {
@@ -4257,6 +4259,11 @@ app.get("/coparents", verifyToken, async (req, res) => {
       });
     }
 
+    if (family.children && family.children.length > 0) {
+      const childrenList = await User.find({ userId: { $in: family.children } });
+      children.push(...childrenList);
+    }
+
     // If no co-parents are found, return a message
     if (coParents.length === 0) {
       return res
@@ -4270,7 +4277,8 @@ app.get("/coparents", verifyToken, async (req, res) => {
     res.status(200).json({
       status: 1,
       message: "Co-parents retrieved successfully.",
-      coParents: coParents,//coParents.map((coParent) => ({
+      coParents: coParents,
+      children: children //rent) => ({
       //   name: coParent.name,
       //   firstName:coParent.firstName,
       //   lastName:coParent.lastName,
