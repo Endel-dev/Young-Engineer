@@ -4255,7 +4255,7 @@ app.get("/coparents", verifyToken, async (req, res) => {
       // Add guardians to the co-parents list, excluding the logged-in user
       guardians.forEach((guardian) => {
         if (guardian.userId !== parent.userId) {
-         guardians.push(guardian);
+         guardians.push(guardians);
         }
       });
     }
