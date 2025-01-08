@@ -3733,8 +3733,6 @@ app.get("/user-details/:userId", verifyToken, async (req, res) => {
 // Route to update a task (only creator of the task can update it)
 app.put(
   "/task-update/:taskId",
-  verifyToken,
-  verifyTaskCreator,
   async (req, res) => {
     const { taskId } = req.params;
     const {
