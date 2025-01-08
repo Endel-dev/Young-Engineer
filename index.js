@@ -3647,30 +3647,30 @@ app.get(
 );
 
 //To view all tasks assigned to specific user
-app.get(
-  "/view-task/:taskId",
-  verifyToken,
-  verifyTaskCreatorOrAssigned,
-  async (req, res) => {
-    const { taskId } = req.params;
+// app.get(
+//   "/view-task/:taskId",
+//   verifyToken,
+//   verifyTaskCreatorOrAssigned,
+//   async (req, res) => {
+//     const { taskId } = req.params;
 
-    try {
-      // Find the task by taskId
-      const task = await Task.findOne({ taskId });
+//     try {
+//       // Find the task by taskId
+//       const task = await Task.findOne({ taskId });
 
-      // If no task is found, return an error message
-      if (!task) {
-        return res.status(404).json({ message: "Task not found" });
-      }
+//       // If no task is found, return an error message
+//       if (!task) {
+//         return res.status(404).json({ message: "Task not found" });
+//       }
 
-      // Return the task details
-      res.status(200).json({ task });
-    } catch (err) {
-      console.error("Error fetching task:", err);
-      res.status(500).json({ message: "Server error" });
-    }
-  }
-);
+//       // Return the task details
+//       res.status(200).json({ task });
+//     } catch (err) {
+//       console.error("Error fetching task:", err);
+//       res.status(500).json({ message: "Server error" });
+//     }
+//   }
+// );
 
 // Middleware to check if the logged-in user is the creator of the task
 const verifyTaskCreator = (req, res, next) => {
