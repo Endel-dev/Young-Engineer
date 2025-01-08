@@ -3405,6 +3405,64 @@ app.post("/create-task", verifyToken, async (req, res) => {
   }
 });
 
+// app.post("/update-task-status", async (req, res) => {
+//   const { parentId, childUserId, familyId } = req.body;
+
+//   // Validate the required fields
+//   if (!parentId || !childUserId || !familyId) {
+//     return res.status(400).json({
+//       status: 0,
+//       message: "Please provide parentId, childUserId, and familyId.",
+//     });
+//   }
+
+//   try {
+//     // 1. Find the family by familyId
+//     const family = await Family.findOne({ familyId });
+//     if (!family) {
+//       return res.status(400).json({ status: 0, message: "Family not found" });
+//     }
+
+//     // 2. Ensure that the parentId is in the parentId array of the family
+//     if (!family.parentId.includes(parentId)) {
+//       return res.status(400).json({ status: 0, message: "You are not authorized to modify this family" });
+//     }
+
+//     // 3. Ensure that the childUserId is part of the family
+//     const child = await User.findOne({ userId: childUserId, familyId: familyId });
+//     if (!child) {
+//       return res.status(400).json({ status: 0, message: "Child not found in this family" });
+//     }
+
+//     // 4. Find the task assigned to the child (using assignedTo: childUserId)
+//     const task = await Task.find({ assignedTo: childUserId });
+//     console.log(task);
+//     if (!task) {
+//       return res.status(400).json({ status: 0, message: "No task found for the child" });
+//     }
+
+//     // 5. Automatically update task status to "completed"
+//     if (task.taskStatus !== "complete") {
+//       task.taskStatus = "complete";// Automatically set task status to "completed"
+//       await task.save(); // Save the updated task
+
+//       res.status(200).json({
+//         status: 1,
+//         message: "Task status updated to 'completed' successfully",
+//         task: task,
+//       });
+//     } else {
+//       res.status(400).json({
+//         status: 0,
+//         message: "Task is already completed.",
+//       });
+//     }
+//   } catch (err) {
+//     console.error("Error updating task status:", err);
+//     res.status(500).json({ status: 0, message: "Server error", err });
+//   }
+// });
+
 app.post("/update-task-status", async (req, res) => {
   const { parentId, childUserId, familyId } = req.body;
 
@@ -3434,35 +3492,40 @@ app.post("/update-task-status", async (req, res) => {
       return res.status(400).json({ status: 0, message: "Child not found in this family" });
     }
 
-    // 4. Find the task assigned to the child (using assignedTo: childUserId)
-    const task = await Task.find({ assignedTo: childUserId });
-    console.log(task);
-    if (!task) {
-      return res.status(400).json({ status: 0, message: "No task found for the child" });
+    // 4. Find all tasks assigned to the child (using assignedTo: childUserId)
+    const tasks = await Task.find({ assignedTo: childUserId });
+    if (!tasks || tasks.length === 0) {
+      return res.status(400).json({ status: 0, message: "No tasks found for the child" });
     }
 
-    // 5. Automatically update task status to "completed"
-    if (task.taskStatus !== "complete") {
-      task.taskStatus = "complete";// Automatically set task status to "completed"
-      await task.save(); // Save the updated task
+    // 5. Loop through each task and update the status to "complete" if not already completed
+    let tasksUpdated = 0;  // To track how many tasks are updated
+    tasks.forEach(async (task) => {
+      if (task.taskStatus !== "complete") {
+        task.taskStatus = "complete"; // Automatically set task status to "completed"
+        await task.save(); // Save the updated task
+        tasksUpdated++;
+      }
+    });
 
+    // 6. Respond with the result
+    if (tasksUpdated > 0) {
       res.status(200).json({
         status: 1,
-        message: "Task status updated to 'completed' successfully",
-        task: task,
+        message: `${tasksUpdated} task(s) status updated to 'completed' successfully.`,
       });
     } else {
       res.status(400).json({
         status: 0,
-        message: "Task is already completed.",
+        message: "All tasks are already completed.",
       });
     }
+
   } catch (err) {
     console.error("Error updating task status:", err);
     res.status(500).json({ status: 0, message: "Server error", err });
   }
 });
-
 
 
 app.post('/complete-task/:taskId', async (req, res) => {
