@@ -4233,6 +4233,7 @@ app.get("/coparents", verifyToken, async (req, res) => {
     // Initialize an empty array to store co-parents
     let coParents = [];
     let children = [];
+    let guardians = [];
 
 
     // Get all parents (excluding the logged-in user) from the parentId array
@@ -4254,7 +4255,7 @@ app.get("/coparents", verifyToken, async (req, res) => {
       // Add guardians to the co-parents list, excluding the logged-in user
       guardians.forEach((guardian) => {
         if (guardian.userId !== parent.userId) {
-          coParents.push(guardian);
+         guardians.push(guardian);
         }
       });
     }
@@ -4278,7 +4279,8 @@ app.get("/coparents", verifyToken, async (req, res) => {
       status: 1,
       message: "Co-parents retrieved successfully.",
       coParents: coParents,
-      children: children //rent) => ({
+      guardians:guardians,
+      children: children//nt) => ({
       //   name: coParent.name,
       //   firstName:coParent.firstName,
       //   lastName:coParent.lastName,
