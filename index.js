@@ -3053,7 +3053,6 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
       parentId,
       Totalpoints,
       familyId: parent.familyId,
-      lastName: childLastName,
       school,
       hobby1,
       hobby2,
