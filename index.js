@@ -3553,14 +3553,14 @@ app.post("/transfer-fair-amount", async (req, res) => {
     }
 
     // 3. Ensure that the childUserId exists in the family
-    const child = await User.find({ userId: childUserId, familyId: familyId ,taskStatus: "completed",  // Ensure task is completed
-      paymentStatus:"pending"})
+    const child = await User.find({ userId: childUserId, familyId: familyId })
     if (!child) {
       return res.status(400).json({ status: 0, message: "Child not found in this family" });
     }
 
     // 4. Find the tasks assigned to the child (based on assignedTo: childUserId)
-    const tasks = await Task.find({ assignedTo: childUserId, familyId: familyId });
+    const tasks = await Task.find({ assignedTo: childUserId, familyId: familyId, taskStatus: "completed",  // Ensure task is completed
+  paymentStatus: "pending",})
     if (tasks.length === 0) {
       return res.status(400).json({ status: 0, message: "No tasks found for the child" });
     }
