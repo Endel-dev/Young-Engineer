@@ -3632,7 +3632,7 @@ app.get(
 
     try {
       // Find the task by taskId
-      const task = await Task.findOne({ assignedTo: userId  });
+      const task = await Task.find({ assignedTo: userId  });
 
       // If no task is found, return an error message
       if (!task) {
