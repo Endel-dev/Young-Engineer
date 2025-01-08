@@ -3417,7 +3417,7 @@ app.post('/complete-task/:taskId', async (req, res) => {
     }
 
     // Step 2: Ensure the task is completed
-    if (task.taskStatus !== 'completed') {
+    if (task.taskStatus !== 'complete') {
       return res.status(400).json({
         status: 0,
         message: "Task is not completed, cannot process transaction.",
