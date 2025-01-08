@@ -3416,7 +3416,7 @@ app.post('/complete-task/:taskId', async (req, res) => {
       return res.status(404).json({ status: 0, message: "Task not found" });
     }
 
-    if (task.isExpired ==true){
+    if (task.isExpired!==false){
       return res.status(400).json({
         status: 0,
         message: "Transaction already completed, task is expired.",
