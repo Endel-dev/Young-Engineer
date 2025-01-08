@@ -4298,6 +4298,75 @@ app.get("/coparents", verifyToken, async (req, res) => {
   }
 });
 
+app.post("/coparents1",async (req, res) => {
+  const { familyId } = req.body;
+
+  // Validation: Ensure familyId is provided
+  if (!familyId) {
+    return res.status(400).json({
+      status: 0,
+      message: "Please provide familyId.",
+    });
+  }
+
+  try {
+    // Fetch the family using the familyId provided in the request body
+    const family = await Family.findOne({ familyId });
+
+    if (!family) {
+      return res.status(404).json({
+        status: 0,
+        message: "No family found for the given familyId.",
+      });
+    }
+
+    // Initialize empty arrays to store co-parents and children
+    let coParents = [];
+    let children = [];
+
+    // Get all parents (excluding the logged-in user) from the parentId array
+    if (family.parentId && family.parentId.length > 0) {
+      // Fetch the details of the parents
+      const parents = await User.find({ userId: { $in: family.parentId } });
+      coParents.push(...parents);
+    }
+
+    // Check for all guardians in the family
+    if (family.guardianIds && family.guardianIds.length > 0) {
+      const guardians = await User.find({
+        userId: { $in: family.guardianIds },
+      });
+
+      // Add guardians to the co-parents list
+      guardians.forEach((guardian) => {
+        coParents.push(guardian);
+      });
+    }
+
+    // Get all children from the family children array
+    if (family.children && family.children.length > 0) {
+      const childrenList = await User.find({ userId: { $in: family.children } });
+      children.push(...childrenList);
+    }
+
+    // Return the co-parents and children in the response
+    res.status(200).json({
+      status: 1,
+      message: "Co-parents and children retrieved successfully.",
+      coParents: coParents,
+      children: children,  // Return the list of children
+    });
+  } catch (err) {
+    console.error("Error fetching co-parents and children:", err);
+    res.status(500).json({
+      status: 0,
+      message: "Server error while fetching co-parents and children",
+      err,
+    });
+  }
+});
+
+
 
 
 
