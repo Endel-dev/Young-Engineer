@@ -2972,6 +2972,8 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
 
   const {
     name,
+    firstName,
+    lastName,
     username,
     gender,
     email,
@@ -3023,13 +3025,13 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
     // }
     //console.log(parent);
     //const parentNameParts = parent.name.split(" ");
-    const parentNameParts = parent.lastName;
+    //const parentNameParts = parent.lastName;
     //console.log(parentNameParts);
 
     //const childFirstName = name || parent.firstName;
     // Check if the name exists in the parent's kidsNames
     //const childFirstName = parent.kidsNames.includes(name) ? name : null;
-    const childLastName =parent.lastName;
+    //const childLastName =parent.lastName;
     //console.log(childLastName);
 
     // if (!childFirstName) {
@@ -3040,6 +3042,8 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
     // Create the new user (child)
     const newUser = new User({
       name,
+      firstName,
+      lastName,
       username,
       gender: normalizedGender,
       email: email || null,
