@@ -3419,7 +3419,7 @@ app.post('/complete-task/:taskId', async (req, res) => {
     if (task.paymentStatus =='paid'){
       return res.status(400).json({
         status: 0,
-        message: "Transaction already completed, task is expired.",
+        message: "Transaction already completed",
       });
     }
 
