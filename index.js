@@ -4407,7 +4407,7 @@ app.post("/family-details", async (req, res) => {
     // Get all parents (excluding the logged-in user) from the parentId array
     if (family.parentId && family.parentId.length > 0) {
       // Fetch the details of the parents
-      const parents = await User.find({ userId: { $in: family.parentId } });
+      const parents = await User.find({ userId: { $in: family.parentId } }).select('-password');
       Parents.push(...parents);
     }
 
@@ -4415,7 +4415,7 @@ app.post("/family-details", async (req, res) => {
     if (family.guardianIds && family.guardianIds.length > 0) {
       const guardiansList = await User.find({
         userId: { $in: family.guardianIds },
-      });
+      }).select('-password');
 
       // Add guardians to the guardians list
       guardians.push(...guardiansList);
@@ -4423,7 +4423,7 @@ app.post("/family-details", async (req, res) => {
 
     // Get all children from the family children array
     if (family.children && family.children.length > 0) {
-      const childrenList = await User.find({ userId: { $in: family.children } });
+      const childrenList = await User.find({ userId: { $in: family.children } }).select('-password');
       children.push(...childrenList);
       //console.log("Fetched children:", children);
     }
