@@ -1584,7 +1584,8 @@ app.post("/create-guardian-form", async (req, res) => {
     }
 
     // Create a new family with a new familyId
-    const newFamilyId = uuidv4(); // Generate a new familyId using UUID or any other method
+    //const newFamilyId = uuidv4(); // Generate a new familyId using UUID or any other method
+    const newFamilyId = userUuid.slice(-4);
 
     const newFamily = new Family({
       familyId: [newFamilyId],
