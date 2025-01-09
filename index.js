@@ -2660,12 +2660,7 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
         .status(200)
         .json({ status: 0, message: "Username  already exists" });
     }
-    const existingEmail = await User.findOne({email});
-    if (existingEmail) {
-      return res
-        .status(200)
-        .json({ status: 0, message: "Email already exists" });
-    }
+    
 
     // Find the parent user
     const parent = await User.findOne({ userId: parentId });
