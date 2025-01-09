@@ -4193,8 +4193,8 @@ app.get("/children", verifyToken, async (req, res) => {
           : null;
 
         // Fetch the tasks related to each child
-        const tasks = await Task.find({ assignedTo: child.userId })
-          .sort({ createdAt: -1 }); // Optional: Sort tasks by creation date or any other criteria
+        // const tasks = await Task.find({ assignedTo: child.userId })
+        //   .sort({ createdAt: -1 }); // Optional: Sort tasks by creation date or any other criteria
 
         // Get the parent name from the family record (parentId or secondParentId)
          const parentIds = [family.parentId];
@@ -4210,7 +4210,7 @@ app.get("/children", verifyToken, async (req, res) => {
           ...child.toObject(), // Convert Mongoose document to plain object
           dob: formattedDob,
           parent: parentNames.map(parent => parent ? parent.name : "Unknown"),
-          tasks, // Add tasks to the child object
+          //tasks, // Add tasks to the child object
         };
       })
     );
