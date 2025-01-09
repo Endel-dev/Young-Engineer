@@ -1943,7 +1943,7 @@ app.post("/create-guardian-form", async (req, res) => {
       dob,
       parentId, // Parent ID from request body
       phoneNumber,
-      familyId: family1.familyId,
+      guardianId: family1.familyId,
     });
 
     // Save the new user to the database
