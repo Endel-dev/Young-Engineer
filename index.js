@@ -1594,7 +1594,7 @@ app.post("/create-guardian-form", async (req, res) => {
     await newFamily.save();
     //newUser.familyId.push(newFamily.familyId);
     //await newUser.save();
-    newUser.familyId = [newFamily.familyId];
+    newUser.familyId = newFamily.familyId;
     await newUser.save();
 
 
