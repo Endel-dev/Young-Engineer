@@ -424,12 +424,12 @@ app.post("/register", async (req, res) => {
   const normalizedGender = gender ? gender.toLowerCase() : "";
 
   // Validate role
-  if (normalizedRole !== "parent" && normalizedRole !== "guardian") {
-    return res.status(400).json({
-      status: 0,
-      message: "Only parent and guardian roles are allowed to register",
-    });
-  }
+  // if (normalizedRole !== "parent" && normalizedRole !== "guardian") {
+  //   return res.status(400).json({
+  //     status: 0,
+  //     message: "Only parent and guardian roles are allowed to register",
+  //   });
+  // }
 
   // Validate required fields
   if ( !email || !password || !firstName || !lastName) {
