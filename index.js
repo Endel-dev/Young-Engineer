@@ -1915,6 +1915,19 @@ app.post("/create-guardian-form", async (req, res) => {
       });
     }
 
+    const parent = await User.findOne({ userId: parentId });
+    if (!parent) {
+      return res.status(404).json({
+        status: 0,
+        message: "Parent not found",
+      });
+    }
+
+    // Find the family that includes this parentId
+    const family1 = await Family.findOne({
+      parentId: parentId, // This checks if the parentId is part of the family
+    });
+
     // Hash the password before storing it
     //const hashedPassword = await bcrypt.hash(password, 10); // Use 10 rounds for bcrypt hashing
 
@@ -1929,7 +1942,8 @@ app.post("/create-guardian-form", async (req, res) => {
       gender: normalizedGender,
       dob,
       parentId, // Parent ID from request body
-      phoneNumber
+      phoneNumber,
+      familyId: family.familyId,
     });
 
     // Save the new user to the database
