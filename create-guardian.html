@@ -198,6 +198,13 @@
 
                 const formData = new FormData(event.target);
                 formData.append('parentId', parentId);  // Add parentId to the form data
+                const familyArray = Array.isArray(familyId) ? familyId : [familyId]; // If familyId is not an array, make it one.
+
+                // Check if familyId is available and is an array, then add to the form data
+                if (familyArray.length > 0) {
+                    formData.append('familyId', JSON.stringify(familyArray));  // Convert array to string before appending
+                }
+
 
                 const password = formData.get('password');
                 const firstName = formData.get('firstName');
@@ -254,6 +261,7 @@
                     phoneNumber: formData.get('phone'),
                     role: 'guardian',
                     parentId: parentId,  // Include parentId from URL
+                    familyId: familyArray
                 };
 
                 // Send the data to the API using fetch
