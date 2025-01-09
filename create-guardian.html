@@ -108,6 +108,16 @@
         .input-wrapper input[type="date"]:not(:focus):not(:-webkit-autofill)::-webkit-input-placeholder {
             color: #999;
         }
+        .eye-icon {
+            position: absolute;
+            right: 10px;
+            top: 12px;
+            cursor: pointer;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
     </style>
 </head>
 
@@ -120,8 +130,18 @@
             <input type="text" id="firstName" name="firstName" placeholder="Guardian's First Name" required>
             <input type="text" id="lastName" name="lastName" placeholder="Guardian's Last Name" required>
             <input type="email" id="email" name="email" placeholder="Guardian's Email" readonly required>
-            <input type="password" id="password" name="password" placeholder="Password" required>
-            <input type="password" id="confirmpassword" name="confirmpassword" placeholder="Confirm Password" required>
+            <!-- <input type="password" id="password" name="password" placeholder="Password" required>
+            <input type="password" id="confirmpassword" name="confirmpassword" placeholder="Confirm Password" required> -->
+            <div class="input-wrapper">
+                <input type="password" id="password" name="password" placeholder="Password" required>
+                <span class="eye-icon" id="togglePassword" onclick="togglePassword()">👁️</span>
+            </div>
+
+            <!-- Confirm Password input with eye icon -->
+            <div class="input-wrapper">
+                <input type="password" id="confirmpassword" name="confirmpassword" placeholder="Confirm Password" required>
+                <span class="eye-icon" id="toggleConfirmPassword" onclick="toggleConfirmPassword()">👁️</span>
+            </div>
             <select id="gender" name="gender" required>
                 <option value="">Select Gender</option>
                 <option value="male">Male</option>
@@ -148,6 +168,20 @@
 
 
     <script>
+        // Function to toggle the visibility of password
+        function togglePassword() {
+            const passwordField = document.getElementById('password');
+            const type = passwordField.type === 'password' ? 'text' : 'password';
+            passwordField.type = type;
+        }
+
+        // Function to toggle the visibility of confirm password
+        function toggleConfirmPassword() {
+            const confirmPasswordField = document.getElementById('confirmpassword');
+            const type = confirmPasswordField.type === 'password' ? 'text' : 'password';
+            confirmPasswordField.type = type;
+        }
+
         // Function to extract query parameters from the URL
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
