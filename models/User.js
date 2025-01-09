@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema(
   {
     userId: { type: String, unique: true, default: uuidv4 },
     name: { type: String },
-    gender: { type: String, enum: ["male", "female", "other"] },
+    //gender: { type: String, enum: ["male", "female", "other"] },
     image: { type: String }, // URL or base64 of the image
     region: { type: String },
     currency: { type: String, default: "INR" }, // Default to USD
@@ -108,18 +108,6 @@ userSchema.pre("save", function (next) {
   next();
 });
 
-userSchema.pre('save', function(next) {
-  if (this.gender && !["male", "female", "other"].includes(this.gender)) {
-    return next(new Error('Invalid gender value'));
-  }
-
-  // Optionally, you can set a default gender if it's empty
-  if (!this.gender) {
-    this.gender = 'other'; // Set a default gender
-  }
-
-  next(); // Proceed with saving
-});
 
 
 // Hash password before saving (bcryptjs for hashing)
