@@ -108,6 +108,20 @@ userSchema.pre("save", function (next) {
   next();
 });
 
+userSchema.pre('save', function(next) {
+  if (this.gender && !["male", "female", "other"].includes(this.gender)) {
+    return next(new Error('Invalid gender value'));
+  }
+
+  // Optionally, you can set a default gender if it's empty
+  if (!this.gender) {
+    this.gender = 'other'; // Set a default gender
+  }
+
+  next(); // Proceed with saving
+});
+
+
 // Hash password before saving (bcryptjs for hashing)
 // userSchema.pre("save", async function (next) {
 //     if (typeof this.dob === 'string') {
