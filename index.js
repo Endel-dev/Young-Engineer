@@ -3004,10 +3004,8 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
     firstName,
     lastName,
     username,
-    gender,
     email,
     password,
-    role,
     dob,
     Totalpoints,
     school,
@@ -3015,16 +3013,12 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
     hobby2,
     hobby3,
   } = req.body;
-  const normalizedRole = role ? role.toLowerCase() : "";
-  const normalizedGender = gender ? gender.toLowerCase() : "";
+  //const normalizedRole = role ? role.toLowerCase() : "";
+  //const normalizedGender = gender ? gender.toLowerCase() : "";
 
-  // Only allow 'child' role
-  if (normalizedRole !== "child") {
-    return res.status(400).json({ status: 0, message: 'Role must be "child"' });
-  }
-
+  
   // Validate required fields
-  if (!password || !dob) {
+  if (!password || !username ||!firstName ||!lastName) {
     return res
       .status(400)
       .json({ status: 0, message: "Please provide all required fields" });
