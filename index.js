@@ -3026,13 +3026,20 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
 
   try {
     // Check if email or userId already exists
+    // const existingUser = await User.findOne({
+    //   $or: [{ name }, { email: email || null }],
+    // });
     const existingUser = await User.findOne({
-      $or: [{ name }, { email: email || null }],
+      $or: [
+        { username },
+        { email: email || null }, // Check if email exists and is unique
+      ],
     });
+
     if (existingUser) {
       return res
         .status(200)
-        .json({ status: 0, message: "Username or Name already exists" });
+        .json({ status: 0, message: "Username or Email already exists" });
     }
     // Find the parent user
     const parent = await User.findOne({ userId: parentId });
