@@ -3029,12 +3029,13 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
     // const existingUser = await User.findOne({
     //   $or: [{ name }, { email: email || null }],
     // });
-    const existingUser = await User.findOne({
-      $or: [
-        { username },
-        { email: email || null }, // Check if email exists and is unique
-      ],
-    });
+    // const existingUser = await User.findOne({
+    //   $or: [
+    //     { username },
+    //     { email: email || null }, // Check if email exists and is unique
+    //   ],
+    // });
+    const existingUser = await User.findOne({username});
 
     if (existingUser) {
       return res
