@@ -432,7 +432,7 @@ app.post("/register", async (req, res) => {
   }
 
   // Validate required fields
-  if (!name || !email || !password || !dob || !gender || !firstName || !lastName) {
+  if ( !email || !password || !firstName || !lastName) {
     return res
       .status(400)
       .json({ status: 0, message: "Please provide all required fields" });
@@ -477,7 +477,7 @@ app.post("/register", async (req, res) => {
       name,
       firstName,
       lastName,
-      role: normalizedRole,
+      role: "parent",
       gender: normalizedGender,
       dob: parsedDob,
       password,
@@ -3492,6 +3492,52 @@ app.post("/create-task", verifyToken, async (req, res) => {
 //   }
 // });
 
+app.post("/create-task1", verifyToken, async (req, res) => {
+  const {
+    taskId, // Optional, if updating an existing task
+    title,
+    description,
+    assignedTo,
+    expectedCompletionDate,
+    rewardType,
+    // other fields...
+  } = req.body;
+
+  if (taskId) {
+    // Update existing task
+    try {
+      const task = await Task.findOne({ taskId });
+
+      if (!task) {
+        return res.status(404).json({ status: 0, message: "Task not found" });
+      }
+
+      // Update only the fields provided in the request
+      if (title) task.title = title;
+      if (description) task.description = description;
+      if (assignedTo) task.assignedTo = assignedTo;
+      if (expectedCompletionDate) {
+        task.expectedCompletionDate = moment(expectedCompletionDate, "DD-MM-YYYY").format("YYYY-MM-DD");
+      }
+      if (rewardType) task.rewardType = rewardType;
+      // Update other fields as necessary
+
+      await task.save();
+
+      return res.status(200).json({
+        status: 1,
+        message: "Task updated successfully",
+        task,
+      });
+    } catch (err) {
+      console.error("Error updating task:", err);
+      return res.status(500).json({ status: 0, message: "Server error", err });
+    }
+  } else {
+    // Create new task (for the first screen request)
+    // Same logic as your current code for creating a new task
+  }
+});
 
 
 app.post("/update-task-status", async (req, res) => {
