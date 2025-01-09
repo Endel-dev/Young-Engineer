@@ -3047,7 +3047,7 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
       return res.status(400).json({ status: 0, message: "Parent not found" });
     }
 
-    const parsedDob = moment(dob, 'DD-MM-YYYY').format('YYYY-MM-DD');
+    //const parsedDob = moment(dob, 'DD-MM-YYYY').format('YYYY-MM-DD');
 
     
 
@@ -3061,7 +3061,7 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
       email: email || null,
       password,
       role: "child",
-      dob: parsedDob,
+      //dob: parsedDob,
       parentId,
       Totalpoints,
       familyId: parent.familyId,
