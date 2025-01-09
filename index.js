@@ -3057,7 +3057,7 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
       firstName,
       lastName,
       username,
-      gender: normalizedGender,
+      //gender: normalizedGender,
       email: email || null,
       password,
       role: "child",
