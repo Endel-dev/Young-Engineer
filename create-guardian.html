@@ -69,6 +69,26 @@
             font-size: 14px;
             margin-top: 10px;
         }
+
+        /* Custom styles for date input */
+        label {
+            display: block;
+            text-align: left;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper input[type="date"]:not(:focus):not(:-webkit-autofill) {
+            color: transparent;
+        }
+
+        .input-wrapper input[type="date"]:not(:focus):not(:-webkit-autofill)::-webkit-input-placeholder {
+            color: #999;
+        }
     </style>
 </head>
 
@@ -90,7 +110,11 @@
                 <option value="other">Other</option>
             </select>
             <input type="text" id="phone" name="phone" placeholder="Phone Number" required>
-            <input type="date" id="dob" name="dob" placeholder="Date of Birth" required>
+            <div class="input-wrapper">
+                <label for="dob">Date of Birth</label>
+                <input type="date" id="dob" name="dob" required>
+            </div>
+            <!-- <input type="date" id="dob" name="dob" placeholder="Date of Birth" required> -->
             <button type="submit" href="http://93.127.172.167:5001/send-invite">Create Account</button>
             <p class="error" id="error-message"></p>
         </form>
