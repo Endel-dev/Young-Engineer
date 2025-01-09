@@ -1893,6 +1893,7 @@ app.post("/create-guardian", verifyParentRole, async (req, res) => {
 app.post("/create-guardian-form", async (req, res) => {
   const { familyId,email, password, gender, dob, parentId, firstName, lastName, phoneNumber } = req.body;
   console.log(req.body);
+  console.log(familyId);
 
   // Validate required fields
   if (!firstName || !lastName || !email || !password || !dob || !parentId) {
@@ -1960,6 +1961,7 @@ app.post("/create-guardian-form", async (req, res) => {
         role: newUser.role,
         dob: newUser.dob,
         gender: newUser.gender,
+
       },
     });
   } catch (err) {
