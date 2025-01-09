@@ -1079,14 +1079,6 @@ app.post("/login", async (req, res) => {
           hobby1: user.hobby1,
           hobby2: user.hobby2,
           hobby3: user.hobby3,
-          //address1: user.address1,
-          //address2: user.address2,
-          //address3: user.address3,
-          //city: user.city,
-          //state: user.state,
-          //pinCode: user.pinCode,
-          //phoneNumber: user.phoneNumber,
-          //role: user.role,
           name: user.name,
           familyId: user.familyId || null,
           // familyName: user.familyId
@@ -2666,8 +2658,15 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
     if (existingUser) {
       return res
         .status(200)
-        .json({ status: 0, message: "Username or Email already exists" });
+        .json({ status: 0, message: "Username  already exists" });
     }
+    const existingEmail = await User.findOne({email});
+    if (existingEmail) {
+      return res
+        .status(200)
+        .json({ status: 0, message: "Email already exists" });
+    }
+
     // Find the parent user
     const parent = await User.findOne({ userId: parentId });
     if (!parent) {
