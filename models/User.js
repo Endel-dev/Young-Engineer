@@ -38,7 +38,7 @@ const userSchema = new mongoose.Schema(
       enum: ["parent", "child", "guardian"],
       default: "parent",
     }, // Default role
-    dob: { type: Date, required: true },
+    dob: { type: Date },
     balance: { type: Number, default: 0 },
     dateOfJoining: { type: Date, default: Date.now },
     isActive: { type: Boolean, default: true },
