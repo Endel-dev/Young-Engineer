@@ -1965,6 +1965,18 @@ app.post("/create-guardian-form", async (req, res) => {
       });
     }
 
+    // Create a new family with a new familyId
+    const newFamilyId = uuidv4(); // Generate a new familyId using UUID or any other method
+
+    const newFamily = new Family({
+      familyId: [newFamilyId],
+      familyName: `${newUser.firstName} ${newUser.lastName}'s Family`, // Set a family name
+      parentId: [newUser.userId], // Add the parentId to the family
+    });
+    await newFamily.save();
+
+
+
     // Return success response
     res.status(200).json({
       status: 1,
