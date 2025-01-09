@@ -2995,7 +2995,7 @@ app.post("/assign-guardians", verifyParentRole, async (req, res) => {
   }
 });
 
-app.post("/create-child", verifyParentRole, async (req, res) => {
+app.post("/create-child", async (req, res) => {
   const parentId = req.user.userId; // Get the parentId from the decoded token
   console.log("Parent ID:", parentId);
 
@@ -3042,25 +3042,7 @@ app.post("/create-child", verifyParentRole, async (req, res) => {
 
     const parsedDob = moment(dob, 'DD-MM-YYYY').format('YYYY-MM-DD');
 
-    // If parsing fails, it will return an invalid date
-    // if (!moment(parsedDob, 'YYYY-MM-DD', true).isValid()) {
-    //   return res.status(400).json({ status: 0, message: "Invalid date format. Please use dd-mm-yyyy." });
-    // }
-    //console.log(parent);
-    //const parentNameParts = parent.name.split(" ");
-    //const parentNameParts = parent.lastName;
-    //console.log(parentNameParts);
-
-    //const childFirstName = name || parent.firstName;
-    // Check if the name exists in the parent's kidsNames
-    //const childFirstName = parent.kidsNames.includes(name) ? name : null;
-    //const childLastName =parent.lastName;
-    //console.log(childLastName);
-
-    // if (!childFirstName) {
-    //   // If the name isn't found in parent's kidsNames, return an error or set default
-    //   return res.status(400).json({ status: 0, message: "The child's name is not listed in the parent's kidsNames" });
-    // }
+    
 
     // Create the new user (child)
     const newUser = new User({
