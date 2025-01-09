@@ -1592,7 +1592,9 @@ app.post("/create-guardian-form", async (req, res) => {
       parentId: [newUser.userId], // Add the parentId to the family
     });
     await newFamily.save();
-    newUser.familyId.push(newFamily.familyId);
+    //newUser.familyId.push(newFamily.familyId);
+    //await newUser.save();
+    newUser.familyId = [newFamily.familyId];
     await newUser.save();
 
 
